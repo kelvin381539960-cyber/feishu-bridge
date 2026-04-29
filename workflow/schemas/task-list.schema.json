@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://feishu-bridge.local/workflow/schemas/task-list.schema.json",
+  "title": "Workflow Task List",
+  "type": "object",
+  "required": ["task_id", "title", "type", "owner", "status", "input", "expected_outcome", "risk_forecast", "execute_decision"],
+  "additionalProperties": false,
+  "properties": {
+    "task_id": { "type": "string", "minLength": 1 },
+    "parent_id": { "type": ["string", "null"] },
+    "title": { "type": "string", "minLength": 1 },
+    "type": {
+      "type": "string",
+      "enum": ["research", "prd", "solution", "code", "review", "cleanup", "ops", "governance", "general"]
+    },
+    "owner": { "type": "string", "minLength": 1 },
+    "status": {
+      "type": "string",
+      "enum": ["todo", "doing", "blocked", "review", "done", "failed", "cancelled"]
+    },
+    "input": { "type": "string" },
+    "context_pack_id": { "type": ["string", "null"] },
+    "output_artifact": { "type": ["string", "null"] },
+    "gate": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "expected_outcome": { "type": "string", "minLength": 1 },
+    "next_step_prediction": { "type": "string" },
+    "failure_modes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "risk_forecast": {
+      "type": "string",
+      "enum": ["low", "medium", "high"]
+    },
+    "rollback_plan": { "type": "string" },
+    "execute_decision": {
+      "type": "string",
+      "enum": ["execute", "pause", "needs_user_confirmation", "blocked"]
+    },
+    "learning_tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "created_at": { "type": "string" },
+    "updated_at": { "type": "string" }
+  }
+}
