@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://feishu-bridge.local/workflow/schemas/run-trace.schema.json",
+  "title": "Workflow Run Trace",
+  "type": "object",
+  "required": ["run_id", "task_id", "actor", "input_summary", "files_read", "files_written", "tools_used", "output_summary", "gate_result", "started_at"],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": { "type": "string", "minLength": 1 },
+    "task_id": { "type": "string", "minLength": 1 },
+    "actor": { "type": "string", "minLength": 1 },
+    "input_summary": { "type": "string" },
+    "files_read": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "files_written": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "tools_used": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "forecast": { "type": ["object", "null"] },
+    "output_summary": { "type": "string" },
+    "gate_result": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": { "type": "string", "enum": ["passed", "failed", "warning", "skipped"] },
+        "reasons": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "learning_signals": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "error": { "type": ["string", "null"] },
+    "started_at": { "type": "string" },
+    "ended_at": { "type": ["string", "null"] }
+  }
+}
