@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://feishu-bridge.local/workflow/schemas/context-pack.schema.json",
+  "title": "Workflow Context Pack",
+  "type": "object",
+  "required": ["context_pack_id", "task_id", "goal", "must_read", "expected_output", "stop_conditions"],
+  "additionalProperties": false,
+  "properties": {
+    "context_pack_id": { "type": "string", "minLength": 1 },
+    "task_id": { "type": "string", "minLength": 1 },
+    "goal": { "type": "string", "minLength": 1 },
+    "must_read": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "may_read": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "skip": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "constraints": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "expected_output": { "type": "string", "minLength": 1 },
+    "forecast_assumptions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "known_risks": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "allowed_scope": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "disallowed_scope": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "stop_conditions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    }
+  }
+}
