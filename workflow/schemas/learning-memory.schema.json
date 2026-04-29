@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://feishu-bridge.local/workflow/schemas/learning-memory.schema.json",
+  "title": "Workflow Learning Memory",
+  "type": "object",
+  "required": ["record_id", "task_id", "workflow", "risk_forecast", "execute_decision", "outcome", "learning_signals", "created_at"],
+  "additionalProperties": false,
+  "properties": {
+    "record_id": { "type": "string", "minLength": 1 },
+    "task_id": { "type": "string", "minLength": 1 },
+    "run_id": { "type": ["string", "null"] },
+    "workflow": { "type": "string", "minLength": 1 },
+    "task_type": { "type": "string" },
+    "risk_forecast": { "type": "string", "enum": ["low", "medium", "high", "unknown"] },
+    "execute_decision": {
+      "type": "string",
+      "enum": ["execute", "pause", "needs_user_confirmation", "blocked", "unknown"]
+    },
+    "forecast_gate_status": {
+      "type": "string",
+      "enum": ["passed", "failed", "warning", "skipped", "unknown"]
+    },
+    "outcome": {
+      "type": "string",
+      "enum": ["success", "failed", "blocked", "warning", "unknown"]
+    },
+    "failure_modes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "learning_signals": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "recommendations": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "created_at": { "type": "string" }
+  }
+}
