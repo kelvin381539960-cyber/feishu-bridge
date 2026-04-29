@@ -1,0 +1,74 @@
+<mxfile host="Electron" agent="Cursor" version="22.0.4" type="device">
+  <diagram id="diagram" name="Page-1">
+    <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="2000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="p_0" value="User Balance Ledger" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="100" y="80" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l_0" value="" style="endArrow=none;dashed=1;html=1;strokeWidth=2;strokeColor=#999999;" edge="1" parent="1" source="p_0">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170.0" y="130" as="sourcePoint" />
+            <mxPoint x="170.0" y="530" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p_1" value="AIX Fee Ledger (Internal)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="350" y="80" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l_1" value="" style="endArrow=none;dashed=1;html=1;strokeWidth=2;strokeColor=#999999;" edge="1" parent="1" source="p_1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="420.0" y="130" as="sourcePoint" />
+            <mxPoint x="420.0" y="530" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p_2" value="Cobo (Pool Account)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="600" y="80" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l_2" value="" style="endArrow=none;dashed=1;html=1;strokeWidth=2;strokeColor=#999999;" edge="1" parent="1" source="p_2">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="670.0" y="130" as="sourcePoint" />
+            <mxPoint x="670.0" y="530" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p_3" value="Cobo (Corporate Revenue Wallet)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="850" y="80" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l_3" value="" style="endArrow=none;dashed=1;html=1;strokeWidth=2;strokeColor=#999999;" edge="1" parent="1" source="p_3">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="920.0" y="130" as="sourcePoint" />
+            <mxPoint x="920.0" y="530" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n_1" value="阶段 A：实时记账" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="170.0" y="150" width="250" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="m_2" value="扣除用户手续费，记入内部 Fee Ledger" style="html=1;verticalAlign=bottom;endArrow=block;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="170.0" y="240" as="sourcePoint" />
+            <mxPoint x="420.0" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n_3" value="阶段 B：定期物理归集" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="420.0" y="290" width="500" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="m_4" value="结算周期到达，清零 Fee Ledger" style="edgeStyle=orthogonalEdgeStyle;html=1;verticalAlign=bottom;endArrow=block;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="420.0" y="380" as="sourcePoint" />
+            <mxPoint x="420.0" y="410" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="480.0" y="380" />
+              <mxPoint x="480.0" y="410" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_5" value="[资金流] 从主资金池将等额利润物理划转至公司收入钱包" style="html=1;verticalAlign=bottom;endArrow=block;dashed=1;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="670.0" y="460" as="sourcePoint" />
+            <mxPoint x="920.0" y="460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

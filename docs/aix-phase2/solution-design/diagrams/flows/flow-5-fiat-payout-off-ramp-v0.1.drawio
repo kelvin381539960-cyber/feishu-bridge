@@ -1,0 +1,138 @@
+<mxfile host="Electron" agent="Cursor" version="22.0.4" type="device">
+  <diagram id="diagram" name="Page-1">
+    <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="2000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="p_0" value="Customer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="100" y="80" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l_0" value="" style="endArrow=none;dashed=1;html=1;strokeWidth=2;strokeColor=#999999;" edge="1" parent="1" source="p_0">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170.0" y="130" as="sourcePoint" />
+            <mxPoint x="170.0" y="1090" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p_1" value="AIX App" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="350" y="80" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l_1" value="" style="endArrow=none;dashed=1;html=1;strokeWidth=2;strokeColor=#999999;" edge="1" parent="1" source="p_1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="420.0" y="130" as="sourcePoint" />
+            <mxPoint x="420.0" y="1090" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p_2" value="AIX Platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="600" y="80" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l_2" value="" style="endArrow=none;dashed=1;html=1;strokeWidth=2;strokeColor=#999999;" edge="1" parent="1" source="p_2">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="670.0" y="130" as="sourcePoint" />
+            <mxPoint x="670.0" y="1090" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p_3" value="Payout Rail (Thunes)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="850" y="80" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l_3" value="" style="endArrow=none;dashed=1;html=1;strokeWidth=2;strokeColor=#999999;" edge="1" parent="1" source="p_3">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="920.0" y="130" as="sourcePoint" />
+            <mxPoint x="920.0" y="1090" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p_4" value="Beneficiary Bank" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="80" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l_4" value="" style="endArrow=none;dashed=1;html=1;strokeWidth=2;strokeColor=#999999;" edge="1" parent="1" source="p_4">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1170.0" y="130" as="sourcePoint" />
+            <mxPoint x="1170.0" y="1090" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_1" value="请求法币出金 (输入目标法币金额)" style="html=1;verticalAlign=bottom;endArrow=block;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="170.0" y="170" as="sourcePoint" />
+            <mxPoint x="420.0" y="170" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_2" value="获取报价 (Quote Request)" style="html=1;verticalAlign=bottom;endArrow=block;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="420.0" y="240" as="sourcePoint" />
+            <mxPoint x="670.0" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_3" value="返回汇率及需扣除的 Stablecoin 金额" style="html=1;verticalAlign=bottom;endArrow=block;dashed=1;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="670.0" y="310" as="sourcePoint" />
+            <mxPoint x="420.0" y="310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_4" value="确认汇率并提交收款账户信息" style="html=1;verticalAlign=bottom;endArrow=block;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="170.0" y="380" as="sourcePoint" />
+            <mxPoint x="420.0" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_5" value="发起出金请求 (Payout Request)" style="html=1;verticalAlign=bottom;endArrow=block;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="420.0" y="450" as="sourcePoint" />
+            <mxPoint x="670.0" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_6" value="账本冻结 (Ledger Hold: 扣除 Stablecoin)" style="edgeStyle=orthogonalEdgeStyle;html=1;verticalAlign=bottom;endArrow=block;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="670.0" y="520" as="sourcePoint" />
+            <mxPoint x="670.0" y="550" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="730.0" y="520" />
+              <mxPoint x="730.0" y="550" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_7" value="API: 发起法币代付指令 (Fiat Payout)" style="html=1;verticalAlign=bottom;endArrow=block;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="670.0" y="600" as="sourcePoint" />
+            <mxPoint x="920.0" y="600" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n_8" value="真实的法币资金流转" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="920.0" y="650" width="250" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="m_9" value="[资金流] 本地法币清算网络转账" style="html=1;verticalAlign=bottom;endArrow=block;dashed=1;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="920.0" y="740" as="sourcePoint" />
+            <mxPoint x="1170.0" y="740" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_10" value="[资金流] 法币到账" style="html=1;verticalAlign=bottom;endArrow=block;dashed=1;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="1170.0" y="810" as="sourcePoint" />
+            <mxPoint x="170.0" y="810" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_11" value="Webhook: 代付成功 (Payout Success)" style="html=1;verticalAlign=bottom;endArrow=block;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="920.0" y="880" as="sourcePoint" />
+            <mxPoint x="670.0" y="880" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_12" value="账本结算 (Ledger Settle: 彻底核销冻结资金)" style="edgeStyle=orthogonalEdgeStyle;html=1;verticalAlign=bottom;endArrow=block;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="670.0" y="950" as="sourcePoint" />
+            <mxPoint x="670.0" y="980" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="730.0" y="950" />
+              <mxPoint x="730.0" y="980" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_13" value="通知出金成功" style="html=1;verticalAlign=bottom;endArrow=block;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="670.0" y="1030" as="sourcePoint" />
+            <mxPoint x="420.0" y="1030" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,15 @@
+[Unit]
+Description=Feishu whiteboard replay service
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/feishu-bridge
+ExecStart=/usr/bin/node /opt/feishu-bridge/scripts/feishu-whiteboard-service.js
+Restart=always
+RestartSec=3
+EnvironmentFile=-/etc/feishu-whiteboard.env
+Environment=HOME=/root USER=root PATH=/root/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "realtime-mcp": {
+      "command": "node",
+      "args": ["/opt/feishu-bridge/scripts/realtime-mcp-proxy.mjs"]
+    },
+    "lark-doc": {
+      "command": "node",
+      "args": ["/opt/feishu-bridge/lark-doc-mcp/server.mjs"]
+    }
+  }
+}

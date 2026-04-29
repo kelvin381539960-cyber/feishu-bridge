@@ -1,0 +1,8 @@
+{
+  "taskId": "security-maintenance",
+  "description": "Read-only security maintenance for feishu-bridge configuration hygiene.",
+  "promptFile": "/opt/feishu-bridge/scheduled-tasks/prompts/security-maintenance.md",
+  "timeoutSeconds": 420,
+  "niceLevel": 10,
+  "outputFile": "/opt/feishu-bridge/var/reports/scheduled-cursor/security-maintenance-latest.txt"
+}

@@ -1,0 +1,6 @@
+gradio>=4.0
+demucs
+librosa
+pyworld
+edge-tts
+soundfile

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AIX Card 7.2.1 实体卡激活 — 产品需求说明（泳道）</title>
+  <style>
+    :root {
+      --ink: #1a1d21;
+      --muted: #5c6370;
+      --border: #c5cad3;
+      --lane-bg: #f7f8fa;
+      --lane-stripe: #eef0f4;
+      --accent: #0b5cab;
+      --ok: #1b7f4a;
+      --warn: #b45309;
+      --fail: #9b1c1c;
+      --page-bg: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 2.5rem clamp(1rem, 4vw, 3rem) 3rem;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--page-bg);
+      line-height: 1.55;
+      font-size: 15px;
+    }
+    .doc-header {
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+    .doc-header h1 {
+      margin: 0 0 0.35rem;
+      font-size: 1.65rem;
+      font-weight: 650;
+      letter-spacing: 0.02em;
+    }
+    .doc-header .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+      font-weight: 400;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem 2rem;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .meta dt { font-weight: 600; color: var(--ink); }
+    .meta dd { margin: 0.15rem 0 0; }
+    section.diagram {
+      margin-top: 1.5rem;
+      overflow-x: auto;
+    }
+    .diagram svg {
+      display: block;
+      min-width: 1100px;
+      max-width: 100%;
+      height: auto;
+    }
+    .note {
+      margin-top: 1.5rem;
+      padding: 1rem 1.15rem;
+      background: var(--lane-bg);
+      border-left: 4px solid var(--accent);
+      font-size: 0.92rem;
+      color: var(--ink);
+    }
+    .note strong { color: var(--ink); }
+    footer {
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <header class="doc-header">
+    <h1>AIX Card 7.2.1 实体卡激活流程</h1>
+    <p class="subtitle">产品需求说明（PRD）— 跨角色泳道视图</p>
+    <dl class="meta">
+      <div>
+        <dt>文档类型</dt>
+        <dd>PRD / 流程泳道图</dd>
+      </div>
+      <div>
+        <dt>版本</dt>
+        <dd>7.2.1</dd>
+      </div>
+      <div>
+        <dt>范围</dt>
+        <dd>实体卡激活主路径、校验分支与结果分流</dd>
+      </div>
+    </dl>
+  </header>
+
+  <section class="diagram" aria-label="实体卡激活泳道图">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 920" role="img" aria-labelledby="svgTitle svgDesc">
+      <title id="svgTitle">AIX Card 7.2.1 实体卡激活泳道图</title>
+      <desc id="svgDesc">四条泳道：用户、App 前端、AAI 身份认证、卡服务后端；含后四位校验、PIN 校验、AAI 认证与激活结果分流。</desc>
+      <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <path d="M0,0 L10,4 L0,8 Z" fill="#334155" />
+        </marker>
+        <marker id="arrow-dashed" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <path d="M0,0 L10,4 L0,8 Z" fill="#64748b" />
+        </marker>
+      </defs>
+
+      <!-- Lane backgrounds -->
+      <rect x="0" y="56" width="1240" height="180" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1" />
+      <rect x="0" y="236" width="1240" height="220" fill="#f8fafc" stroke="#94a3b8" stroke-width="1" />
+      <rect x="0" y="456" width="1240" height="140" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1" />
+      <rect x="0" y="596" width="1240" height="200" fill="#f8fafc" stroke="#94a3b8" stroke-width="1" />
+
+      <!-- Lane labels -->
+      <rect x="0" y="56" width="120" height="720" fill="#0f172a" />
+      <text x="60" y="140" fill="#fff" font-size="13" font-weight="700" text-anchor="middle" transform="rotate(-90 60 140)">用户</text>
+      <text x="60" y="340" fill="#fff" font-size="13" font-weight="700" text-anchor="middle" transform="rotate(-90 60 340)">App 前端</text>
+      <text x="60" y="520" fill="#fff" font-size="12" font-weight="700" text-anchor="middle" transform="rotate(-90 60 520)">AAI 身份认证</text>
+      <text x="60" y="690" fill="#fff" font-size="11" font-weight="700" text-anchor="middle" transform="rotate(-90 60 690)">卡服务 / 后端</text>
+
+      <!-- Swimlane title bar -->
+      <rect x="120" y="0" width="1120" height="48" fill="#0b5cab" />
+      <text x="680" y="31" fill="#fff" font-size="17" font-weight="700" text-anchor="middle">实体卡激活 — 主流程泳道</text>
+
+      <!-- Phase guides (vertical) -->
+      <line x1="280" y1="56" x2="280" y2="796" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+      <line x1="520" y1="56" x2="520" y2="796" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+      <line x1="760" y1="56" x2="760" y2="796" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+      <line x1="1000" y1="56" x2="1000" y2="796" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4" />
+
+      <!-- Boxes: User row y ~ 100-200 -->
+      <rect x="150" y="100" width="200" height="44" rx="6" fill="#fff" stroke="#334155" stroke-width="1.5" />
+      <text x="250" y="127" font-size="12" text-anchor="middle" fill="#1e293b">进入 Card Manage / 激活入口</text>
+
+      <rect x="380" y="100" width="200" height="44" rx="6" fill="#fff" stroke="#334155" stroke-width="1.5" />
+      <text x="480" y="127" font-size="12" text-anchor="middle" fill="#1e293b">输入实体卡后 4 位</text>
+
+      <rect x="610" y="100" width="160" height="44" rx="6" fill="#fff" stroke="#334155" stroke-width="1.5" />
+      <text x="690" y="127" font-size="12" text-anchor="middle" fill="#1e293b">Set PIN</text>
+
+      <rect x="800" y="100" width="160" height="44" rx="6" fill="#fff" stroke="#334155" stroke-width="1.5" />
+      <text x="880" y="127" font-size="12" text-anchor="middle" fill="#1e293b">Confirm PIN</text>
+
+      <rect x="990" y="100" width="200" height="44" rx="6" fill="#fff" stroke="#334155" stroke-width="1.5" />
+      <text x="1090" y="127" font-size="12" text-anchor="middle" fill="#1e293b">完成 AAI 认证操作</text>
+
+      <!-- App row -->
+      <rect x="150" y="268" width="200" height="40" rx="6" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.5" />
+      <text x="250" y="292" font-size="11.5" text-anchor="middle" fill="#0c4a6e">展示激活入口 / Card Manage</text>
+
+      <rect x="380" y="260" width="200" height="56" rx="6" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5" />
+      <text x="480" y="285" font-size="11.5" text-anchor="middle" fill="#1e3a8a">自动提交</text>
+      <text x="480" y="302" font-size="10" text-anchor="middle" fill="#3730a3">（输入后 4 位触发）</text>
+
+      <polygon points="600,288 640,268 680,288 640,308" fill="#fef3c7" stroke="#b45309" stroke-width="1.5" />
+      <text x="640" y="285" font-size="10.5" text-anchor="middle" fill="#78350f">后 4 位</text>
+      <text x="640" y="298" font-size="10.5" text-anchor="middle" fill="#78350f">匹配？</text>
+
+      <rect x="700" y="268" width="180" height="40" rx="6" fill="#fee2e2" stroke="#b91c1c" stroke-width="1.5" />
+      <text x="790" y="292" font-size="11" text-anchor="middle" fill="#7f1d1d">错误提示 → 返回输入</text>
+
+      <rect x="900" y="268" width="140" height="40" rx="6" fill="#dcfce7" stroke="#166534" stroke-width="1.5" />
+      <text x="970" y="292" font-size="11" text-anchor="middle" fill="#14532d">进入 Set PIN</text>
+
+      <rect x="150" y="340" width="200" height="50" rx="6" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.5" />
+      <text x="250" y="363" font-size="11" text-anchor="middle" fill="#713f12">两次 PIN</text>
+      <text x="250" y="378" font-size="11" text-anchor="middle" fill="#713f12">是否一致？</text>
+
+      <rect x="380" y="345" width="200" height="40" rx="6" fill="#fee2e2" stroke="#b91c1c" stroke-width="1.5" />
+      <text x="480" y="369" font-size="11" text-anchor="middle" fill="#7f1d1d">Toast → 返回 Set PIN</text>
+
+      <rect x="610" y="345" width="180" height="40" rx="6" fill="#e0e7ff" stroke="#4338ca" stroke-width="1.5" />
+      <text x="700" y="369" font-size="11" text-anchor="middle" fill="#312e81">拉起 AAI</text>
+
+      <rect x="820" y="345" width="200" height="40" rx="6" fill="#dcfce7" stroke="#166534" stroke-width="1.5" />
+      <text x="920" y="369" font-size="11" text-anchor="middle" fill="#14532d">认证通过 → 调用 Card Activation</text>
+
+      <rect x="1040" y="330" width="170" height="70" rx="6" fill="#f1f5f9" stroke="#475569" stroke-width="1.5" />
+      <text x="1125" y="355" font-size="10" text-anchor="middle" fill="#334155">结果分流</text>
+      <text x="1125" y="372" font-size="9" text-anchor="middle" fill="#475569">成功 / 各类失败页</text>
+      <text x="1125" y="388" font-size="9" text-anchor="middle" fill="#475569">见下方说明</text>
+
+      <!-- AAI row -->
+      <rect x="610" y="498" width="220" height="56" rx="6" fill="#ede9fe" stroke="#5b21b6" stroke-width="1.5" />
+      <text x="720" y="522" font-size="11.5" text-anchor="middle" fill="#4c1d95">AAI 身份认证流程</text>
+      <text x="720" y="539" font-size="10" text-anchor="middle" fill="#5b21b6">（用户侧完成挑战/生物特征等）</text>
+
+      <rect x="880" y="506" width="200" height="40" rx="6" fill="#ddd6fe" stroke="#6d28d9" stroke-width="1.5" />
+      <text x="980" y="530" font-size="11" text-anchor="middle" fill="#3b0764">向 App 返回认证结果</text>
+
+      <!-- Backend row -->
+      <rect x="380" y="638" width="220" height="44" rx="6" fill="#ecfdf5" stroke="#047857" stroke-width="1.5" />
+      <text x="490" y="664" font-size="11" text-anchor="middle" fill="#064e3b">Inquiry Card Basic Info</text>
+
+      <rect x="640" y="638" width="200" height="44" rx="6" fill="#ecfdf5" stroke="#047857" stroke-width="1.5" />
+      <text x="740" y="664" font-size="11" text-anchor="middle" fill="#064e3b">校验后 4 位是否匹配</text>
+
+      <rect x="880" y="638" width="200" height="44" rx="6" fill="#d1fae5" stroke="#059669" stroke-width="1.5" />
+      <text x="980" y="664" font-size="11" text-anchor="middle" fill="#065f46">Card Activation</text>
+
+      <!-- Arrows User -->
+      <path d="M250 144 L250 268" fill="none" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)" />
+      <path d="M350 122 L380 122" fill="none" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)" />
+      <path d="M580 122 L610 122" fill="none" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)" />
+      <path d="M770 122 L800 122" fill="none" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)" />
+      <path d="M960 122 L990 122" fill="none" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)" />
+
+      <!-- App internal -->
+      <path d="M350 288 L380 288" fill="none" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)" />
+      <path d="M580 288 L600 288" fill="none" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)" />
+      <path d="M680 288 L700 288" fill="none" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)" />
+      <path d="M790 288 L820 122" fill="none" stroke="#b45309" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#arrow-dashed)" />
+      <text x="805" y="200" font-size="9" fill="#92400e">不匹配</text>
+      <path d="M640 308 L640 345" fill="none" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)" />
+      <path d="M350 365 L380 365" fill="none" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)" />
+      <path d="M580 365 L610 365" fill="none" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)" />
+      <path d="M790 365 L820 365" fill="none" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)" />
+      <path d="M1020 365 L1040 365" fill="none" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)" />
+      <path d="M480 345 L480 308" fill="none" stroke="#b91c1c" stroke-width="1.2" marker-end="url(#arrow)" />
+      <text x="492" y="328" font-size="9" fill="#991b1b">不一致</text>
+
+      <!-- App to Backend: Inquiry -->
+      <path d="M480 260 L490 638" fill="none" stroke="#047857" stroke-width="1.5" marker-end="url(#arrow)" />
+      <text x="500" y="440" font-size="9" fill="#065f46">请求</text>
+
+      <!-- Backend verify to App diamond -->
+      <path d="M740 638 L640 308" fill="none" stroke="#047857" stroke-width="1.5" marker-end="url(#arrow)" />
+      <text x="720" y="460" font-size="9" fill="#065f46">校验结果</text>
+
+      <!-- Match to Set PIN -->
+      <path d="M660 288 L900 288" fill="none" stroke="#166534" stroke-width="1.5" marker-end="url(#arrow)" />
+      <text x="770" y="278" font-size="9" fill="#14532d">匹配</text>
+
+      <!-- App AAI to AAI box -->
+      <path d="M700 385 L720 498" fill="none" stroke="#5b21b6" stroke-width="1.5" marker-end="url(#arrow)" />
+
+      <!-- User to AAI (conceptual) -->
+      <path d="M1090 144 L1090 498" fill="none" stroke="#5b21b6" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#arrow-dashed)" />
+
+      <!-- AAI back to App -->
+      <path d="M830 526 L920 385" fill="none" stroke="#6d28d9" stroke-width="1.5" marker-end="url(#arrow)" />
+
+      <!-- Card Activation -->
+      <path d="M980 385 L980 638" fill="none" stroke="#059669" stroke-width="1.5" marker-end="url(#arrow)" />
+
+      <!-- Legend -->
+      <rect x="120" y="808" width="1000" height="100" rx="4" fill="#fff" stroke="#94a3b8" />
+      <text x="140" y="835" font-size="12" font-weight="700" fill="#0f172a">结果分流（Card Activation 响应后）</text>
+      <text x="140" y="858" font-size="11" fill="#334155">• 激活成功 → Card Home（或等价成功落地页）</text>
+      <text x="140" y="878" font-size="11" fill="#334155">• Active Fail Page / Set Fail Page / Network Error Page / Server Error Page（按错误类型分别落地）</text>
+      <text x="140" y="898" font-size="10.5" fill="#64748b">说明：实线为主路径与同步调用方向；橙色虚线为「不匹配」返回输入；紫色虚线为用户在 AAI 内的交互示意。</text>
+    </svg>
+  </section>
+
+  <div class="note">
+    <strong>流程摘要（与上图一致）：</strong>
+    用户进入 Card Manage / 激活入口后输入实体卡后 4 位；App 自动提交并请求 <strong>Inquiry Card Basic Info</strong>；后端校验后 4 位，不匹配则错误提示并回到输入；匹配则进入 <strong>Set PIN → Confirm PIN</strong>，不一致则 Toast 并回到 Set PIN；一致则拉起 <strong>AAI</strong>，认证通过后调用 <strong>Card Activation</strong>，并按结果分别进入成功（Card Home）或 Active Fail / Set Fail / Network Error / Server Error 等页面。
+  </div>
+
+  <footer>
+    本文档为 AIX Card 7.2.1 实体卡激活泳道示意，供评审与实现对齐使用；细节字段与接口契约以接口文档与 UI 稿为准。
+  </footer>
+</body>
+</html>

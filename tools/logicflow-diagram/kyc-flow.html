@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KYC 实名认证流程</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@logicflow/core@2.1.11/dist/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@logicflow/extension@2.1.13/dist/index.css">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: #f5f7fa;
+  overflow: hidden;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  height: 56px;
+  padding: 0 24px;
+  background: #fff;
+  border-bottom: 1px solid #e8ecf0;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  z-index: 10;
+  position: relative;
+}
+
+.toolbar h1 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1d2129;
+  margin-right: auto;
+}
+
+.toolbar .hint {
+  font-size: 12px;
+  color: #86909c;
+  margin-right: 16px;
+  max-width: 42vw;
+}
+
+.toolbar .btn-group {
+  display: flex;
+  gap: 10px;
+}
+
+.toolbar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: #1677ff;
+  color: #fff;
+}
+.btn-primary:hover {
+  background: #4096ff;
+  box-shadow: 0 2px 8px rgba(22,119,255,0.35);
+}
+
+.btn-secondary {
+  background: #f0f5ff;
+  color: #1677ff;
+  border: 1px solid #d6e4ff !important;
+}
+.btn-secondary:hover {
+  background: #e6f0ff;
+  box-shadow: 0 2px 8px rgba(22,119,255,0.15);
+}
+
+.btn-outline {
+  background: #fff;
+  color: #4e5969;
+  border: 1px solid #e5e6eb !important;
+}
+.btn-outline:hover {
+  color: #1677ff;
+  border-color: #1677ff !important;
+}
+
+#container {
+  width: 100%;
+  height: calc(100vh - 56px);
+  background: #fafbfc;
+}
+
+.toast {
+  position: fixed;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  padding: 10px 24px;
+  background: #1677ff;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  opacity: 0;
+  transition: all 0.3s;
+  pointer-events: none;
+  z-index: 100;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.edit-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  padding: 24px;
+  min-width: 320px;
+  z-index: 200;
+  display: none;
+}
+.edit-panel.active { display: block; }
+
+.edit-panel h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1d2129;
+  margin-bottom: 16px;
+}
+
+.edit-panel label {
+  display: block;
+  font-size: 12px;
+  color: #86909c;
+  margin-bottom: 4px;
+}
+
+.edit-panel input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e5e6eb;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-bottom: 12px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.edit-panel input:focus { border-color: #1677ff; }
+
+.edit-panel .panel-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.25);
+  z-index: 199;
+  display: none;
+}
+.overlay.active { display: block; }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <h1>KYC 实名认证流程（LogicFlow）</h1>
+  <span class="hint">覆盖：身份采集 → 证件/OCR → 活体 → AML → 风险分流 → 人工/自动 → 开户结果</span>
+  <div class="btn-group">
+    <button class="btn-primary" onclick="autoLayout()">自动布局</button>
+    <button class="btn-secondary" onclick="exportImage()">导出 PNG</button>
+    <button class="btn-outline" onclick="resetView()">适配视图</button>
+  </div>
+</div>
+
+<div id="container"></div>
+<div id="toast" class="toast"></div>
+
+<div id="overlay" class="overlay" onclick="closeEditPanel()"></div>
+<div id="editPanel" class="edit-panel">
+  <h3 id="editTitle">编辑属性</h3>
+  <label>显示文本</label>
+  <input id="editText" type="text" placeholder="输入文本...">
+  <div class="panel-actions">
+    <button class="btn-outline" onclick="closeEditPanel()">取消</button>
+    <button class="btn-primary" onclick="saveEdit()">保存</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@logicflow/core@2.1.11/dist/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@logicflow/extension@2.1.13/dist/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
+<script>
+/**
+ * KYC 流程边列表：from/to 为节点展示名；action 为菱形决策；person 为用户。
+ * type: flow（默认灰）| reject（红，拒绝/补件）| success（绿，通过闭环）
+ */
+const rawData = [
+  { from: '用户', to: 'KYC 入口', label: '发起开户 / 实名', type: 'flow', fromType: 'person' },
+
+  { from: 'KYC 入口', to: '身份信息采集', label: '填写基本信息', type: 'flow' },
+  { from: '身份信息采集', to: '证件影像上传', label: '下一步', type: 'flow' },
+  { from: '证件影像上传', to: '证件校验与OCR', label: '提交', type: 'flow' },
+
+  { from: '证件校验与OCR', to: '补件指引', label: '证照不清/不一致', type: 'reject' },
+  { from: '补件指引', to: '证件影像上传', label: '用户补充后重提', type: 'flow' },
+  { from: '证件校验与OCR', to: '活体与人脸比对', label: '证照通过', type: 'flow' },
+
+  { from: '活体与人脸比对', to: '活体失败', label: '比对未通过', type: 'reject' },
+  { from: '活体失败', to: '用户', label: '通知拒绝/可重试', type: 'reject', toType: 'person' },
+  { from: '活体与人脸比对', to: 'AML与制裁筛查', label: '活体通过', type: 'flow' },
+
+  { from: 'AML与制裁筛查', to: '筛查拦截', label: '命中名单/可疑', type: 'reject' },
+  { from: '筛查拦截', to: '合规人工处置', label: '升级复核', type: 'flow' },
+  { from: 'AML与制裁筛查', to: '风险评分', label: '筛查通过', type: 'flow' },
+
+  { from: '风险评分', to: '需人工审核', label: '评分≥阈值', type: 'flow', toType: 'action' },
+  { from: '风险评分', to: '系统自动核准', label: '评分合规', type: 'flow' },
+
+  { from: '需人工审核', to: '人审结论', label: '审核完成', type: 'flow', fromType: 'action', toType: 'action' },
+  { from: '合规人工处置', to: '人审结论', label: '出具意见', type: 'flow', toType: 'action' },
+
+  { from: '人审结论', to: '开户成功', label: '批准', type: 'success' },
+  { from: '人审结论', to: '拒绝开户', label: '拒绝', type: 'reject' },
+
+  { from: '系统自动核准', to: '开户成功', label: '自动通过', type: 'success' },
+
+  { from: '开户成功', to: '用户', label: '账户可用通知', type: 'success', toType: 'person' },
+  { from: '拒绝开户', to: '用户', label: '原因说明', type: 'reject', toType: 'person' },
+];
+
+const LogicFlow = Core.default;
+const { RectNode, RectNodeModel, DiamondNode, DiamondNodeModel,
+        PolylineEdge, PolylineEdgeModel } = Core;
+const { Snapshot, SelectionSelect, Menu } = Extension;
+
+class CompanyModel extends RectNodeModel {
+  initNodeData(data) {
+    super.initNodeData(data);
+    this.width = 168;
+    this.height = 50;
+    this.radius = 4;
+  }
+  getNodeStyle() {
+    const style = super.getNodeStyle();
+    style.stroke = '#1677ff';
+    style.strokeWidth = 2;
+    style.fill = '#f0f5ff';
+    return style;
+  }
+  getTextStyle() {
+    const style = super.getTextStyle();
+    style.color = '#1d2129';
+    style.fontSize = 12;
+    style.fontWeight = 600;
+    return style;
+  }
+}
+
+class PersonModel extends RectNodeModel {
+  initNodeData(data) {
+    super.initNodeData(data);
+    this.width = 120;
+    this.height = 50;
+    this.radius = 20;
+  }
+  getNodeStyle() {
+    const style = super.getNodeStyle();
+    style.stroke = '#52c41a';
+    style.strokeWidth = 2;
+    style.fill = '#f6ffed';
+    return style;
+  }
+  getTextStyle() {
+    const style = super.getTextStyle();
+    style.color = '#1d2129';
+    style.fontSize = 13;
+    style.fontWeight = 600;
+    return style;
+  }
+}
+
+class ActionModel extends DiamondNodeModel {
+  initNodeData(data) {
+    super.initNodeData(data);
+    this.rx = 72;
+    this.ry = 44;
+  }
+  getNodeStyle() {
+    const style = super.getNodeStyle();
+    style.stroke = '#fa8c16';
+    style.strokeWidth = 2;
+    style.fill = '#fff7e6';
+    return style;
+  }
+  getTextStyle() {
+    const style = super.getTextStyle();
+    style.color = '#1d2129';
+    style.fontSize = 11;
+    style.fontWeight = 600;
+    return style;
+  }
+}
+
+class KycEdgeModel extends PolylineEdgeModel {
+  getEdgeStyle() {
+    const style = super.getEdgeStyle();
+    const t = this.properties.relType;
+    if (t === 'reject') {
+      style.stroke = '#f5222d';
+      style.strokeDasharray = '4 3';
+    } else if (t === 'success') {
+      style.stroke = '#389e0d';
+    } else {
+      style.stroke = '#86909c';
+    }
+    style.strokeWidth = 1.5;
+    return style;
+  }
+  getTextStyle() {
+    const style = super.getTextStyle();
+    style.color = '#4e5969';
+    style.fontSize = 10;
+    style.background = { fill: '#fff', stroke: 'transparent', radius: 3 };
+    return style;
+  }
+}
+
+function convertRawData(raw) {
+  const nodeMap = new Map();
+  const edges = [];
+
+  function ensureNode(name, explicitType) {
+    if (!nodeMap.has(name)) {
+      nodeMap.set(name, { name, type: explicitType || 'company' });
+    } else if (explicitType) {
+      const cur = nodeMap.get(name).type;
+      if (cur !== 'action') nodeMap.get(name).type = explicitType;
+    }
+  }
+
+  raw.forEach((r, i) => {
+    ensureNode(r.from, r.fromType);
+    ensureNode(r.to, r.toType);
+    edges.push({
+      id: `e_${i}`,
+      type: 'kyc-edge',
+      sourceNodeId: sanitizeId(r.from),
+      targetNodeId: sanitizeId(r.to),
+      text: r.label || '',
+      properties: { relType: r.type || 'flow' },
+    });
+  });
+
+  const nodes = [];
+  nodeMap.forEach((v) => {
+    nodes.push({
+      id: sanitizeId(v.name),
+      type: v.type,
+      x: 200,
+      y: 200,
+      text: v.name,
+    });
+  });
+
+  return { nodes, edges };
+}
+
+function sanitizeId(name) {
+  return 'n_' + name.replace(/[^a-zA-Z0-9\u4e00-\u9fff]/g, '_');
+}
+
+const lf = new LogicFlow({
+  container: document.getElementById('container'),
+  grid: { size: 20, type: 'dot', config: { color: '#d9dce3' } },
+  plugins: [Snapshot, SelectionSelect, Menu],
+  edgeType: 'kyc-edge',
+  keyboard: { enabled: true },
+  background: { backgroundColor: '#fafbfc' },
+});
+
+lf.register({ type: 'company', view: RectNode,    model: CompanyModel });
+lf.register({ type: 'person',  view: RectNode,    model: PersonModel });
+lf.register({ type: 'action',  view: DiamondNode, model: ActionModel });
+lf.register({ type: 'kyc-edge', view: PolylineEdge, model: KycEdgeModel });
+
+lf.setMenuConfig({
+  nodeMenu: [
+    { text: '编辑文本', callback: (node) => openEditPanel(node.id, 'node') },
+    { text: '删除',     callback: (node) => lf.deleteNode(node.id) },
+  ],
+  edgeMenu: [
+    { text: '编辑标签', callback: (edge) => openEditPanel(edge.id, 'edge') },
+    { text: '删除',     callback: (edge) => lf.deleteEdge(edge.id) },
+  ],
+});
+
+lf.render(convertRawData(rawData));
+
+setTimeout(() => autoLayout(), 200);
+
+function autoLayout() {
+  const g = new dagre.graphlib.Graph();
+  g.setGraph({
+    rankdir: 'TB',
+    nodesep: 72,
+    ranksep: 96,
+    marginx: 50,
+    marginy: 50,
+  });
+  g.setDefaultEdgeLabel(() => ({}));
+
+  const data = lf.getGraphRawData();
+  data.nodes.forEach((node) => {
+    const w = node.type === 'action' ? 144 : (node.type === 'person' ? 124 : 172);
+    const h = node.type === 'action' ? 88 : 50;
+    g.setNode(node.id, { width: w, height: h });
+  });
+  data.edges.forEach((edge) => {
+    g.setEdge(edge.sourceNodeId, edge.targetNodeId);
+  });
+  dagre.layout(g);
+  g.nodes().forEach((id) => {
+    const pos = g.node(id);
+    if (!pos) return;
+    // 必须用 graphModel.moveNode2Coordinate，勿用 nodeModel.moveTo：
+    // moveTo 不会触发 moveEdge，折线边的 points 仍留在初始重叠位置，表现为「有节点无连线」。
+    lf.graphModel.moveNode2Coordinate(id, pos.x, pos.y);
+  });
+  setTimeout(() => lf.fitView(50, 50), 50);
+  showToast('布局已更新');
+}
+
+function exportImage() {
+  lf.getSnapshot('KYC流程', 'image/png');
+  showToast('已导出 PNG');
+}
+
+function resetView() {
+  lf.fitView(50, 50);
+  showToast('视图已适配');
+}
+
+let editingId = null;
+let editingType = null;
+
+function openEditPanel(id, type) {
+  editingId = id;
+  editingType = type;
+  const el = type === 'node' ? lf.getNodeModelById(id) : lf.getEdgeModelById(id);
+  if (!el) return;
+  document.getElementById('editTitle').textContent = type === 'node' ? '编辑节点' : '编辑连线';
+  document.getElementById('editText').value = (el.text && el.text.value) || el.text || '';
+  document.getElementById('editPanel').classList.add('active');
+  document.getElementById('overlay').classList.add('active');
+  setTimeout(() => document.getElementById('editText').focus(), 50);
+}
+
+function closeEditPanel() {
+  document.getElementById('editPanel').classList.remove('active');
+  document.getElementById('overlay').classList.remove('active');
+  editingId = null;
+  editingType = null;
+}
+
+function saveEdit() {
+  const newText = document.getElementById('editText').value.trim();
+  if (editingId && newText !== '') lf.updateText(editingId, newText);
+  closeEditPanel();
+  showToast('已保存');
+}
+
+document.getElementById('editText').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') saveEdit();
+  if (e.key === 'Escape') closeEditPanel();
+});
+
+lf.on('node:dbclick', ({ data }) => openEditPanel(data.id, 'node'));
+lf.on('edge:dbclick', ({ data }) => openEditPanel(data.id, 'edge'));
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "name": "feishu-bridge",
+  "private": true,
+  "description": "Feishu/Lark WS bridge and OpenClaw integration (canonical install: /opt/feishu-bridge)",
+  "dependencies": {
+    "@larksuiteoapi/node-sdk": "^1.55.0",
+    "axios": "^1.8.4",
+    "playwright": "^1.55.0"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "selfcheck": "node scripts/feishu-bridge-selfcheck.js",
+    "screenshot-server": "node scripts/feishu-research-screenshot-server.js",
+    "verify:prd-brief": "python3 scripts/verify-prd-brief-gate.py",
+    "verify:prd-gates": "python3 scripts/verify-prd-gates.py",
+    "verify:workflow": "python3 scripts/verify-workflow-gates.py",
+    "verify:research": "python3 scripts/research-gate.py",
+    "verify:code": "python3 scripts/code-gate.py",
+    "verify:solution": "python3 scripts/solution-gate.py",
+    "smoke:runtime": "node scripts/runtime-smoke-tests.js",
+    "scan:residue": "bash scripts/scan-governance-residue.sh",
+    "aix:assemble": "bash scripts/assemble-solution-design.sh",
+    "aix:export-docx": "bash scripts/assemble-solution-design.sh && python3 scripts/export-solution-design-docx.py",
+    "aix:export-flow2-word-image": "bash scripts/render-flow-export.sh"
+  }
+}

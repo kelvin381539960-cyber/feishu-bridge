@@ -1,0 +1,8 @@
+{
+  "taskId": "lock-check",
+  "description": "Verification task for lock contention handling.",
+  "promptFile": "/opt/feishu-bridge/scheduled-tasks/prompts/lock-check.md",
+  "timeoutSeconds": 120,
+  "niceLevel": 10,
+  "outputFile": "/opt/feishu-bridge/var/reports/scheduled-cursor/lock-check-latest.txt"
+}

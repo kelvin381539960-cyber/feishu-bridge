@@ -1,0 +1,43 @@
+{
+  "items": [
+    {
+      "block_id": "blk_010",
+      "block_type": 2,
+      "text": {
+        "elements": [
+          {
+            "text_run": {
+              "content": "完整泳道图请参见 https://advancegroup.sg.larksuite.com/board/SwimLane001 这个画板。"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "block_id": "blk_011",
+      "block_type": 2,
+      "text": {
+        "elements": [
+          {
+            "text_run": {
+              "content": "同一白板再次引用 https://advancegroup.sg.larksuite.com/board/SwimLane001 用于验证去重。"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "block_id": "blk_012",
+      "block_type": 2,
+      "text": {
+        "elements": [
+          {
+            "text_run": {
+              "content": "表格链接 https://advancegroup.sg.larksuite.com/sheets/SheetToken001 不应被当作白板。"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

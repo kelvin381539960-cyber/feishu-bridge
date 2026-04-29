@@ -1,0 +1,52 @@
+{
+  "config": {
+    "wide_screen_mode": true,
+    "enable_forward": true
+  },
+  "header": {
+    "template": "blue",
+    "title": {
+      "tag": "plain_text",
+      "content": "✅ UI 截图已补充完成！"
+    }
+  },
+  "elements": [
+    {
+      "tag": "note",
+      "elements": [
+        {
+          "tag": "plain_text",
+          "content": "回复 Hanjie Zhang：给我补充一些 app 界面截图…"
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "text": {
+        "tag": "lark_md",
+        "content": "飞书文档已更新，添加了 4 个信用卡 App 待还区域 UI 示例：\n\n[打开文档](https://feishu.cn/docx/A86QdRHAToAdvpx7EdZlcu58gqc)"
+      }
+    },
+    {
+      "tag": "hr"
+    },
+    {
+      "tag": "div",
+      "text": {
+        "tag": "lark_md",
+        "content": "### 📸 新增内容\n\n**UI 示例（4 个）**"
+      }
+    },
+    {
+      "tag": "markdown",
+      "content": "| 样式 | 说明 |\n|------|------|\n| 🇲🇾 Malaysia Standard | 黄色 CTA 按钮，双栏布局 |\n| 🇵🇭 Philippines TAD/MAD | 蓝色主题，红色警示 Due Date |"
+    },
+    {
+      "tag": "div",
+      "text": {
+        "tag": "lark_md",
+        "content": "### 设计细节"
+      }
+    }
+  ]
+}

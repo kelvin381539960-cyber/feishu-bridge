@@ -1,0 +1,69 @@
+<mxfile host="65bd71144e">
+    <diagram id="aix-phase2-ecosystem" name="Page-1">
+        <mxGraphModel dx="609" dy="894" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="title" value="AIX Phase 2&#10;主体关系总览" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;fontColor=#142033;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="30" width="420" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="subtitle" value="规则：对象名称保留英文，解释说明使用中文。该图只表达 AIX Platform 与核心外部 Partner 的能力关系，不展开账户结构和详细流程。" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#5f6f86;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="92" width="920" height="38" as="geometry"/>
+                </mxCell>
+                <mxCell id="group-left" value="Card &amp; Identity" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#0d7a5f;" parent="1" vertex="1">
+                    <mxGeometry x="180" y="160" width="180" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="group-right" value="Crypto &amp; Compliance" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#7a45c7;" parent="1" vertex="1">
+                    <mxGeometry x="1020" y="110" width="220" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="group-bottom" value="Yield &amp; Fiat" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#c76a14;" parent="1" vertex="1">
+                    <mxGeometry x="520" y="600" width="220" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="aix" value="&lt;b&gt;AIX Platform&lt;/b&gt;&lt;br&gt;主流程编排核心&lt;br&gt;余额账本与 Partner 集成" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1459c7;strokeColor=#0d4cae;strokeWidth=2;fontColor=#ffffff;fontSize=18;align=center;verticalAlign=middle;arcSize=18;" parent="1" vertex="1">
+                    <mxGeometry x="560" y="280" width="320" height="170" as="geometry"/>
+                </mxCell>
+                <mxCell id="kun" value="&lt;b&gt;KUN&lt;/b&gt;&lt;br&gt;卡发行 / 卡处理&lt;br&gt;KYC 路由与 AAI 集成" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8fbf5;strokeColor=#8ed0bf;strokeWidth=1.5;fontColor=#103b31;fontSize=15;align=center;verticalAlign=middle;arcSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="210" width="250" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="cobo" value="&lt;b&gt;Cobo&lt;/b&gt;&lt;br&gt;资产托管&lt;br&gt;链上执行" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f2eaff;strokeColor=#caaef6;strokeWidth=1.5;fontColor=#3e2568;fontSize=15;align=center;verticalAlign=middle;arcSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="1070" y="150" width="260" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="chainalysis" value="&lt;b&gt;Chainalysis&lt;/b&gt;&lt;br&gt;KYT 风险筛查" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f2eaff;strokeColor=#caaef6;strokeWidth=1.5;fontColor=#3e2568;fontSize=15;align=center;verticalAlign=middle;arcSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="1070" y="320" width="260" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="notabene" value="&lt;b&gt;Notabene&lt;/b&gt;&lt;br&gt;Travel Rule 校验" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f2eaff;strokeColor=#caaef6;strokeWidth=1.5;fontColor=#3e2568;fontSize=15;align=center;verticalAlign=middle;arcSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="1070" y="470" width="260" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="yield" value="&lt;b&gt;Yield Provider&lt;/b&gt;&lt;br&gt;收益执行方" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2e5;strokeColor=#efc08d;strokeWidth=1.5;fontColor=#6a3c09;fontSize=15;align=center;verticalAlign=middle;arcSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="360" y="650" width="250" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="payout" value="&lt;b&gt;Payout Provider&lt;/b&gt;&lt;br&gt;本地法币出金" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2e5;strokeColor=#efc08d;strokeWidth=1.5;fontColor=#6a3c09;fontSize=15;align=center;verticalAlign=middle;arcSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="770" y="650" width="250" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="e1" value="Card / KYC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7a8799;strokeWidth=2;endArrow=block;endFill=1;fontSize=11;fontColor=#5f6f86;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;" parent="1" source="aix" target="kun" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e2" value="Custody" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7a8799;strokeWidth=2;endArrow=block;endFill=1;fontSize=11;fontColor=#5f6f86;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="aix" target="cobo" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e3" value="KYT" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7a8799;strokeWidth=2;endArrow=block;endFill=1;fontSize=11;fontColor=#5f6f86;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;" parent="1" source="aix" target="chainalysis" edge="1">
+                    <mxGeometry x="0.4737" y="-5" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e4" value="Travel Rule" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7a8799;strokeWidth=2;endArrow=block;endFill=1;fontSize=11;fontColor=#5f6f86;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="aix" target="notabene" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e5" value="Yield" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7a8799;strokeWidth=2;endArrow=block;endFill=1;fontSize=11;fontColor=#5f6f86;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;" parent="1" source="aix" target="yield" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e6" value="Fiat Payout" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7a8799;strokeWidth=2;endArrow=block;endFill=1;fontSize=11;fontColor=#5f6f86;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;" parent="1" source="aix" target="payout" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="footer" value="极简版：只保留 AIX Platform 与核心外部 Partner 的能力关系，不表达用户入口、外围生态、账户结构和详细资金流。" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#5f6f86;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="805" width="980" height="40" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

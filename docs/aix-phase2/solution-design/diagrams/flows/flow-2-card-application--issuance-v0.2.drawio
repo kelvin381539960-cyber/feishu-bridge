@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="65bd71144e">
+    <diagram id="flow-2" name="Card Application &amp; Issuance">
+        <mxGraphModel dx="1971" dy="339" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1320" pageHeight="960" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="title" value="&lt;b style=&quot;font-size: 20px;&quot;&gt;Flow 2: Card Application &amp;amp; Issuance（申卡与发卡）&lt;/b&gt;&lt;br&gt;&lt;i&gt;业务交互结构图 · v0.2&lt;/i&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="12" width="700" height="48" as="geometry"/>
+                </mxCell>
+                <mxCell id="treasury" value="&lt;i style=&quot;font-size:11px;&quot;&gt;Cobo 链上资金库&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#BBBBBB;dashed=1;dashPattern=6 3;fontSize=11;verticalAlign=top;align=left;spacingLeft=8;spacingTop=3;" vertex="1" parent="1">
+                    <mxGeometry x="646" y="10" width="428" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="aix-group" value="&lt;b&gt;AIX 系统&lt;/b&gt;（Platform + Ledger）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#64B5F6;dashed=1;dashPattern=8 4;fontSize=12;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;" parent="1" vertex="1">
+                    <mxGeometry x="162" y="122" width="490" height="378" as="geometry"/>
+                </mxCell>
+                <mxCell id="customer" value="&lt;b&gt;Customer&lt;/b&gt;&lt;br&gt;用户" style="shape=actor;whiteSpace=wrap;html=1;fillColor=#4D4D4D;strokeColor=#333333;fontColor=#ffffff;verticalAlign=bottom;" parent="1" vertex="1">
+                    <mxGeometry x="28" y="390" width="56" height="82" as="geometry"/>
+                </mxCell>
+                <mxCell id="aix" value="&lt;b&gt;AIX Platform&lt;/b&gt;&lt;br&gt;业务中台" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1459C7;strokeColor=#0D4CAE;fontColor=#ffffff;arcSize=10;fontSize=14;" parent="1" vertex="1">
+                    <mxGeometry x="388" y="388" width="244" height="84" as="geometry"/>
+                </mxCell>
+                <mxCell id="ledger" value="&lt;b&gt;AIX Ledger&lt;/b&gt;&lt;br&gt;核心账本" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0D47A1;strokeColor=#0A3882;fontColor=#ffffff;arcSize=10;fontSize=14;" parent="1" vertex="1">
+                    <mxGeometry x="388" y="160" width="222.5" height="62" as="geometry"/>
+                </mxCell>
+                <mxCell id="cobo" value="&lt;b&gt;Cobo&lt;/b&gt;&lt;br&gt;链上资产托管" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4A148C;strokeColor=#2E0B6B;fontColor=#ffffff;arcSize=10;fontSize=14;" vertex="1" parent="1">
+                    <mxGeometry x="768" y="160" width="175" height="62" as="geometry"/>
+                </mxCell>
+                <mxCell id="kun" value="&lt;b&gt;KUN&lt;/b&gt;&lt;br&gt;卡发行与合规网关" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#238B68;strokeColor=#155D45;fontColor=#ffffff;arcSize=10;fontSize=14;" parent="1" vertex="1">
+                    <mxGeometry x="808" y="388" width="176" height="62" as="geometry"/>
+                </mxCell>
+                <mxCell id="issue" value="&lt;b&gt;Issue&lt;/b&gt;&lt;br&gt;卡片发行处理商" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A5C3D;strokeColor=#0E3D28;fontColor=#ffffff;arcSize=10;fontSize=14;" vertex="1" parent="1">
+                    <mxGeometry x="808" y="588" width="176" height="62" as="geometry"/>
+                </mxCell>
+                <mxCell id="maker" value="&lt;b&gt;制卡商&lt;/b&gt;&lt;br&gt;Card Manufacturer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#455A64;strokeColor=#2C3B42;fontColor=#ffffff;arcSize=10;fontSize=14;" vertex="1" parent="1">
+                    <mxGeometry x="632" y="730" width="172" height="58" as="geometry"/>
+                </mxCell>
+                <mxCell id="logistics" value="&lt;b&gt;物流商&lt;/b&gt;&lt;br&gt;Logistics Provider" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#546E7A;strokeColor=#37474F;fontColor=#ffffff;arcSize=10;fontSize=14;" vertex="1" parent="1">
+                    <mxGeometry x="340" y="730" width="162" height="58" as="geometry"/>
+                </mxCell>
+                <mxCell id="pool" value="&lt;b&gt;AIX Pool Account&lt;/b&gt;&lt;br&gt;资金池账户" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8DC;strokeColor=#DAA520;fontColor=#333333;arcSize=15;fontSize=12;" vertex="1" parent="1">
+                    <mxGeometry x="664" y="40" width="160" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="fee" value="&lt;b&gt;AIX Fee Account&lt;/b&gt;&lt;br&gt;手续费账户" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8DC;strokeColor=#DAA520;fontColor=#333333;arcSize=15;fontSize=12;" vertex="1" parent="1">
+                    <mxGeometry x="890" y="40" width="160" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="mpc-line" value="MPC 控制链上钱包" style="html=1;endArrow=open;endFill=0;dashed=1;dashPattern=4 4;strokeWidth=1.5;fontSize=11;align=right;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;" parent="1" source="cobo" target="treasury" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="855" y="160" as="sourcePoint"/>
+                        <mxPoint x="855" y="120" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e1" value="① 申请开卡" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;endArrow=block;fontSize=12;exitX=1;exitY=0.2;entryX=0;entryY=0.15;" parent="1" source="customer" target="aix" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e2" value="② 记账冻结手续费" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;endArrow=block;fontSize=12;entryX=0.75;entryY=1;entryDx=0;entryDy=0;" parent="1" source="aix" target="ledger" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="571" y="390"/>
+                            <mxPoint x="571" y="360"/>
+                            <mxPoint x="550" y="360"/>
+                            <mxPoint x="550" y="270"/>
+                            <mxPoint x="555" y="270"/>
+                        </Array>
+                        <mxPoint x="570" y="390" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e3" value="③ 提交开卡" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;endArrow=block;fontSize=12;exitX=1;exitY=0.2;entryX=0;entryY=0.3;" parent="1" source="aix" target="kun" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e4" value="④ 开卡请求" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;endArrow=block;fontSize=12;exitX=0.75;exitY=1;entryX=0.75;entryY=0;" parent="1" source="kun" target="issue" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e5" value="⑤ 开卡审核" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;endArrow=block;fontSize=12;exitX=1;exitY=0.25;entryX=1;entryY=0.75;" parent="1" source="issue" target="issue" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1020" y="603"/>
+                            <mxPoint x="1020" y="635"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e6" value="⑥ 通知开卡结果" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;endArrow=block;fontSize=12;exitX=0.25;exitY=0;entryX=0.25;entryY=1;" parent="1" source="issue" target="kun" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e7" value="⑦ 通知开卡结果" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;endArrow=block;fontSize=12;exitX=0;exitY=0.75;entryX=1;entryY=0.75;" parent="1" source="kun" target="aix" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e8" value="⑧ 审核通过后通知执行扣款" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;endArrow=block;fontSize=12;exitX=0.75;exitY=0;entryX=0.25;entryY=1;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" parent="1" source="aix" target="cobo" edge="1">
+                    <mxGeometry x="-0.0023" relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="571" y="270"/>
+                            <mxPoint x="812" y="270"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e9" value="⑨ 划扣 fee 资金" style="html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;edgeStyle=elbowEdgeStyle;" parent="1" source="pool" target="fee" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="824" y="67" as="sourcePoint"/>
+                        <mxPoint x="890" y="67" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e10" value="⑩ 扣款结果返回" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;endArrow=block;fontSize=12;exitX=0.5;exitY=1;entryX=0.95;entryY=0;exitDx=0;exitDy=0;" parent="1" edge="1" target="aix" source="cobo">
+                    <mxGeometry x="0.227" relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="855" y="320"/>
+                            <mxPoint x="620" y="320"/>
+                        </Array>
+                        <mxPoint x="0" y="1" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e11" value="⑪ 冻结转扣款" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;endArrow=block;fontSize=12;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" parent="1" edge="1" target="aix" source="ledger">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e12" value="⑫ 更新余额" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;endArrow=block;fontSize=12;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="aix" target="ledger" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="500" y="390"/>
+                            <mxPoint x="501" y="390"/>
+                            <mxPoint x="501" y="250"/>
+                            <mxPoint x="499" y="250"/>
+                        </Array>
+                        <mxPoint x="500" y="388" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e13" value="⑬ 通知开卡结果" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;endArrow=block;fontSize=12;exitX=0;exitY=0.55;entryX=1;entryY=0.55;" edge="1" parent="1" source="aix" target="customer">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e14" value="⑭ 通知制卡（仅物理卡）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;endArrow=block;fontSize=12;exitX=0.5;exitY=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="issue" target="maker">
+                    <mxGeometry x="-0.3035" y="-6" relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="896" y="759"/>
+                        </Array>
+                        <mxPoint x="0" y="1" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e15" value="⑮ 通知寄送卡" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;endArrow=block;fontSize=12;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="maker" target="logistics">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e16" value="⑯ 寄送卡" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;endArrow=block;fontSize=12;dashed=1;exitX=0;exitY=0.5;entryX=0;entryY=0.85;" edge="1" parent="1" source="logistics" target="customer">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="14" y="759"/>
+                            <mxPoint x="14" y="485"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e17" value="⑰ 查询物流状态" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;endArrow=block;fontSize=12;exitX=0.08;exitY=1;entryX=0.54;entryY=0;" edge="1" parent="1" source="aix" target="logistics">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="407" y="620"/>
+                            <mxPoint x="400" y="620"/>
+                            <mxPoint x="400" y="730"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e18" value="⑱ 同步物流状态" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;endArrow=block;fontSize=12;exitX=0.7;exitY=0;entryX=0.22;entryY=1;" edge="1" parent="1" source="logistics" target="aix">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="440" y="730"/>
+                            <mxPoint x="440" y="640"/>
+                            <mxPoint x="442" y="640"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e19" value="⑲ 同步物流状态" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;endArrow=block;fontSize=12;exitX=0;exitY=0.85;entryX=1;entryY=0.85;" edge="1" parent="1" source="aix" target="customer">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="footnote" value="&lt;b&gt;图注：&lt;/b&gt;AIX Platform 负责流程编排（申卡、调用 KUN、触发结算）；AIX Ledger 负责账本操作（冻结②、通知扣款⑧、记录冻结转扣⑪、更新余额⑫）。&lt;br&gt;手续费通过 Cobo MPC 钱包在链上从资金池划转至手续费账户⑨。Issue 为实际发卡处理商，实体卡同步触发制卡与物流⑭⑮。&lt;br&gt;&lt;i&gt;虚线箭头（⑯）表示实物配送，非数字指令流。&lt;/i&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="812" width="1020" height="72" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

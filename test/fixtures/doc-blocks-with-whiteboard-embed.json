@@ -1,0 +1,57 @@
+{
+  "items": [
+    {
+      "block_id": "blk_001",
+      "block_type": 3,
+      "heading1": {
+        "elements": [
+          { "text_run": { "content": "AIX Phase 2 设计总览" } }
+        ]
+      }
+    },
+    {
+      "block_id": "blk_002",
+      "block_type": 2,
+      "text": {
+        "elements": [
+          { "text_run": { "content": "以下为核心业务流程，详见画板：" } }
+        ]
+      }
+    },
+    {
+      "block_id": "blk_003",
+      "block_type": 999,
+      "embed": {
+        "url": "https://advancegroup.sg.larksuite.com/board/AbCdEfGh123"
+      }
+    },
+    {
+      "block_id": "blk_004",
+      "block_type": 2,
+      "text": {
+        "elements": [
+          { "text_run": { "content": "卡交易流程白板：" } },
+          {
+            "text_run": {
+              "content": "查看白板",
+              "text_element_style": {
+                "link": {
+                  "url": "https://advancegroup.sg.larksuite.com/whiteboard/XyZ789Test"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "block_id": "blk_005",
+      "block_type": 2,
+      "text": {
+        "elements": [
+          { "text_run": { "content": "其他参考文档和表格链接不应被当作白板。" } }
+        ]
+      }
+    }
+  ]
+}

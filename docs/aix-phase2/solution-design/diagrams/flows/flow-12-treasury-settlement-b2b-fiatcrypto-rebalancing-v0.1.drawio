@@ -1,0 +1,86 @@
+<mxfile host="Electron" agent="Cursor" version="22.0.4" type="device">
+  <diagram id="diagram" name="Page-1">
+    <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="2000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="p_0" value="AIX Treasury" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="100" y="80" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l_0" value="" style="endArrow=none;dashed=1;html=1;strokeWidth=2;strokeColor=#999999;" edge="1" parent="1" source="p_0">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170.0" y="130" as="sourcePoint" />
+            <mxPoint x="170.0" y="600" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p_1" value="OTC / Liquidity Provider" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="350" y="80" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l_1" value="" style="endArrow=none;dashed=1;html=1;strokeWidth=2;strokeColor=#999999;" edge="1" parent="1" source="p_1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="420.0" y="130" as="sourcePoint" />
+            <mxPoint x="420.0" y="600" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p_2" value="AIX Corporate Bank" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="600" y="80" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l_2" value="" style="endArrow=none;dashed=1;html=1;strokeWidth=2;strokeColor=#999999;" edge="1" parent="1" source="p_2">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="670.0" y="130" as="sourcePoint" />
+            <mxPoint x="670.0" y="600" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p_3" value="KUN / Payout Rail (Thunes)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="850" y="80" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l_3" value="" style="endArrow=none;dashed=1;html=1;strokeWidth=2;strokeColor=#999999;" edge="1" parent="1" source="p_3">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="920.0" y="130" as="sourcePoint" />
+            <mxPoint x="920.0" y="600" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_1" value="日终对账 (T+1): 计算 Fiat 总敞口" style="edgeStyle=orthogonalEdgeStyle;html=1;verticalAlign=bottom;endArrow=block;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="170.0" y="170" as="sourcePoint" />
+            <mxPoint x="170.0" y="200" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="230.0" y="170" />
+              <mxPoint x="230.0" y="200" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_2" value="[资金流] 提取 Crypto 发给 OTC 机构" style="html=1;verticalAlign=bottom;endArrow=block;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="170.0" y="250" as="sourcePoint" />
+            <mxPoint x="420.0" y="250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_3" value="[资金流] OTC 机构电汇等值 Fiat 至 AIX 企业账户" style="html=1;verticalAlign=bottom;endArrow=block;dashed=1;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="420.0" y="320" as="sourcePoint" />
+            <mxPoint x="670.0" y="320" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_4" value="获取对账单 (Settlement Invoice)" style="html=1;verticalAlign=bottom;endArrow=block;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="170.0" y="390" as="sourcePoint" />
+            <mxPoint x="920.0" y="390" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_5" value="发起银行电汇指令" style="html=1;verticalAlign=bottom;endArrow=block;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="170.0" y="460" as="sourcePoint" />
+            <mxPoint x="670.0" y="460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_6" value="[资金流] 结算 Fiat 至合作伙伴账户 (补充备付金)" style="html=1;verticalAlign=bottom;endArrow=block;dashed=1;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="670.0" y="530" as="sourcePoint" />
+            <mxPoint x="920.0" y="530" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

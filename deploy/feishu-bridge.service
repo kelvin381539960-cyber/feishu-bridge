@@ -1,0 +1,16 @@
+[Unit]
+Description=Feishu / WeCom bridge (webhook + optional Cursor ad-hoc)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/feishu-bridge
+ExecStart=/usr/bin/node /opt/feishu-bridge/server.js
+Restart=always
+RestartSec=3
+EnvironmentFile=-/etc/feishu-bridge.env
+# server 内 exec Cursor 桥时子进程需 HOME；缺则 ~/.local/bin/agent 报 unbound variable
+Environment=HOME=/root USER=root PATH=/root/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+[Install]
+WantedBy=multi-user.target

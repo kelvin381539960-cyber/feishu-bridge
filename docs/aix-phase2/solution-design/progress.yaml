@@ -1,0 +1,46 @@
+# AIX Phase 2 概要设计 — 章节完成度（人工维护 status）
+# status: draft | review | locked
+# drawio: 关联图稿（确认后再写入 chapters/03 等正文）
+#
+# 约定：某章 locked 并入终稿后，应有一次 Git commit 留痕。
+
+chapters:
+  - file: "01-doc-header.md"
+    title: "封面与元信息"
+    status: locked
+    notes: ""
+  - file: "02-overview.md"
+    title: "一、方案概述"
+    status: locked
+    notes: ""
+  - file: "03-architecture.md"
+    title: "二、系统全景架构（图示见 draw.io）"
+    status: locked
+    drawio:
+      - "diagrams/ecosystem-overview-v0.1.drawio"
+      - "diagrams/account-structure-overview-v0.1.drawio"
+    notes: "图稿确认后更新本章文字说明"
+  - file: "04-boundary.md"
+    title: "三、系统边界定义 — 角色与职责"
+    status: locked
+    notes: ""
+  - file: "04-mvp-function.md"
+    title: "四、MVP 功能（对齐 BRD §3）"
+    status: locked
+    notes: "源：docs/aix-phase2/business/Phase 2 _ Business & Product Alignment (3).docx"
+  - file: "05-money-flows.md"
+    title: "五、核心业务流与系统交互"
+    status: locked
+    notes: ""
+  - file: "archive/06-internal-treasury-flows-ARCHIVED.md"
+    title: "（已归档）原五、内部资金与流动性管理 — 不并入终稿"
+    status: archived
+    notes: "原 06-info-flows.md；Flow 11–13 仅作备份，装配脚本已跳过"
+  - file: "07-integration.md"
+    title: "六、集成约束汇总"
+    status: locked
+    notes: ""
+  - file: "08-decisions.md"
+    title: "七、关键设计决策（待拍板）"
+    status: review
+    notes: "决策拍板后改为 locked 并更新正文措辞"

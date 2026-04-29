@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>小星学堂 ⭐</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app">
+    <!-- Screens are rendered dynamically by JS -->
+  </div>
+
+  <div id="reward-overlay" class="reward-overlay hidden">
+    <div class="reward-content">
+      <div class="stars-burst" id="stars-burst"></div>
+      <div class="reward-icon" id="reward-icon">⭐</div>
+      <div class="reward-text" id="reward-text">太棒了！</div>
+    </div>
+  </div>
+
+  <audio id="sfx-correct" preload="auto"></audio>
+  <audio id="sfx-wrong" preload="auto"></audio>
+  <audio id="sfx-star" preload="auto"></audio>
+  <audio id="sfx-click" preload="auto"></audio>
+
+  <script src="js/data.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/reward.js"></script>
+  <script src="js/screens.js"></script>
+  <script src="js/literacy.js"></script>
+  <script src="js/math.js"></script>
+  <script src="js/story.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

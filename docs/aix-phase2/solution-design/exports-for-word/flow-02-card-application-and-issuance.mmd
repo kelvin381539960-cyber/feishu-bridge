@@ -1,0 +1,73 @@
+flowchart LR
+subgraph CH[" Customer & Channel "]
+  direction TB
+  customer["Customer<br/>用户"]
+  app["AIX App<br/>用户端应用"]
+end
+
+subgraph ORCH[" AIX Orchestration "]
+  direction TB
+  platform["AIX Platform<br/>业务中台"]
+end
+
+subgraph CTRL[" AIX Ledger & Controls "]
+  direction TB
+  ledger["AIX Ledger<br/>核心账本"]
+end
+
+subgraph EXT[" External Partners "]
+  direction TB
+  kun["KUN<br/>Issuer Gateway"]
+  issue["Issue<br/>卡片发行处理商"]
+  cobo["Cobo<br/>Custody"]
+  manufacturer["Card Manufacturer<br/>制卡商"]
+  logistics["Logistics Provider<br/>物流商"]
+end
+
+subgraph ACCT[" Accounts & Asset Containers "]
+  direction TB
+  pool["AIX Pool Account<br/>资金池账户"]
+  fee["AIX Fee Account<br/>手续费账户"]
+end
+
+customer -->|"① 发起开卡申请"| app
+app -->|"② 提交开卡申请"| platform
+platform -->|"③ 冻结开卡手续费"| ledger
+platform -->|"④ 提交开卡请求"| kun
+kun -->|"⑤ 路由开卡申请"| issue
+issue -->|"⑥ 返回开卡结果"| kun
+kun -->|"⑦ 通知开卡结果"| platform
+platform -->|"⑧ 审核通过后发起手续费结算"| cobo
+cobo -.->|"⑨ 执行资金划拨"| pool
+cobo -.->|"⑩ 资金入账手续费账户"| fee
+cobo -->|"⑪ 返回结算结果"| platform
+platform -->|"⑫ 冻结转结算"| ledger
+platform -->|"⑬ 同步开卡结果"| app
+
+issue -->|"⑭ 通知制卡（仅实体卡）"| manufacturer
+manufacturer -->|"⑮ 通知寄送卡"| logistics
+logistics -.->|"⑯ 实体卡配送"| customer
+platform -->|"⑰ 查询物流状态"| logistics
+logistics -->|"⑱ 同步物流状态"| platform
+platform -->|"⑲ 更新物流状态"| app
+
+
+classDef user fill:#5a5a5a,stroke:#333,color:#fff;
+classDef aix fill:#1652b8,stroke:#0d47a1,color:#fff;
+classDef external fill:#1f8f6b,stroke:#155d45,color:#fff;
+classDef custody fill:#5b1fb5,stroke:#4a148c,color:#fff;
+classDef account fill:#efe6c8,stroke:#d6a11a,color:#222;
+classDef supply fill:#6f8798,stroke:#546e7a,color:#fff;
+
+class customer user;
+class app,ledger,platform aix;
+class kun,issue external;
+class cobo custody;
+class pool,fee account;
+class logistics,manufacturer supply;
+
+style CH fill:none,stroke:none
+style ORCH fill:none,stroke:#4aa3ff,stroke-dasharray: 5 5
+style CTRL fill:none,stroke:#4aa3ff,stroke-dasharray: 5 5
+style EXT fill:none,stroke:#ccc,stroke-dasharray: 5 5
+style ACCT fill:#fdfdfd,stroke:#bbb,stroke-dasharray: 3 3

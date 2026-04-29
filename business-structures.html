@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>业务结构图编辑器</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f7fa;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #1a202c;
+    --text-secondary: #64748b;
+    --accent: #3b82f6;
+    --accent-light: #dbeafe;
+    --green: #10b981;
+    --green-light: #d1fae5;
+    --purple: #8b5cf6;
+    --purple-light: #ede9fe;
+    --orange: #f59e0b;
+    --orange-light: #fef3c7;
+    --red: #ef4444;
+    --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+    --shadow-lg: 0 4px 14px rgba(0,0,0,.1);
+    --radius: 10px;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  header {
+    max-width: 1200px;
+    margin: 0 auto 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  header h1 { font-size: 22px; font-weight: 700; }
+  header p { color: var(--text-secondary); font-size: 13px; }
+
+  .toolbar {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .toolbar button {
+    padding: 7px 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text);
+    transition: all .15s;
+  }
+  .toolbar button:hover { border-color: var(--accent); color: var(--accent); }
+  .toolbar button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  .diagram-section {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    position: relative;
+  }
+
+  .diagram-section .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    outline: none;
+    border-bottom: 2px solid transparent;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: all .15s;
+  }
+  .section-title:hover { background: var(--accent-light); }
+  .section-title:focus { border-bottom-color: var(--accent); background: var(--accent-light); }
+
+  .section-actions { display: flex; gap: 6px; }
+  .section-actions button {
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: var(--card);
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text-secondary);
+    transition: all .15s;
+  }
+  .section-actions button:hover { border-color: var(--accent); color: var(--accent); }
+  .section-actions .btn-delete:hover { border-color: var(--red); color: var(--red); }
+
+  .flow-container {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    overflow-x: auto;
+    padding: 12px 0;
+    min-height: 100px;
+  }
+
+  .flow-step {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .flow-node {
+    position: relative;
+    min-width: 130px;
+    max-width: 220px;
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transition: box-shadow .15s, transform .15s;
+    cursor: default;
+  }
+  .flow-node:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+
+  .flow-node .node-label {
+    font-size: 14px;
+    font-weight: 600;
+    outline: none;
+    display: block;
+    min-width: 60px;
+    border-bottom: 2px solid transparent;
+    padding: 1px 2px;
+    border-radius: 3px;
+    transition: all .15s;
+  }
+  .flow-node .node-label:hover { background: rgba(255,255,255,.5); }
+  .flow-node .node-label:focus { border-bottom-color: rgba(0,0,0,.25); background: rgba(255,255,255,.6); }
+
+  .flow-node .node-desc {
+    font-size: 11px;
+    margin-top: 6px;
+    opacity: .7;
+    outline: none;
+    display: block;
+    min-width: 40px;
+    padding: 1px 2px;
+    border-radius: 3px;
+    border-bottom: 1px solid transparent;
+    transition: all .15s;
+  }
+  .flow-node .node-desc:hover { background: rgba(255,255,255,.4); }
+  .flow-node .node-desc:focus { border-bottom-color: rgba(0,0,0,.15); background: rgba(255,255,255,.5); }
+
+  .node-remove {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: none;
+    background: var(--red);
+    color: #fff;
+    font-size: 12px;
+    line-height: 20px;
+    text-align: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity .15s;
+  }
+  .flow-node:hover .node-remove { opacity: 1; }
+
+  .flow-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+    flex-shrink: 0;
+    min-width: 60px;
+  }
+  .flow-arrow .arrow-line {
+    width: 100%;
+    height: 2px;
+    position: relative;
+  }
+  .flow-arrow .arrow-line::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: -4px;
+    border: 5px solid transparent;
+  }
+  .flow-arrow .arrow-text {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    outline: none;
+    padding: 1px 4px;
+    border-radius: 3px;
+    border-bottom: 1px solid transparent;
+    white-space: nowrap;
+    transition: all .15s;
+  }
+  .flow-arrow .arrow-text:hover { background: #f1f5f9; }
+  .flow-arrow .arrow-text:focus { border-bottom-color: var(--accent); background: #f1f5f9; }
+
+  /* Color themes */
+  .theme-blue .flow-node { background: var(--accent-light); border: 1.5px solid var(--accent); }
+  .theme-blue .flow-arrow .arrow-line { background: var(--accent); }
+  .theme-blue .flow-arrow .arrow-line::after { border-left-color: var(--accent); }
+
+  .theme-green .flow-node { background: var(--green-light); border: 1.5px solid var(--green); }
+  .theme-green .flow-arrow .arrow-line { background: var(--green); }
+  .theme-green .flow-arrow .arrow-line::after { border-left-color: var(--green); }
+
+  .theme-purple .flow-node { background: var(--purple-light); border: 1.5px solid var(--purple); }
+  .theme-purple .flow-arrow .arrow-line { background: var(--purple); }
+  .theme-purple .flow-arrow .arrow-line::after { border-left-color: var(--purple); }
+
+  .theme-orange .flow-node { background: var(--orange-light); border: 1.5px solid var(--orange); }
+  .theme-orange .flow-arrow .arrow-line { background: var(--orange); }
+  .theme-orange .flow-arrow .arrow-line::after { border-left-color: var(--orange); }
+
+  /* Vertical sub-flow */
+  .sub-flow {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--border);
+  }
+  .sub-flow-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  /* Annotations */
+  .annotations {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .annotations-content {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    outline: none;
+    min-height: 20px;
+  }
+  .annotations-content:focus { color: var(--text); }
+  .annotations-content:empty::before {
+    content: '点击添加备注…';
+    color: #cbd5e1;
+  }
+
+  /* Print */
+  @media print {
+    body { padding: 0; background: #fff; }
+    .toolbar, .section-actions, .node-remove, header p { display: none !important; }
+    .diagram-section { box-shadow: none; border: 1px solid #e2e8f0; break-inside: avoid; }
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    body { padding: 12px; }
+    .diagram-section { padding: 16px; }
+    .flow-node { min-width: 90px; padding: 10px 12px; }
+    .flow-node .node-label { font-size: 12px; }
+    .flow-arrow { min-width: 40px; padding: 0 3px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>业务结构图编辑器</h1>
+    <p>点击任意文字直接编辑 · 所有修改自动保存到浏览器</p>
+  </div>
+  <div class="toolbar">
+    <button onclick="addNewDiagram()">+ 新建结构图</button>
+    <button onclick="exportJSON()">导出 JSON</button>
+    <button onclick="importJSON()">导入 JSON</button>
+    <button onclick="window.print()">打印 / PDF</button>
+  </div>
+</header>
+
+<div class="container" id="diagrams"></div>
+
+<script>
+const STORAGE_KEY = 'biz-structures-v2';
+
+const DEFAULT_DATA = [
+  {
+    id: 'd1',
+    title: '基金交易结构',
+    theme: 'blue',
+    nodes: [
+      { label: 'LP（有限合伙人）', desc: '出资方 / 投资人' },
+      { label: '基金（GP 管理）', desc: '基金管理人' },
+      { label: 'SPV', desc: '特殊目的载体' },
+      { label: '标的公司', desc: '被投企业' }
+    ],
+    arrows: [
+      { text: '出资' },
+      { text: '投资决策' },
+      { text: '持股 / 控制' }
+    ],
+    notes: '典型的私募股权基金架构。LP 出资 → GP 管理基金 → 通过 SPV 持有标的公司股权。\n可扩展：多层 SPV、并行基金、跟投载体等。'
+  },
+  {
+    id: 'd2',
+    title: 'SaaS 产品架构',
+    theme: 'green',
+    nodes: [
+      { label: '用户', desc: 'Web / Mobile' },
+      { label: '前端', desc: 'React / Vue' },
+      { label: '服务层', desc: 'API Gateway + 微服务' },
+      { label: '数据层', desc: 'DB + Cache + MQ' }
+    ],
+    arrows: [
+      { text: 'HTTP/WS' },
+      { text: 'REST/gRPC' },
+      { text: 'ORM/Driver' }
+    ],
+    notes: '标准 SaaS 四层架构。可根据实际情况增加 CDN、负载均衡、消息队列、搜索引擎等中间件节点。'
+  },
+  {
+    id: 'd3',
+    title: '供应链金融结构',
+    theme: 'purple',
+    nodes: [
+      { label: '核心企业', desc: '上游买方' },
+      { label: '应收账款', desc: '贸易债权' },
+      { label: '保理公司', desc: '受让债权' },
+      { label: '投资人 / ABS', desc: '资金方' }
+    ],
+    arrows: [
+      { text: '确权' },
+      { text: '转让' },
+      { text: '融资' }
+    ],
+    notes: '正向保理模式：核心企业确认应收账款 → 供应商将债权转让给保理公司 → 保理公司打包或直接对接投资人/ABS。\n反向保理：由核心企业发起，信用传递给上游供应商。'
+  },
+  {
+    id: 'd4',
+    title: '自定义结构（模板）',
+    theme: 'orange',
+    nodes: [
+      { label: '节点 A', desc: '描述' },
+      { label: '节点 B', desc: '描述' },
+      { label: '节点 C', desc: '描述' }
+    ],
+    arrows: [
+      { text: '关系 1' },
+      { text: '关系 2' }
+    ],
+    notes: '点击任意文字即可编辑。点击节点右上角 × 删除节点，点击「+ 节点」添加新节点。'
+  }
+];
+
+let data = [];
+
+function load() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      data = JSON.parse(saved);
+      if (!Array.isArray(data) || data.length === 0) throw 0;
+    } else {
+      data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    }
+  } catch {
+    data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  }
+  render();
+}
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function render() {
+  const c = document.getElementById('diagrams');
+  c.innerHTML = '';
+  data.forEach((d, di) => {
+    const section = document.createElement('div');
+    section.className = `diagram-section theme-${d.theme || 'blue'}`;
+    section.innerHTML = buildDiagramHTML(d, di);
+    c.appendChild(section);
+    bindEvents(section, di);
+  });
+}
+
+function buildDiagramHTML(d, di) {
+  const themes = ['blue','green','purple','orange'];
+  const themeButtons = themes.map(t =>
+    `<button class="${d.theme === t ? 'active' : ''}" onclick="changeTheme(${di},'${t}')" style="width:22px;height:22px;border-radius:50%;border:2px solid var(--${t === 'blue' ? 'accent' : t});background:${d.theme === t ? `var(--${t === 'blue' ? 'accent' : t})` : 'transparent'};cursor:pointer;padding:0;"></button>`
+  ).join('');
+
+  let flowHTML = '';
+  d.nodes.forEach((n, ni) => {
+    if (ni > 0 && d.arrows[ni - 1]) {
+      const a = d.arrows[ni - 1];
+      flowHTML += `
+        <div class="flow-arrow">
+          <span class="arrow-text" contenteditable="true" data-di="${di}" data-ai="${ni-1}">${a.text}</span>
+          <div class="arrow-line"></div>
+        </div>`;
+    }
+    flowHTML += `
+      <div class="flow-step">
+        <div class="flow-node">
+          <button class="node-remove" onclick="removeNode(${di},${ni})" title="删除节点">×</button>
+          <span class="node-label" contenteditable="true" data-di="${di}" data-ni="${ni}" data-field="label">${n.label}</span>
+          <span class="node-desc" contenteditable="true" data-di="${di}" data-ni="${ni}" data-field="desc">${n.desc}</span>
+        </div>
+      </div>`;
+  });
+
+  return `
+    <div class="section-header">
+      <span class="section-title" contenteditable="true" data-di="${di}">${d.title}</span>
+      <div class="section-actions">
+        <span style="display:flex;gap:4px;align-items:center;margin-right:8px;">${themeButtons}</span>
+        <button onclick="addNode(${di})">+ 节点</button>
+        <button class="btn-delete" onclick="removeDiagram(${di})">删除</button>
+      </div>
+    </div>
+    <div class="flow-container">${flowHTML}</div>
+    <div class="annotations">
+      <div class="annotations-content" contenteditable="true" data-di="${di}" data-field="notes">${(d.notes || '').replace(/\n/g, '<br>')}</div>
+    </div>`;
+}
+
+function bindEvents(section, di) {
+  section.querySelector('.section-title').addEventListener('blur', function() {
+    data[di].title = this.textContent.trim();
+    save();
+  });
+
+  section.querySelectorAll('.node-label, .node-desc').forEach(el => {
+    el.addEventListener('blur', function() {
+      const ni = +this.dataset.ni;
+      const field = this.dataset.field;
+      data[di].nodes[ni][field] = this.textContent.trim();
+      save();
+    });
+  });
+
+  section.querySelectorAll('.arrow-text').forEach(el => {
+    el.addEventListener('blur', function() {
+      const ai = +this.dataset.ai;
+      data[di].arrows[ai].text = this.textContent.trim();
+      save();
+    });
+  });
+
+  const notesEl = section.querySelector('.annotations-content');
+  if (notesEl) {
+    notesEl.addEventListener('blur', function() {
+      data[di].notes = this.innerText.trim();
+      save();
+    });
+  }
+}
+
+function addNode(di) {
+  data[di].nodes.push({ label: '新节点', desc: '描述' });
+  if (data[di].nodes.length > 1) {
+    data[di].arrows.push({ text: '关系' });
+  }
+  save();
+  render();
+}
+
+function removeNode(di, ni) {
+  if (data[di].nodes.length <= 1) return;
+  data[di].nodes.splice(ni, 1);
+  if (ni === 0 && data[di].arrows.length > 0) {
+    data[di].arrows.splice(0, 1);
+  } else if (ni > 0) {
+    data[di].arrows.splice(ni - 1, 1);
+  }
+  save();
+  render();
+}
+
+function removeDiagram(di) {
+  if (!confirm(`确定删除「${data[di].title}」？`)) return;
+  data.splice(di, 1);
+  save();
+  render();
+}
+
+function changeTheme(di, theme) {
+  data[di].theme = theme;
+  save();
+  render();
+}
+
+function addNewDiagram() {
+  data.push({
+    id: 'd' + Date.now(),
+    title: '新结构图',
+    theme: 'blue',
+    nodes: [
+      { label: '起点', desc: '描述' },
+      { label: '终点', desc: '描述' }
+    ],
+    arrows: [{ text: '关系' }],
+    notes: ''
+  });
+  save();
+  render();
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'business-structures.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importJSON() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const imported = JSON.parse(ev.target.result);
+        if (Array.isArray(imported)) {
+          data = imported;
+          save();
+          render();
+        } else {
+          alert('JSON 格式不正确');
+        }
+      } catch { alert('JSON 解析失败'); }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+load();
+</script>
+</body>
+</html>

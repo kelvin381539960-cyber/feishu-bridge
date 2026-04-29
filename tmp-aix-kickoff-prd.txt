@@ -1,0 +1,131 @@
+Lark Docs
+A
+AIX Card
+Search
+Table of contents
+[必读]如何维护一个好看的Wiki
+Tech Docs
+AIX PRD
+AIX Project Kickoff Main PRD V1.0
+​
+已评审
+​
+进行中
+AIX项目管理表
+CS培训文档
+AIX app launch+CS
+【已废弃】AIX官网需求1.0
+AIX官网需求1.0
+AIX APP设备采集
+AIX OBoss
+AIX需求管理
+AIX功能模块划分及需求文档命名规范
+翻译文案管理
+Countries and Regions list
+AIX Multi-Language List
+AIX【System Notification+content】
+Web3 Wiki
+CopyWriting
+Advance Intelligence Group
+AIX Card
+AIX PRD
+AIX Project Kickoff Main PRD V1.0
+Last modified: 3:54 PM Mar 5
+Share
+Editing
+AIX Project Kickoff Main PRD V1.0
+1. 修订记录
+2. 项目概述
+2.1 项目背景
+2.2 项目目标
+2.3 项目价值
+3. 用户故事
+4. 核心流程
+5. MVP范围
+5.1 AIX Feature List
+5.2 DTC APIs List
+6. 功能结构
+7. 需求文档
+8. 需求管理
+8.1 GAP Analysis & Risk
+8.2 DTC QA List
+9. 项目计划
+AIX Project Kickoff Main PRD V1.0​
+Xuemin Zhu 朱学敏
+Modified March 5
+1.
+修订记录​
+​
+日期​
+版本​
+说明​
+作者​
+项目计划​
+BRD​
+Sep 06​
+ 
+V1.0​
+ 
+AIX Stablecoin MVP（0->1）​
+ 
+​
+Xuemin Zhu 朱学敏
+​
+ 
+​​
+AIX Card Project Plan - Internal​
+ 
+​AIX Card BRD​
+​
+2.
+项目概述​
+2.1
+项目背景​
+​
+​
+🎯
+•
+传统银行转账或跨境支付存在如手续费高、结算周期长、中间环节繁琐等问题；​
+•
+加密货币价格波动剧烈，这种不稳定性限制了其在日常交易和价值存储方面的应用；​
+•
+加密货币市场的匿名性和监管空白，引发了一系列金融风险和安全问题；​
+•
+因此，稳定币应运而生，它通过与法定货币（如美元）或其他稳定资产挂钩，旨在保持相对稳定的价值，为 Web3 生态系统提供稳定的价值存储和交易媒介。​
+​
+​
+​
+​
+2.2
+项目目标​
+​
+​
+🎯
+•
+AIX APP：侧重满足用户注册钱包、充值、提现、开卡、卡管及交易等场景需求；​
+•
+AIX渠道对接：侧重集成DTCPay的钱包、卡及及支付等API接口，提供底层支持能力；​
+•
+AIX运营系统：侧重日常运营、渠道营销、报表统计；​
+•
+AIX官网：侧重品牌宣传。​
+​
+​
+2.3
+项目价值​
+​
+​
+🎯
+•
+方便持有稳定币的Atome满足MY地区用户通过AIX Card进行消费，借助现有充足的商户体系给用户消费带来便利卡需求；​
+•
+通过OTC提升GMV，并在开卡或交易中获得分润收益；​
+•
+支持稳定币支付，并与美元锚定的 USDT、USDC、WUSD；​
+•
+采用先进的加密技术和安全架构，确保用户的稳定币资产安全；​
+•
+与支持Visa卡消费或收单的商家和服务提供商合作，推动稳定币在日常消费（一期支持：OTC消费、ATM或便利店取现等）场景中的应用；​
+​
+​
+Comments (0)

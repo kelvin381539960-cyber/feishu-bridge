@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>交易结构与业务流程</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@logicflow/core@2.1.11/dist/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@logicflow/extension@2.1.13/dist/index.css">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: #f5f7fa;
+  overflow: hidden;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  height: 56px;
+  padding: 0 24px;
+  background: #fff;
+  border-bottom: 1px solid #e8ecf0;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  z-index: 10;
+  position: relative;
+}
+
+.toolbar h1 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1d2129;
+  margin-right: auto;
+}
+
+.toolbar .btn-group {
+  display: flex;
+  gap: 10px;
+}
+
+.toolbar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: #1677ff;
+  color: #fff;
+}
+.btn-primary:hover {
+  background: #4096ff;
+  box-shadow: 0 2px 8px rgba(22,119,255,0.35);
+}
+
+.btn-secondary {
+  background: #f0f5ff;
+  color: #1677ff;
+  border: 1px solid #d6e4ff !important;
+}
+.btn-secondary:hover {
+  background: #e6f0ff;
+  box-shadow: 0 2px 8px rgba(22,119,255,0.15);
+}
+
+.btn-outline {
+  background: #fff;
+  color: #4e5969;
+  border: 1px solid #e5e6eb !important;
+}
+.btn-outline:hover {
+  color: #1677ff;
+  border-color: #1677ff !important;
+}
+
+#container {
+  width: 100%;
+  height: calc(100vh - 56px);
+  background: #fafbfc;
+}
+
+.toast {
+  position: fixed;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  padding: 10px 24px;
+  background: #1677ff;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  opacity: 0;
+  transition: all 0.3s;
+  pointer-events: none;
+  z-index: 100;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.edit-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  padding: 24px;
+  min-width: 320px;
+  z-index: 200;
+  display: none;
+}
+.edit-panel.active { display: block; }
+
+.edit-panel h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1d2129;
+  margin-bottom: 16px;
+}
+
+.edit-panel label {
+  display: block;
+  font-size: 12px;
+  color: #86909c;
+  margin-bottom: 4px;
+}
+
+.edit-panel input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e5e6eb;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-bottom: 12px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.edit-panel input:focus { border-color: #1677ff; }
+
+.edit-panel .panel-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.25);
+  z-index: 199;
+  display: none;
+}
+.overlay.active { display: block; }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <h1>交易结构与业务流程</h1>
+  <div class="btn-group">
+    <button class="btn-primary" onclick="autoLayout()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg>
+      自动对齐布局
+    </button>
+    <button class="btn-secondary" onclick="exportImage()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      导出图片
+    </button>
+    <button class="btn-outline" onclick="resetView()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+      适配视图
+    </button>
+  </div>
+</div>
+
+<div id="container"></div>
+<div id="toast" class="toast"></div>
+
+<div id="overlay" class="overlay" onclick="closeEditPanel()"></div>
+<div id="editPanel" class="edit-panel">
+  <h3 id="editTitle">编辑属性</h3>
+  <label>显示文本</label>
+  <input id="editText" type="text" placeholder="输入文本...">
+  <div class="panel-actions">
+    <button class="btn-outline" onclick="closeEditPanel()">取消</button>
+    <button class="btn-primary" onclick="saveEdit()">保存</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@logicflow/core@2.1.11/dist/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@logicflow/extension@2.1.13/dist/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════
+// 1. 极简数据协议 — 只需定义关系，坐标由 dagre 自动计算
+// ═══════════════════════════════════════════════════════════
+const rawData = [
+  // 股权 / 控制关系
+  { from: "AIX Holdings", to: "AIX HK Ltd",       label: "持股 100%",  type: "equity" },
+  { from: "AIX HK Ltd",   to: "AIX Card Co",      label: "持股 100%",  type: "equity" },
+  { from: "AIX HK Ltd",   to: "AIX Custody",      label: "持股 80%",   type: "equity" },
+  { from: "AIX HK Ltd",   to: "AIX Tech",         label: "持股 100%",  type: "equity" },
+
+  // 业务流程
+  { from: "用户",          to: "AIX App",          label: "注册开户",   type: "flow", fromType: "person" },
+  { from: "AIX App",       to: "KYC审核",          label: "提交资料",   type: "flow", toType: "action" },
+  { from: "KYC审核",       to: "AIX Card Co",      label: "审核通过",   type: "flow", fromType: "action" },
+  { from: "AIX Card Co",   to: "发卡行",           label: "申请发卡",   type: "flow" },
+  { from: "发卡行",        to: "用户",             label: "发卡完成",   type: "flow", toType: "person" },
+
+  // 资金流
+  { from: "用户",          to: "AIX Custody",      label: "链上充值",   type: "fund", fromType: "person" },
+  { from: "AIX Custody",   to: "AIX Card Co",      label: "余额同步",   type: "fund" },
+  { from: "AIX Card Co",   to: "卡网络",           label: "交易授权",   type: "fund" },
+];
+
+// ═══════════════════════════════════════════════════════════
+// 2. 引用 LogicFlow 及扩展包全局变量
+// ═══════════════════════════════════════════════════════════
+const LogicFlow = Core.default;
+const { RectNode, RectNodeModel, DiamondNode, DiamondNodeModel,
+        PolylineEdge, PolylineEdgeModel } = Core;
+const { Snapshot, SelectionSelect, Menu } = Extension;
+
+// ═══════════════════════════════════════════════════════════
+// 3. 自定义节点：company / person / action
+// ═══════════════════════════════════════════════════════════
+
+// ── company: 蓝色边框矩形 ──
+class CompanyModel extends RectNodeModel {
+  initNodeData(data) {
+    super.initNodeData(data);
+    this.width = 160;
+    this.height = 50;
+    this.radius = 4;
+  }
+  getNodeStyle() {
+    const style = super.getNodeStyle();
+    style.stroke = '#1677ff';
+    style.strokeWidth = 2;
+    style.fill = '#f0f5ff';
+    return style;
+  }
+  getTextStyle() {
+    const style = super.getTextStyle();
+    style.color = '#1d2129';
+    style.fontSize = 13;
+    style.fontWeight = 600;
+    return style;
+  }
+}
+
+// ── person: 绿色圆角矩形 ──
+class PersonModel extends RectNodeModel {
+  initNodeData(data) {
+    super.initNodeData(data);
+    this.width = 140;
+    this.height = 50;
+    this.radius = 20;
+  }
+  getNodeStyle() {
+    const style = super.getNodeStyle();
+    style.stroke = '#52c41a';
+    style.strokeWidth = 2;
+    style.fill = '#f6ffed';
+    return style;
+  }
+  getTextStyle() {
+    const style = super.getTextStyle();
+    style.color = '#1d2129';
+    style.fontSize = 13;
+    style.fontWeight = 600;
+    return style;
+  }
+}
+
+// ── action: 菱形，橙色 ──
+class ActionModel extends DiamondNodeModel {
+  initNodeData(data) {
+    super.initNodeData(data);
+    this.rx = 70;
+    this.ry = 40;
+  }
+  getNodeStyle() {
+    const style = super.getNodeStyle();
+    style.stroke = '#fa8c16';
+    style.strokeWidth = 2;
+    style.fill = '#fff7e6';
+    return style;
+  }
+  getTextStyle() {
+    const style = super.getTextStyle();
+    style.color = '#1d2129';
+    style.fontSize = 12;
+    style.fontWeight = 600;
+    return style;
+  }
+}
+
+// ── 自定义边样式 ──
+class CustomEdgeModel extends PolylineEdgeModel {
+  getEdgeStyle() {
+    const style = super.getEdgeStyle();
+    const type = this.properties.relType;
+    if (type === 'equity') {
+      style.stroke = '#1677ff';
+      style.strokeDasharray = '6 3';
+    } else if (type === 'fund') {
+      style.stroke = '#fa8c16';
+    } else {
+      style.stroke = '#86909c';
+    }
+    style.strokeWidth = 1.5;
+    return style;
+  }
+  getTextStyle() {
+    const style = super.getTextStyle();
+    style.color = '#4e5969';
+    style.fontSize = 11;
+    style.background = { fill: '#fff', stroke: 'transparent', radius: 3 };
+    return style;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// 4. rawData → LogicFlow { nodes, edges }
+// ═══════════════════════════════════════════════════════════
+function convertRawData(raw) {
+  const nodeMap = new Map();
+  const edges = [];
+
+  function ensureNode(name, explicitType) {
+    if (!nodeMap.has(name)) {
+      nodeMap.set(name, { name, type: explicitType || 'company' });
+    } else if (explicitType) {
+      nodeMap.get(name).type = explicitType;
+    }
+  }
+
+  raw.forEach((r, i) => {
+    ensureNode(r.from, r.fromType);
+    ensureNode(r.to, r.toType);
+    edges.push({
+      id: `edge_${i}`,
+      type: 'custom-edge',
+      sourceNodeId: sanitizeId(r.from),
+      targetNodeId: sanitizeId(r.to),
+      text: r.label || '',
+      properties: { relType: r.type || 'flow' },
+    });
+  });
+
+  const nodes = [];
+  nodeMap.forEach((v) => {
+    nodes.push({
+      id: sanitizeId(v.name),
+      type: v.type,
+      x: 200,
+      y: 200,
+      text: v.name,
+    });
+  });
+
+  return { nodes, edges };
+}
+
+function sanitizeId(name) {
+  return 'n_' + name.replace(/[^a-zA-Z0-9\u4e00-\u9fff]/g, '_');
+}
+
+// ═══════════════════════════════════════════════════════════
+// 5. 初始化 LogicFlow
+// ═══════════════════════════════════════════════════════════
+const lf = new LogicFlow({
+  container: document.getElementById('container'),
+  grid: { size: 20, type: 'dot', config: { color: '#d9dce3' } },
+  plugins: [Snapshot, SelectionSelect, Menu],
+  edgeType: 'custom-edge',
+  keyboard: { enabled: true },
+  background: { backgroundColor: '#fafbfc' },
+});
+
+lf.register({ type: 'company', view: RectNode,    model: CompanyModel });
+lf.register({ type: 'person',  view: RectNode,    model: PersonModel });
+lf.register({ type: 'action',  view: DiamondNode, model: ActionModel });
+lf.register({ type: 'custom-edge', view: PolylineEdge, model: CustomEdgeModel });
+
+lf.setMenuConfig({
+  nodeMenu: [
+    { text: '编辑文本', callback: (node) => openEditPanel(node.id, 'node') },
+    { text: '删除',     callback: (node) => lf.deleteNode(node.id) },
+  ],
+  edgeMenu: [
+    { text: '编辑标签', callback: (edge) => openEditPanel(edge.id, 'edge') },
+    { text: '删除',     callback: (edge) => lf.deleteEdge(edge.id) },
+  ],
+});
+
+const graphData = convertRawData(rawData);
+lf.render(graphData);
+
+setTimeout(() => {
+  autoLayout();
+}, 200);
+
+// ═══════════════════════════════════════════════════════════
+// 6. Dagre 自动布局
+// ═══════════════════════════════════════════════════════════
+function autoLayout() {
+  const g = new dagre.graphlib.Graph();
+  g.setGraph({
+    rankdir: 'TB',
+    nodesep: 90,
+    ranksep: 110,
+    marginx: 60,
+    marginy: 60,
+  });
+  g.setDefaultEdgeLabel(() => ({}));
+
+  const data = lf.getGraphRawData();
+
+  data.nodes.forEach((node) => {
+    const w = node.type === 'action' ? 140 : (node.type === 'person' ? 140 : 160);
+    const h = node.type === 'action' ? 80 : 50;
+    g.setNode(node.id, { width: w, height: h });
+  });
+
+  data.edges.forEach((edge) => {
+    g.setEdge(edge.sourceNodeId, edge.targetNodeId);
+  });
+
+  dagre.layout(g);
+
+  g.nodes().forEach((id) => {
+    const pos = g.node(id);
+    if (!pos) return;
+    lf.graphModel.moveNode2Coordinate(id, pos.x, pos.y);
+  });
+
+  setTimeout(() => lf.fitView(60, 60), 50);
+  showToast('布局已自动对齐');
+}
+
+// ═══════════════════════════════════════════════════════════
+// 7. 导出图片
+// ═══════════════════════════════════════════════════════════
+function exportImage() {
+  lf.getSnapshot('交易结构图', 'image/png');
+  showToast('图片已导出');
+}
+
+function resetView() {
+  lf.fitView(60, 60);
+  showToast('视图已重置');
+}
+
+// ═══════════════════════════════════════════════════════════
+// 8. 属性编辑面板
+// ═══════════════════════════════════════════════════════════
+let editingId = null;
+let editingType = null;
+
+function openEditPanel(id, type) {
+  editingId = id;
+  editingType = type;
+  const el = type === 'node' ? lf.getNodeModelById(id) : lf.getEdgeModelById(id);
+  if (!el) return;
+  document.getElementById('editTitle').textContent = type === 'node' ? '编辑节点' : '编辑连线';
+  document.getElementById('editText').value = (el.text && el.text.value) || el.text || '';
+  document.getElementById('editPanel').classList.add('active');
+  document.getElementById('overlay').classList.add('active');
+  setTimeout(() => document.getElementById('editText').focus(), 50);
+}
+
+function closeEditPanel() {
+  document.getElementById('editPanel').classList.remove('active');
+  document.getElementById('overlay').classList.remove('active');
+  editingId = null;
+  editingType = null;
+}
+
+function saveEdit() {
+  const newText = document.getElementById('editText').value.trim();
+  if (editingId && newText !== '') {
+    lf.updateText(editingId, newText);
+  }
+  closeEditPanel();
+  showToast('已保存');
+}
+
+document.getElementById('editText').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') saveEdit();
+  if (e.key === 'Escape') closeEditPanel();
+});
+
+lf.on('node:dbclick', ({ data }) => openEditPanel(data.id, 'node'));
+lf.on('edge:dbclick', ({ data }) => openEditPanel(data.id, 'edge'));
+
+// ═══════════════════════════════════════════════════════════
+// 9. Toast 提示
+// ═══════════════════════════════════════════════════════════
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+</script>
+</body>
+</html>

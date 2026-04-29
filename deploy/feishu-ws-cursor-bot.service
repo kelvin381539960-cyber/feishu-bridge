@@ -1,0 +1,16 @@
+[Unit]
+Description=Feishu WebSocket to OpenClaw Gateway (feishu-ws-cursor-bot)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/feishu-bridge
+ExecStart=/usr/bin/node /opt/feishu-bridge/feishu-ws-cursor.js
+Restart=always
+RestartSec=5
+EnvironmentFile=-/etc/feishu-ws-cursor-bot.env
+# openclaw 需 Node 22+：在 env 文件中设置 PATH（含 nvm 的 node）或 OPENCLAW_BIN 绝对路径
+Environment=HOME=/root USER=root PATH=/root/.nvm/versions/node/v22.22.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+[Install]
+WantedBy=multi-user.target

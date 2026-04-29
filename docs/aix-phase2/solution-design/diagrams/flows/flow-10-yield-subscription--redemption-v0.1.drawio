@@ -1,0 +1,143 @@
+<mxfile host="Electron" agent="Cursor" version="22.0.4" type="device">
+  <diagram id="diagram" name="Page-1">
+    <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="2000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="p_0" value="Customer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="100" y="80" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l_0" value="" style="endArrow=none;dashed=1;html=1;strokeWidth=2;strokeColor=#999999;" edge="1" parent="1" source="p_0">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170.0" y="130" as="sourcePoint" />
+            <mxPoint x="170.0" y="1230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p_1" value="AIX App" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="350" y="80" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l_1" value="" style="endArrow=none;dashed=1;html=1;strokeWidth=2;strokeColor=#999999;" edge="1" parent="1" source="p_1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="420.0" y="130" as="sourcePoint" />
+            <mxPoint x="420.0" y="1230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p_2" value="AIX Platform (Ledger)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="600" y="80" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l_2" value="" style="endArrow=none;dashed=1;html=1;strokeWidth=2;strokeColor=#999999;" edge="1" parent="1" source="p_2">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="670.0" y="130" as="sourcePoint" />
+            <mxPoint x="670.0" y="1230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p_3" value="AIX Treasury" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="850" y="80" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l_3" value="" style="endArrow=none;dashed=1;html=1;strokeWidth=2;strokeColor=#999999;" edge="1" parent="1" source="p_3">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="920.0" y="130" as="sourcePoint" />
+            <mxPoint x="920.0" y="1230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p_4" value="Yield Provider" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="80" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l_4" value="" style="endArrow=none;dashed=1;html=1;strokeWidth=2;strokeColor=#999999;" edge="1" parent="1" source="p_4">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1170.0" y="130" as="sourcePoint" />
+            <mxPoint x="1170.0" y="1230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n_1" value="场景 A：申购 (实时账本划转)" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="170.0" y="150" width="500" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="m_2" value="提交申购请求" style="html=1;verticalAlign=bottom;endArrow=block;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="170.0" y="240" as="sourcePoint" />
+            <mxPoint x="420.0" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_3" value="扣减 Wallet Balance，增加 Yield Balance" style="html=1;verticalAlign=bottom;endArrow=block;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="420.0" y="310" as="sourcePoint" />
+            <mxPoint x="670.0" y="310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n_4" value="场景 B：每日计息 (批处理)" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="420.0" y="360" width="250" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="m_5" value="凌晨快照并计算收益，发放至余额" style="edgeStyle=orthogonalEdgeStyle;html=1;verticalAlign=bottom;endArrow=block;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="670.0" y="450" as="sourcePoint" />
+            <mxPoint x="670.0" y="480" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="730.0" y="450" />
+              <mxPoint x="730.0" y="480" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n_6" value="场景 C：赎回 (活期秒退)" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="170.0" y="510" width="500" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="m_7" value="提交赎回请求" style="html=1;verticalAlign=bottom;endArrow=block;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="170.0" y="600" as="sourcePoint" />
+            <mxPoint x="420.0" y="600" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_8" value="扣减 Yield Balance，增加 Wallet Balance" style="edgeStyle=orthogonalEdgeStyle;html=1;verticalAlign=bottom;endArrow=block;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="670.0" y="690" as="sourcePoint" />
+            <mxPoint x="670.0" y="720" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="730.0" y="690" />
+              <mxPoint x="730.0" y="720" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="sep_8" value="触发大额限制" style="endArrow=none;dashed=1;html=1;strokeWidth=1;strokeColor=#666666;fontSize=12;verticalAlign=bottom;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="100" y="770" as="sourcePoint" />
+            <mxPoint x="1350" y="770" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_9" value="挂起请求，等待底层清算 (T+1)" style="edgeStyle=orthogonalEdgeStyle;html=1;verticalAlign=bottom;endArrow=block;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="670.0" y="800" as="sourcePoint" />
+            <mxPoint x="670.0" y="830" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="730.0" y="800" />
+              <mxPoint x="730.0" y="830" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="b_9" value="alt: 备付金充足" style="shape=rect;html=1;whiteSpace=wrap;align=left;verticalAlign=top;fillColor=none;strokeColor=#000000;strokeWidth=1;dashed=1;fontSize=13;spacingLeft=5;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="50" y="640" width="1250" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="b_9_back" parent="1" source="b_9" target="b_9" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="n_10" value="异步动作：底层资金 B2B 投资" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="920.0" y="880" width="250" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="m_11" value="汇总净申购/赎回敞口" style="edgeStyle=orthogonalEdgeStyle;html=1;verticalAlign=bottom;endArrow=block;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="920.0" y="970" as="sourcePoint" />
+            <mxPoint x="920.0" y="1000" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="980.0" y="970" />
+              <mxPoint x="980.0" y="1000" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m_12" value="[资金流] 每日定时打款或提现" style="html=1;verticalAlign=bottom;endArrow=block;dashed=1;strokeWidth=2;strokeColor=#333333;fontSize=13;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="920.0" y="1050" as="sourcePoint" />
+            <mxPoint x="1170.0" y="1050" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
