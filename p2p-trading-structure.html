@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P2P 交易结构全景图</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0f1117;
+  --bg2: #161822;
+  --card: #1c1f2e;
+  --card2: #232738;
+  --border: #2d3148;
+  --border-glow: #3b82f640;
+  --text: #e2e8f0;
+  --text-dim: #8892b0;
+  --text-bright: #ffffff;
+  --blue: #60a5fa;
+  --blue-deep: #3b82f6;
+  --cyan: #22d3ee;
+  --green: #34d399;
+  --green-deep: #10b981;
+  --purple: #a78bfa;
+  --purple-deep: #8b5cf6;
+  --orange: #fbbf24;
+  --red: #f87171;
+  --pink: #f472b6;
+  --teal: #2dd4bf;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", "Noto Sans SC", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.page-header {
+  text-align: center;
+  padding: 48px 24px 20px;
+  position: relative;
+}
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 600px; height: 300px;
+  background: radial-gradient(ellipse, #3b82f615, transparent 70%);
+  pointer-events: none;
+}
+.page-header h1 {
+  font-size: 32px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--blue), var(--purple), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+}
+.page-header .sub {
+  color: var(--text-dim);
+  font-size: 14px;
+  margin-top: 8px;
+  letter-spacing: 2px;
+}
+
+.legend-bar {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  padding: 12px 24px 36px;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+}
+.legend-line {
+  width: 28px; height: 3px;
+  border-radius: 2px;
+}
+.legend-line.dashed {
+  background: repeating-linear-gradient(90deg, var(--orange) 0 6px, transparent 6px 10px);
+}
+
+svg.diagram {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+}
+
+.node {
+  cursor: default;
+  transition: filter 0.2s;
+}
+.node:hover {
+  filter: brightness(1.15) drop-shadow(0 0 12px rgba(96, 165, 250, 0.3));
+}
+
+.flow-arrow {
+  animation: flowPulse 2s ease-in-out infinite;
+}
+@keyframes flowPulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.data-flow {
+  stroke-dasharray: 8 4;
+  animation: dashFlow 1.5s linear infinite;
+}
+@keyframes dashFlow {
+  to { stroke-dashoffset: -24; }
+}
+
+.money-flow {
+  stroke-dasharray: 12 4;
+  animation: moneyFlow 2s linear infinite;
+}
+@keyframes moneyFlow {
+  to { stroke-dashoffset: -32; }
+}
+
+.pulse-ring {
+  animation: pulse 2.5s ease-in-out infinite;
+  transform-origin: center;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.2; r: 28; }
+  50% { opacity: 0.5; r: 34; }
+}
+
+.float-anim {
+  animation: floatY 3s ease-in-out infinite;
+}
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.section-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+/* Tooltip */
+.tooltip-group .tip-box { opacity: 0; pointer-events: none; transition: opacity .2s; }
+.tooltip-group:hover .tip-box { opacity: 1; }
+
+/* Bottom stats */
+.stats-bar {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  padding: 40px 24px 60px;
+  flex-wrap: wrap;
+}
+.stat {
+  text-align: center;
+}
+.stat .num {
+  font-size: 28px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--cyan), var(--blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.stat .label {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>P2P 交易平台 · 全景架构图</h1>
+  <div class="sub">PEER-TO-PEER TRADING INFRASTRUCTURE</div>
+</div>
+
+<div class="legend-bar">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>信息流 / 指令流</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>资金流</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div>风控 / 合规链路</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>数据回流 / 监控</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>争议 / 仲裁</div>
+  <div class="legend-item"><div class="legend-line dashed"></div>异步 / 事件驱动</div>
+</div>
+
+<svg class="diagram" viewBox="0 0 1400 1600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glowStrong">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <linearGradient id="gradBlue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#60a5fa"/>
+    </linearGradient>
+    <linearGradient id="gradGreen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+    <linearGradient id="gradPurple" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+    <linearGradient id="gradOrange" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+    <linearGradient id="gradRed" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#f87171"/>
+    </linearGradient>
+    <linearGradient id="gradCyan" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="gradPink" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ec4899"/>
+      <stop offset="100%" stop-color="#f472b6"/>
+    </linearGradient>
+    <marker id="arrowBlue" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#60a5fa"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#34d399"/>
+    </marker>
+    <marker id="arrowOrange" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#fbbf24"/>
+    </marker>
+    <marker id="arrowPurple" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#a78bfa"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f87171"/>
+    </marker>
+    <marker id="arrowCyan" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#22d3ee"/>
+    </marker>
+  </defs>
+
+  <!-- ==================== LAYER 1: 用户端 ==================== -->
+  <g class="layer-users">
+    <!-- Section background -->
+    <rect x="40" y="20" width="1320" height="200" rx="16" fill="#1a1d2e" stroke="#2d3148" stroke-width="1"/>
+    <text x="70" y="52" class="section-badge" fill="#60a5fa" font-family="sans-serif" font-size="11" letter-spacing="2">LAYER 1 — 用户接入层 USER ACCESS</text>
+
+    <!-- Buyer -->
+    <g class="node tooltip-group float-anim" transform="translate(160, 120)">
+      <circle r="28" fill="none" stroke="#3b82f6" stroke-width="1.5" class="pulse-ring" opacity="0.3"/>
+      <circle r="38" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+      <text y="-8" text-anchor="middle" fill="#60a5fa" font-size="22">🛒</text>
+      <text y="12" text-anchor="middle" fill="#e2e8f0" font-size="11" font-weight="700" font-family="sans-serif">买方</text>
+      <g class="tip-box" transform="translate(50, -50)">
+        <rect width="140" height="60" rx="6" fill="#232738" stroke="#3b82f6" stroke-width="1"/>
+        <text x="10" y="18" fill="#94a3b8" font-size="10" font-family="sans-serif">KYC Level: L2+</text>
+        <text x="10" y="33" fill="#94a3b8" font-size="10" font-family="sans-serif">支付绑定: 银行卡/微信</text>
+        <text x="10" y="48" fill="#94a3b8" font-size="10" font-family="sans-serif">信用分: 85/100</text>
+      </g>
+    </g>
+
+    <!-- Seller -->
+    <g class="node tooltip-group float-anim" transform="translate(1240, 120)" style="animation-delay: 0.5s">
+      <circle r="28" fill="none" stroke="#10b981" stroke-width="1.5" class="pulse-ring" opacity="0.3"/>
+      <circle r="38" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+      <text y="-8" text-anchor="middle" fill="#34d399" font-size="22">💰</text>
+      <text y="12" text-anchor="middle" fill="#e2e8f0" font-size="11" font-weight="700" font-family="sans-serif">卖方</text>
+      <g class="tip-box" transform="translate(-190, -50)">
+        <rect width="140" height="60" rx="6" fill="#232738" stroke="#10b981" stroke-width="1"/>
+        <text x="10" y="18" fill="#94a3b8" font-size="10" font-family="sans-serif">商户等级: 钻石</text>
+        <text x="10" y="33" fill="#94a3b8" font-size="10" font-family="sans-serif">保证金: ¥50,000</text>
+        <text x="10" y="48" fill="#94a3b8" font-size="10" font-family="sans-serif">完成率: 99.2%</text>
+      </g>
+    </g>
+
+    <!-- Maker / Market Maker -->
+    <g class="node tooltip-group float-anim" transform="translate(500, 100)" style="animation-delay: 0.3s">
+      <rect x="-48" y="-28" width="96" height="56" rx="12" fill="#1e293b" stroke="#8b5cf6" stroke-width="2"/>
+      <text y="-6" text-anchor="middle" fill="#a78bfa" font-size="16">⚡</text>
+      <text y="12" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="700" font-family="sans-serif">做市商</text>
+    </g>
+
+    <!-- Advertiser -->
+    <g class="node tooltip-group float-anim" transform="translate(700, 100)" style="animation-delay: 0.7s">
+      <rect x="-48" y="-28" width="96" height="56" rx="12" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+      <text y="-6" text-anchor="middle" fill="#fbbf24" font-size="16">📢</text>
+      <text y="12" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="700" font-family="sans-serif">广告主</text>
+    </g>
+
+    <!-- API Trader -->
+    <g class="node tooltip-group float-anim" transform="translate(900, 100)" style="animation-delay: 0.4s">
+      <rect x="-48" y="-28" width="96" height="56" rx="12" fill="#1e293b" stroke="#22d3ee" stroke-width="2"/>
+      <text y="-6" text-anchor="middle" fill="#22d3ee" font-size="16">🤖</text>
+      <text y="12" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="700" font-family="sans-serif">API 交易</text>
+    </g>
+
+    <!-- Connections from users down -->
+    <line x1="160" y1="158" x2="160" y2="250" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arrowBlue)" class="data-flow"/>
+    <line x1="1240" y1="158" x2="1240" y2="250" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrowGreen)" class="data-flow"/>
+    <line x1="500" y1="128" x2="500" y2="250" stroke="#8b5cf6" stroke-width="1.5" marker-end="url(#arrowPurple)" class="data-flow"/>
+    <line x1="700" y1="128" x2="700" y2="250" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arrowOrange)" class="data-flow"/>
+    <line x1="900" y1="128" x2="900" y2="250" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrowCyan)" class="data-flow"/>
+  </g>
+
+  <!-- ==================== LAYER 2: 网关 & API 层 ==================== -->
+  <g class="layer-gateway">
+    <rect x="40" y="240" width="1320" height="110" rx="16" fill="#161b2e" stroke="#2d3148" stroke-width="1"/>
+    <text x="70" y="272" class="section-badge" fill="#22d3ee" font-family="sans-serif" font-size="11" letter-spacing="2">LAYER 2 — 网关与接入 GATEWAY &amp; API</text>
+
+    <g class="node" transform="translate(250, 310)">
+      <rect x="-80" y="-22" width="160" height="44" rx="8" fill="#0e2a4a" stroke="#3b82f6" stroke-width="1.5"/>
+      <text text-anchor="middle" y="5" fill="#60a5fa" font-size="12" font-weight="600" font-family="sans-serif">API Gateway / WAF</text>
+    </g>
+    <g class="node" transform="translate(500, 310)">
+      <rect x="-70" y="-22" width="140" height="44" rx="8" fill="#0e2a4a" stroke="#3b82f6" stroke-width="1.5"/>
+      <text text-anchor="middle" y="5" fill="#60a5fa" font-size="12" font-weight="600" font-family="sans-serif">WebSocket 长连接</text>
+    </g>
+    <g class="node" transform="translate(750, 310)">
+      <rect x="-70" y="-22" width="140" height="44" rx="8" fill="#0e2a4a" stroke="#3b82f6" stroke-width="1.5"/>
+      <text text-anchor="middle" y="5" fill="#60a5fa" font-size="12" font-weight="600" font-family="sans-serif">Rate Limiter</text>
+    </g>
+    <g class="node" transform="translate(1000, 310)">
+      <rect x="-80" y="-22" width="160" height="44" rx="8" fill="#0e2a4a" stroke="#3b82f6" stroke-width="1.5"/>
+      <text text-anchor="middle" y="5" fill="#60a5fa" font-size="12" font-weight="600" font-family="sans-serif">Auth / Session Mgr</text>
+    </g>
+    <g class="node" transform="translate(1200, 310)">
+      <rect x="-60" y="-22" width="120" height="44" rx="8" fill="#0e2a4a" stroke="#3b82f6" stroke-width="1.5"/>
+      <text text-anchor="middle" y="5" fill="#60a5fa" font-size="12" font-weight="600" font-family="sans-serif">CDN / 静态</text>
+    </g>
+
+    <!-- Down arrows -->
+    <line x1="500" y1="332" x2="500" y2="380" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+    <line x1="750" y1="332" x2="750" y2="380" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+  </g>
+
+  <!-- ==================== LAYER 3: 核心交易引擎 ==================== -->
+  <g class="layer-core">
+    <rect x="40" y="370" width="1320" height="300" rx="16" fill="#1a1d2e" stroke="#3b82f640" stroke-width="1.5"/>
+    <text x="70" y="402" class="section-badge" fill="#f472b6" font-family="sans-serif" font-size="11" letter-spacing="2">LAYER 3 — 核心交易引擎 CORE TRADING ENGINE</text>
+
+    <!-- Order Book / Matching -->
+    <g class="node" transform="translate(350, 470)">
+      <rect x="-100" y="-45" width="200" height="90" rx="12" fill="#1e1040" stroke="url(#gradPurple)" stroke-width="2" filter="url(#glow)"/>
+      <text text-anchor="middle" y="-18" fill="#c4b5fd" font-size="13" font-weight="700" font-family="sans-serif">订单撮合引擎</text>
+      <text text-anchor="middle" y="0" fill="#8892b0" font-size="10" font-family="sans-serif">Order Matching Engine</text>
+      <text text-anchor="middle" y="18" fill="#a78bfa" font-size="10" font-family="sans-serif">价格优先 → 时间优先</text>
+      <text text-anchor="middle" y="33" fill="#64748b" font-size="9" font-family="sans-serif">P99 &lt; 5ms | 10K TPS</text>
+    </g>
+
+    <!-- Escrow Engine -->
+    <g class="node" transform="translate(700, 470)">
+      <rect x="-100" y="-45" width="200" height="90" rx="12" fill="#0a2e1e" stroke="url(#gradGreen)" stroke-width="2" filter="url(#glow)"/>
+      <text text-anchor="middle" y="-18" fill="#6ee7b7" font-size="13" font-weight="700" font-family="sans-serif">托管 / 担保引擎</text>
+      <text text-anchor="middle" y="0" fill="#8892b0" font-size="10" font-family="sans-serif">Escrow Service</text>
+      <text text-anchor="middle" y="18" fill="#34d399" font-size="10" font-family="sans-serif">冻结 → 确认 → 释放</text>
+      <text text-anchor="middle" y="33" fill="#64748b" font-size="9" font-family="sans-serif">多签托管 | 超时自动释放</text>
+    </g>
+
+    <!-- Settlement -->
+    <g class="node" transform="translate(1050, 470)">
+      <rect x="-100" y="-45" width="200" height="90" rx="12" fill="#1a0e2e" stroke="url(#gradCyan)" stroke-width="2" filter="url(#glow)"/>
+      <text text-anchor="middle" y="-18" fill="#67e8f9" font-size="13" font-weight="700" font-family="sans-serif">清算结算中心</text>
+      <text text-anchor="middle" y="0" fill="#8892b0" font-size="10" font-family="sans-serif">Settlement &amp; Clearing</text>
+      <text text-anchor="middle" y="18" fill="#22d3ee" font-size="10" font-family="sans-serif">T+0 实时结算</text>
+      <text text-anchor="middle" y="33" fill="#64748b" font-size="9" font-family="sans-serif">轧差清算 | 手续费分润</text>
+    </g>
+
+    <!-- Connections between core engines -->
+    <line x1="450" y1="470" x2="600" y2="470" stroke="#a78bfa" stroke-width="2" marker-end="url(#arrowPurple)"/>
+    <line x1="800" y1="470" x2="950" y2="470" stroke="#34d399" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+    <!-- Sub-components row -->
+    <g transform="translate(160, 590)">
+      <rect x="-60" y="-18" width="120" height="36" rx="6" fill="#232738" stroke="#475569" stroke-width="1"/>
+      <text text-anchor="middle" y="5" fill="#94a3b8" font-size="10" font-family="sans-serif">广告管理系统</text>
+    </g>
+    <g transform="translate(340, 590)">
+      <rect x="-60" y="-18" width="120" height="36" rx="6" fill="#232738" stroke="#475569" stroke-width="1"/>
+      <text text-anchor="middle" y="5" fill="#94a3b8" font-size="10" font-family="sans-serif">定价引擎</text>
+    </g>
+    <g transform="translate(520, 590)">
+      <rect x="-65" y="-18" width="130" height="36" rx="6" fill="#232738" stroke="#475569" stroke-width="1"/>
+      <text text-anchor="middle" y="5" fill="#94a3b8" font-size="10" font-family="sans-serif">支付方式路由</text>
+    </g>
+    <g transform="translate(710, 590)">
+      <rect x="-65" y="-18" width="130" height="36" rx="6" fill="#232738" stroke="#475569" stroke-width="1"/>
+      <text text-anchor="middle" y="5" fill="#94a3b8" font-size="10" font-family="sans-serif">聊天 / IM 通道</text>
+    </g>
+    <g transform="translate(900, 590)">
+      <rect x="-65" y="-18" width="130" height="36" rx="6" fill="#232738" stroke="#475569" stroke-width="1"/>
+      <text text-anchor="middle" y="5" fill="#94a3b8" font-size="10" font-family="sans-serif">汇率聚合器</text>
+    </g>
+    <g transform="translate(1100, 590)">
+      <rect x="-75" y="-18" width="150" height="36" rx="6" fill="#232738" stroke="#475569" stroke-width="1"/>
+      <text text-anchor="middle" y="5" fill="#94a3b8" font-size="10" font-family="sans-serif">交易状态机 FSM</text>
+    </g>
+
+    <!-- Connecting lines from engines to sub-components -->
+    <line x1="350" y1="515" x2="160" y2="572" stroke="#475569" stroke-width="1" stroke-dasharray="3 3"/>
+    <line x1="350" y1="515" x2="340" y2="572" stroke="#475569" stroke-width="1" stroke-dasharray="3 3"/>
+    <line x1="700" y1="515" x2="520" y2="572" stroke="#475569" stroke-width="1" stroke-dasharray="3 3"/>
+    <line x1="700" y1="515" x2="710" y2="572" stroke="#475569" stroke-width="1" stroke-dasharray="3 3"/>
+    <line x1="1050" y1="515" x2="900" y2="572" stroke="#475569" stroke-width="1" stroke-dasharray="3 3"/>
+    <line x1="1050" y1="515" x2="1100" y2="572" stroke="#475569" stroke-width="1" stroke-dasharray="3 3"/>
+  </g>
+
+  <!-- ==================== LAYER 4: 风控 & 合规 ==================== -->
+  <g class="layer-risk">
+    <rect x="40" y="690" width="1320" height="190" rx="16" fill="#1f1515" stroke="#ef444440" stroke-width="1.5"/>
+    <text x="70" y="722" class="section-badge" fill="#f87171" font-family="sans-serif" font-size="11" letter-spacing="2">LAYER 4 — 风控合规层 RISK &amp; COMPLIANCE</text>
+
+    <g class="node" transform="translate(180, 790)">
+      <rect x="-75" y="-32" width="150" height="64" rx="10" fill="#2a1215" stroke="url(#gradRed)" stroke-width="1.5"/>
+      <text text-anchor="middle" y="-8" fill="#fca5a5" font-size="11" font-weight="700" font-family="sans-serif">实时风控引擎</text>
+      <text text-anchor="middle" y="8" fill="#8892b0" font-size="9" font-family="sans-serif">规则 + ML 模型</text>
+      <text text-anchor="middle" y="22" fill="#64748b" font-size="8" font-family="sans-serif">欺诈检测 &lt; 50ms</text>
+    </g>
+
+    <g class="node" transform="translate(420, 790)">
+      <rect x="-75" y="-32" width="150" height="64" rx="10" fill="#2a1215" stroke="url(#gradOrange)" stroke-width="1.5"/>
+      <text text-anchor="middle" y="-8" fill="#fcd34d" font-size="11" font-weight="700" font-family="sans-serif">KYC / AML</text>
+      <text text-anchor="middle" y="8" fill="#8892b0" font-size="9" font-family="sans-serif">身份核验 · 制裁名单</text>
+      <text text-anchor="middle" y="22" fill="#64748b" font-size="8" font-family="sans-serif">L1/L2/L3 三级认证</text>
+    </g>
+
+    <g class="node" transform="translate(660, 790)">
+      <rect x="-80" y="-32" width="160" height="64" rx="10" fill="#2a1215" stroke="url(#gradRed)" stroke-width="1.5"/>
+      <text text-anchor="middle" y="-8" fill="#fca5a5" font-size="11" font-weight="700" font-family="sans-serif">交易行为分析</text>
+      <text text-anchor="middle" y="8" fill="#8892b0" font-size="9" font-family="sans-serif">异常模式识别</text>
+      <text text-anchor="middle" y="22" fill="#64748b" font-size="8" font-family="sans-serif">关联图谱 · 设备指纹</text>
+    </g>
+
+    <g class="node" transform="translate(910, 790)">
+      <rect x="-80" y="-32" width="160" height="64" rx="10" fill="#2a1215" stroke="url(#gradOrange)" stroke-width="1.5"/>
+      <text text-anchor="middle" y="-8" fill="#fcd34d" font-size="11" font-weight="700" font-family="sans-serif">争议仲裁系统</text>
+      <text text-anchor="middle" y="8" fill="#8892b0" font-size="9" font-family="sans-serif">Dispute Resolution</text>
+      <text text-anchor="middle" y="22" fill="#64748b" font-size="8" font-family="sans-serif">人工 + AI 智能裁决</text>
+    </g>
+
+    <g class="node" transform="translate(1170, 790)">
+      <rect x="-80" y="-32" width="160" height="64" rx="10" fill="#2a1215" stroke="url(#gradRed)" stroke-width="1.5"/>
+      <text text-anchor="middle" y="-8" fill="#fca5a5" font-size="11" font-weight="700" font-family="sans-serif">黑名单 / 限制</text>
+      <text text-anchor="middle" y="8" fill="#8892b0" font-size="9" font-family="sans-serif">IP · 设备 · 账户</text>
+      <text text-anchor="middle" y="22" fill="#64748b" font-size="8" font-family="sans-serif">实时拦截 · 熔断机制</text>
+    </g>
+
+    <!-- Risk layer interconnections -->
+    <line x1="255" y1="790" x2="345" y2="790" stroke="#f8717160" stroke-width="1" stroke-dasharray="4 3"/>
+    <line x1="495" y1="790" x2="580" y2="790" stroke="#f8717160" stroke-width="1" stroke-dasharray="4 3"/>
+    <line x1="740" y1="790" x2="830" y2="790" stroke="#f8717160" stroke-width="1" stroke-dasharray="4 3"/>
+    <line x1="990" y1="790" x2="1090" y2="790" stroke="#f8717160" stroke-width="1" stroke-dasharray="4 3"/>
+  </g>
+
+  <!-- ==================== LAYER 5: 资金通道 ==================== -->
+  <g class="layer-payment">
+    <rect x="40" y="900" width="1320" height="200" rx="16" fill="#0d1f15" stroke="#10b98140" stroke-width="1.5"/>
+    <text x="70" y="932" class="section-badge" fill="#34d399" font-family="sans-serif" font-size="11" letter-spacing="2">LAYER 5 — 资金通道层 PAYMENT CHANNELS</text>
+
+    <!-- Payment methods -->
+    <g class="node" transform="translate(160, 1000)">
+      <rect x="-60" y="-35" width="120" height="70" rx="10" fill="#0a2e1e" stroke="#34d399" stroke-width="1.5"/>
+      <text text-anchor="middle" y="-10" fill="#34d399" font-size="18">🏦</text>
+      <text text-anchor="middle" y="10" fill="#e2e8f0" font-size="10" font-weight="600" font-family="sans-serif">银行转账</text>
+      <text text-anchor="middle" y="24" fill="#64748b" font-size="8" font-family="sans-serif">SWIFT / 网银</text>
+    </g>
+    <g class="node" transform="translate(340, 1000)">
+      <rect x="-60" y="-35" width="120" height="70" rx="10" fill="#0a2e1e" stroke="#34d399" stroke-width="1.5"/>
+      <text text-anchor="middle" y="-10" fill="#34d399" font-size="18">📱</text>
+      <text text-anchor="middle" y="10" fill="#e2e8f0" font-size="10" font-weight="600" font-family="sans-serif">支付宝</text>
+      <text text-anchor="middle" y="24" fill="#64748b" font-size="8" font-family="sans-serif">实名转账</text>
+    </g>
+    <g class="node" transform="translate(520, 1000)">
+      <rect x="-60" y="-35" width="120" height="70" rx="10" fill="#0a2e1e" stroke="#34d399" stroke-width="1.5"/>
+      <text text-anchor="middle" y="-10" fill="#34d399" font-size="18">💳</text>
+      <text text-anchor="middle" y="10" fill="#e2e8f0" font-size="10" font-weight="600" font-family="sans-serif">微信支付</text>
+      <text text-anchor="middle" y="24" fill="#64748b" font-size="8" font-family="sans-serif">扫码 / 转账</text>
+    </g>
+    <g class="node" transform="translate(700, 1000)">
+      <rect x="-60" y="-35" width="120" height="70" rx="10" fill="#0a2e1e" stroke="#34d399" stroke-width="1.5"/>
+      <text text-anchor="middle" y="-10" fill="#34d399" font-size="18">🪙</text>
+      <text text-anchor="middle" y="10" fill="#e2e8f0" font-size="10" font-weight="600" font-family="sans-serif">链上结算</text>
+      <text text-anchor="middle" y="24" fill="#64748b" font-size="8" font-family="sans-serif">USDT / BTC</text>
+    </g>
+    <g class="node" transform="translate(880, 1000)">
+      <rect x="-60" y="-35" width="120" height="70" rx="10" fill="#0a2e1e" stroke="#34d399" stroke-width="1.5"/>
+      <text text-anchor="middle" y="-10" fill="#34d399" font-size="18">🌐</text>
+      <text text-anchor="middle" y="10" fill="#e2e8f0" font-size="10" font-weight="600" font-family="sans-serif">PayPal</text>
+      <text text-anchor="middle" y="24" fill="#64748b" font-size="8" font-family="sans-serif">国际支付</text>
+    </g>
+    <g class="node" transform="translate(1060, 1000)">
+      <rect x="-60" y="-35" width="120" height="70" rx="10" fill="#0a2e1e" stroke="#34d399" stroke-width="1.5"/>
+      <text text-anchor="middle" y="-10" fill="#34d399" font-size="18">🏧</text>
+      <text text-anchor="middle" y="10" fill="#e2e8f0" font-size="10" font-weight="600" font-family="sans-serif">线下现金</text>
+      <text text-anchor="middle" y="24" fill="#64748b" font-size="8" font-family="sans-serif">面对面交易</text>
+    </g>
+    <g class="node" transform="translate(1240, 1000)">
+      <rect x="-60" y="-35" width="120" height="70" rx="10" fill="#0a2e1e" stroke="#34d399" stroke-width="1.5"/>
+      <text text-anchor="middle" y="-10" fill="#34d399" font-size="18">🔗</text>
+      <text text-anchor="middle" y="10" fill="#e2e8f0" font-size="10" font-weight="600" font-family="sans-serif">第三方代付</text>
+      <text text-anchor="middle" y="24" fill="#64748b" font-size="8" font-family="sans-serif">聚合渠道</text>
+    </g>
+
+    <!-- Payment routing arrows from escrow to payment -->
+    <path d="M 700 515 L 700 600 L 700 900" stroke="#34d39960" stroke-width="1.5" fill="none" class="money-flow" marker-end="url(#arrowGreen)"/>
+  </g>
+
+  <!-- ==================== LAYER 6: 数据 & 基础设施 ==================== -->
+  <g class="layer-infra">
+    <rect x="40" y="1120" width="1320" height="200" rx="16" fill="#161822" stroke="#2d3148" stroke-width="1"/>
+    <text x="70" y="1152" class="section-badge" fill="#a78bfa" font-family="sans-serif" font-size="11" letter-spacing="2">LAYER 6 — 数据与基础设施 DATA &amp; INFRASTRUCTURE</text>
+
+    <g class="node" transform="translate(160, 1220)">
+      <rect x="-65" y="-30" width="130" height="60" rx="8" fill="#1e1040" stroke="#7c3aed" stroke-width="1.5"/>
+      <text text-anchor="middle" y="-6" fill="#c4b5fd" font-size="11" font-weight="600" font-family="sans-serif">PostgreSQL</text>
+      <text text-anchor="middle" y="10" fill="#64748b" font-size="9" font-family="sans-serif">主库 · 读副本</text>
+    </g>
+    <g class="node" transform="translate(360, 1220)">
+      <rect x="-65" y="-30" width="130" height="60" rx="8" fill="#1e1040" stroke="#7c3aed" stroke-width="1.5"/>
+      <text text-anchor="middle" y="-6" fill="#c4b5fd" font-size="11" font-weight="600" font-family="sans-serif">Redis Cluster</text>
+      <text text-anchor="middle" y="10" fill="#64748b" font-size="9" font-family="sans-serif">缓存 · 分布式锁</text>
+    </g>
+    <g class="node" transform="translate(560, 1220)">
+      <rect x="-65" y="-30" width="130" height="60" rx="8" fill="#1e1040" stroke="#7c3aed" stroke-width="1.5"/>
+      <text text-anchor="middle" y="-6" fill="#c4b5fd" font-size="11" font-weight="600" font-family="sans-serif">Kafka / MQ</text>
+      <text text-anchor="middle" y="10" fill="#64748b" font-size="9" font-family="sans-serif">事件总线 · 异步</text>
+    </g>
+    <g class="node" transform="translate(760, 1220)">
+      <rect x="-65" y="-30" width="130" height="60" rx="8" fill="#1e1040" stroke="#7c3aed" stroke-width="1.5"/>
+      <text text-anchor="middle" y="-6" fill="#c4b5fd" font-size="11" font-weight="600" font-family="sans-serif">ElasticSearch</text>
+      <text text-anchor="middle" y="10" fill="#64748b" font-size="9" font-family="sans-serif">全文检索 · 日志</text>
+    </g>
+    <g class="node" transform="translate(960, 1220)">
+      <rect x="-65" y="-30" width="130" height="60" rx="8" fill="#1e1040" stroke="#7c3aed" stroke-width="1.5"/>
+      <text text-anchor="middle" y="-6" fill="#c4b5fd" font-size="11" font-weight="600" font-family="sans-serif">ClickHouse</text>
+      <text text-anchor="middle" y="10" fill="#64748b" font-size="9" font-family="sans-serif">OLAP · 交易分析</text>
+    </g>
+    <g class="node" transform="translate(1170, 1220)">
+      <rect x="-75" y="-30" width="150" height="60" rx="8" fill="#1e1040" stroke="#7c3aed" stroke-width="1.5"/>
+      <text text-anchor="middle" y="-6" fill="#c4b5fd" font-size="11" font-weight="600" font-family="sans-serif">对象存储 / CDN</text>
+      <text text-anchor="middle" y="10" fill="#64748b" font-size="9" font-family="sans-serif">凭证 · 截图 · KYC</text>
+    </g>
+  </g>
+
+  <!-- ==================== LAYER 7: 监控 & 运维 ==================== -->
+  <g class="layer-ops">
+    <rect x="40" y="1340" width="1320" height="120" rx="16" fill="#151520" stroke="#2d3148" stroke-width="1"/>
+    <text x="70" y="1372" class="section-badge" fill="#fbbf24" font-family="sans-serif" font-size="11" letter-spacing="2">LAYER 7 — 监控运维 OBSERVABILITY &amp; OPS</text>
+
+    <g class="node" transform="translate(200, 1410)">
+      <rect x="-70" y="-20" width="140" height="40" rx="6" fill="#232738" stroke="#fbbf24" stroke-width="1"/>
+      <text text-anchor="middle" y="5" fill="#fcd34d" font-size="10" font-weight="600" font-family="sans-serif">Prometheus + Grafana</text>
+    </g>
+    <g class="node" transform="translate(430, 1410)">
+      <rect x="-70" y="-20" width="140" height="40" rx="6" fill="#232738" stroke="#fbbf24" stroke-width="1"/>
+      <text text-anchor="middle" y="5" fill="#fcd34d" font-size="10" font-weight="600" font-family="sans-serif">分布式链路追踪</text>
+    </g>
+    <g class="node" transform="translate(660, 1410)">
+      <rect x="-70" y="-20" width="140" height="40" rx="6" fill="#232738" stroke="#fbbf24" stroke-width="1"/>
+      <text text-anchor="middle" y="5" fill="#fcd34d" font-size="10" font-weight="600" font-family="sans-serif">告警 · PagerDuty</text>
+    </g>
+    <g class="node" transform="translate(890, 1410)">
+      <rect x="-70" y="-20" width="140" height="40" rx="6" fill="#232738" stroke="#fbbf24" stroke-width="1"/>
+      <text text-anchor="middle" y="5" fill="#fcd34d" font-size="10" font-weight="600" font-family="sans-serif">审计日志 / SOC</text>
+    </g>
+    <g class="node" transform="translate(1120, 1410)">
+      <rect x="-80" y="-20" width="160" height="40" rx="6" fill="#232738" stroke="#fbbf24" stroke-width="1"/>
+      <text text-anchor="middle" y="5" fill="#fcd34d" font-size="10" font-weight="600" font-family="sans-serif">CI/CD · 蓝绿部署</text>
+    </g>
+  </g>
+
+  <!-- ==================== 跨层流程线 ==================== -->
+
+  <!-- 买方完整交易流 (蓝线) -->
+  <path d="M 160 250 C 160 280, 250 288, 250 310" stroke="#60a5fa" stroke-width="2" fill="none" class="data-flow" filter="url(#glow)"/>
+
+  <!-- 核心交易引擎 到 风控 -->
+  <path d="M 350 515 L 350 670 L 180 758" stroke="#f87171" stroke-width="1.5" fill="none" class="data-flow" marker-end="url(#arrowRed)"/>
+  <path d="M 700 515 L 700 670 L 660 758" stroke="#f87171" stroke-width="1.5" fill="none" class="data-flow" marker-end="url(#arrowRed)"/>
+  <path d="M 1050 515 L 1050 670 L 910 758" stroke="#f87171" stroke-width="1.5" fill="none" class="data-flow" marker-end="url(#arrowRed)"/>
+
+  <!-- 风控 到 数据层 -->
+  <path d="M 180 822 L 180 900 L 180 1050 L 360 1190" stroke="#a78bfa60" stroke-width="1" fill="none" stroke-dasharray="5 4"/>
+  <path d="M 660 822 L 660 900 L 660 1050 L 760 1190" stroke="#a78bfa60" stroke-width="1" fill="none" stroke-dasharray="5 4"/>
+
+  <!-- 数据层 到 监控 -->
+  <line x1="560" y1="1250" x2="430" y2="1390" stroke="#fbbf2440" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="760" y1="1250" x2="660" y2="1390" stroke="#fbbf2440" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="960" y1="1250" x2="890" y2="1390" stroke="#fbbf2440" stroke-width="1" stroke-dasharray="4 3"/>
+
+  <!-- ==================== 交易流程注解 (右侧浮动) ==================== -->
+  <g transform="translate(50, 470)">
+    <rect x="-10" y="-70" width="18" height="140" rx="9" fill="#3b82f620"/>
+    <circle cx="-1" cy="-55" r="6" fill="#3b82f6"/>
+    <text x="-1" y="-52" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="sans-serif">1</text>
+    <circle cx="-1" cy="-20" r="6" fill="#10b981"/>
+    <text x="-1" y="-17" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="sans-serif">2</text>
+    <circle cx="-1" cy="15" r="6" fill="#f59e0b"/>
+    <text x="-1" y="18" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="sans-serif">3</text>
+    <circle cx="-1" cy="50" r="6" fill="#ef4444"/>
+    <text x="-1" y="53" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="sans-serif">4</text>
+
+    <text x="16" y="-51" fill="#60a5fa" font-size="9" font-family="sans-serif">下单匹配</text>
+    <text x="16" y="-16" fill="#34d399" font-size="9" font-family="sans-serif">资金托管</text>
+    <text x="16" y="19" fill="#fbbf24" font-size="9" font-family="sans-serif">付款确认</text>
+    <text x="16" y="54" fill="#f87171" font-size="9" font-family="sans-serif">释放资产</text>
+  </g>
+
+  <!-- Title decoration: animated particle line at top -->
+  <line x1="100" y1="15" x2="1300" y2="15" stroke="url(#gradBlue)" stroke-width="1" opacity="0.3"/>
+  <line x1="100" y1="1475" x2="1300" y2="1475" stroke="url(#gradPurple)" stroke-width="1" opacity="0.3"/>
+
+</svg>
+
+<!-- Stats bar -->
+<div class="stats-bar">
+  <div class="stat"><div class="num">7</div><div class="label">架构层级</div></div>
+  <div class="stat"><div class="num">30+</div><div class="label">核心模块</div></div>
+  <div class="stat"><div class="num">7</div><div class="label">支付通道</div></div>
+  <div class="stat"><div class="num">5</div><div class="label">风控引擎</div></div>
+  <div class="stat"><div class="num">&lt;5ms</div><div class="label">撮合延迟</div></div>
+  <div class="stat"><div class="num">10K</div><div class="label">TPS 峰值</div></div>
+</div>
+
+</body>
+</html>

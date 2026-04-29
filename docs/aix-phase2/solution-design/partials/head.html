@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AIX Phase 2 概要设计方案</title>
+  <style>
+:root {
+  --ink: #1a1d21;
+  --muted: #5c6370;
+  --border: #d1d5db;
+  --bg: #ffffff;
+  --bg-alt: #f9fafb;
+  --accent: #0b5cab;
+  --accent-light: #dbeafe;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 2.5rem clamp(1rem, 4vw, 3rem) 4rem;
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  font-size: 15px;
+  line-height: 1.65;
+}
+h1 { font-size: 1.8rem; font-weight: 700; margin: 0; }
+h2 {
+  font-size: 1.2rem; font-weight: 700;
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 0.45rem;
+  margin: 2.5rem 0 1.25rem;
+}
+h3 { font-size: 1rem; font-weight: 700; color: var(--accent); margin: 1.75rem 0 0.6rem; }
+p { margin: 0 0 0.75rem; }
+.doc-header { border-bottom: 3px solid var(--ink); padding-bottom: 1.25rem; margin-bottom: 2rem; }
+.subtitle { color: var(--muted); margin: 0.3rem 0 0; font-size: 0.98rem; }
+.meta { display: flex; gap: 1rem 2.5rem; flex-wrap: wrap; margin-top: 0.75rem; font-size: 0.87rem; color: var(--muted); }
+.meta dt { font-weight: 600; color: var(--ink); }
+.meta dd { margin: 0.1rem 0 0; }
+.callout {
+  background: var(--bg-alt);
+  border-left: 4px solid var(--accent);
+  padding: 0.9rem 1.1rem;
+  margin: 0.5rem 0 1.25rem;
+  font-size: 0.88rem;
+}
+.callout strong { color: var(--ink); }
+table { width: 100%; border-collapse: collapse; font-size: 0.875rem; margin-bottom: 1.5rem; }
+thead th { background: #0f172a; color: #fff; padding: 0.6rem 0.85rem; text-align: left; font-size: 0.82rem; }
+td { padding: 0.5rem 0.85rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:nth-child(even) td { background: var(--bg-alt); }
+.flow-step { margin: 0 0 0.35rem; padding-left: 0.15rem; font-size: 0.9rem; }
+.key-constraints { white-space: pre-wrap; }
+footer { margin-top: 3rem; font-size: 0.83rem; color: var(--muted); border-top: 1px solid var(--border); padding-top: 1rem; }
+.doc-root { overflow-x: auto; }
+.doc-root table { font-size: 0.875rem; }
+.doc-root h4 { margin: 1.2rem 0 0.35rem; font-size: 0.95rem; color: #1e3a8a; }
+/* Mermaid：由 foot 中脚本将 pre.language-mermaid 替换为下方容器后渲染 */
+.mermaid-diagram {
+  margin: 1rem 0 1.5rem;
+  overflow-x: auto;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem 1rem;
+}
+.mermaid-diagram svg { max-width: 100%; height: auto; }
+</style>
+</head>
+<body>

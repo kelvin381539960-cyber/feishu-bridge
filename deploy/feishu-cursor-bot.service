@@ -1,0 +1,16 @@
+[Unit]
+Description=Feishu Cursor bot (webhook only; second Feishu app)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/feishu-bridge
+ExecStart=/usr/bin/node /opt/feishu-bridge/server.js
+Restart=always
+RestartSec=3
+EnvironmentFile=-/etc/feishu-cursor-bot.env
+# 与 feishu-ws-cursor-bot 相同：agent 包装脚本需要 HOME（set -u + NODE_COMPILE_CACHE）
+Environment=HOME=/root USER=root PATH=/root/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+[Install]
+WantedBy=multi-user.target

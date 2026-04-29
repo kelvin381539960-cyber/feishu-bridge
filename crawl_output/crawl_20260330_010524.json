@@ -1,0 +1,255 @@
+{
+  "task": "提取所有书籍的书名(title)、价格(price)和评分(rating)",
+  "start_url": "https://books.toscrape.com",
+  "config": {
+    "max_pages": 3,
+    "max_depth": 1,
+    "follow_links": true
+  },
+  "summary": "### 爬取结果总结报告\n1. **数据发现**：本次共爬取3个页面，合计提取到20种不重复书籍的信息，均获取到书名、价格字段，书籍价格区间为£13.99-£57.25。\n2. **数据质量**：所有书籍的评分字段均缺失，且前两个页面的书籍信息完全重复，整体数据完整度不足，存在冗余内容。\n3. **注意点**：爬取的页面包含首页、分类列表页和单本书详情页，三类页面均未识别到评分相关内容，需检查评分字段的爬取规则是否适配页面元素；后续需优化去重逻辑，避免重复爬取相同的列表内容。",
+  "pages": [
+    {
+      "url": "https://books.toscrape.com/",
+      "title": "All products | Books to Scrape - Sandbox",
+      "depth": 0,
+      "extracted": {
+        "data": [
+          {
+            "title": "A Light in the ...",
+            "price": "£51.77",
+            "rating": null
+          },
+          {
+            "title": "Tipping the Velvet",
+            "price": "£53.74",
+            "rating": null
+          },
+          {
+            "title": "Soumission",
+            "price": "£50.10",
+            "rating": null
+          },
+          {
+            "title": "Sharp Objects",
+            "price": "£47.82",
+            "rating": null
+          },
+          {
+            "title": "Sapiens: A Brief History ...",
+            "price": "£54.23",
+            "rating": null
+          },
+          {
+            "title": "The Requiem Red",
+            "price": "£22.65",
+            "rating": null
+          },
+          {
+            "title": "The Dirty Little Secrets ...",
+            "price": "£33.34",
+            "rating": null
+          },
+          {
+            "title": "The Coming Woman: A ...",
+            "price": "£17.93",
+            "rating": null
+          },
+          {
+            "title": "The Boys in the ...",
+            "price": "£22.60",
+            "rating": null
+          },
+          {
+            "title": "The Black Maria",
+            "price": "£52.15",
+            "rating": null
+          },
+          {
+            "title": "Starving Hearts (Triangular Trade ...",
+            "price": "£13.99",
+            "rating": null
+          },
+          {
+            "title": "Shakespeare's Sonnets",
+            "price": "£20.66",
+            "rating": null
+          },
+          {
+            "title": "Set Me Free",
+            "price": "£17.46",
+            "rating": null
+          },
+          {
+            "title": "Scott Pilgrim's Precious Little ...",
+            "price": "£52.29",
+            "rating": null
+          },
+          {
+            "title": "Rip it Up and ...",
+            "price": "£35.02",
+            "rating": null
+          },
+          {
+            "title": "Our Band Could Be ...",
+            "price": "£57.25",
+            "rating": null
+          },
+          {
+            "title": "Olio",
+            "price": "£23.88",
+            "rating": null
+          },
+          {
+            "title": "Mesaerion: The Best Science ...",
+            "price": "£37.59",
+            "rating": null
+          },
+          {
+            "title": "Libertarianism for Beginners",
+            "price": "£51.33",
+            "rating": null
+          },
+          {
+            "title": "It's Only the Himalayas",
+            "price": "£45.17",
+            "rating": null
+          }
+        ],
+        "summary": "本次提取到网页第1页的20条书籍信息，包含书名和价格，未找到评分相关内容。"
+      },
+      "timestamp": "2026-03-30T01:04:34.508010"
+    },
+    {
+      "url": "https://books.toscrape.com/catalogue/category/books_1/index.html",
+      "title": "Books | Books to Scrape - Sandbox",
+      "depth": 1,
+      "extracted": {
+        "data": [
+          {
+            "title": "A Light in the ...",
+            "price": "£51.77",
+            "rating": null
+          },
+          {
+            "title": "Tipping the Velvet",
+            "price": "£53.74",
+            "rating": null
+          },
+          {
+            "title": "Soumission",
+            "price": "£50.10",
+            "rating": null
+          },
+          {
+            "title": "Sharp Objects",
+            "price": "£47.82",
+            "rating": null
+          },
+          {
+            "title": "Sapiens: A Brief History ...",
+            "price": "£54.23",
+            "rating": null
+          },
+          {
+            "title": "The Requiem Red",
+            "price": "£22.65",
+            "rating": null
+          },
+          {
+            "title": "The Dirty Little Secrets ...",
+            "price": "£33.34",
+            "rating": null
+          },
+          {
+            "title": "The Coming Woman: A ...",
+            "price": "£17.93",
+            "rating": null
+          },
+          {
+            "title": "The Boys in the ...",
+            "price": "£22.60",
+            "rating": null
+          },
+          {
+            "title": "The Black Maria",
+            "price": "£52.15",
+            "rating": null
+          },
+          {
+            "title": "Starving Hearts (Triangular Trade ...",
+            "price": "£13.99",
+            "rating": null
+          },
+          {
+            "title": "Shakespeare's Sonnets",
+            "price": "£20.66",
+            "rating": null
+          },
+          {
+            "title": "Set Me Free",
+            "price": "£17.46",
+            "rating": null
+          },
+          {
+            "title": "Scott Pilgrim's Precious Little ...",
+            "price": "£52.29",
+            "rating": null
+          },
+          {
+            "title": "Rip it Up and ...",
+            "price": "£35.02",
+            "rating": null
+          },
+          {
+            "title": "Our Band Could Be ...",
+            "price": "£57.25",
+            "rating": null
+          },
+          {
+            "title": "Olio",
+            "price": "£23.88",
+            "rating": null
+          },
+          {
+            "title": "Mesaerion: The Best Science ...",
+            "price": "£37.59",
+            "rating": null
+          },
+          {
+            "title": "Libertarianism for Beginners",
+            "price": "£51.33",
+            "rating": null
+          },
+          {
+            "title": "It's Only the Himalayas",
+            "price": "£45.17",
+            "rating": null
+          }
+        ],
+        "summary": "本次提取到20条书籍信息，包含书名和价格，未找到相关评分数据。"
+      },
+      "timestamp": "2026-03-30T01:05:03.381826"
+    },
+    {
+      "url": "https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html",
+      "title": "A Light in the Attic | Books to Scrape - Sandbox",
+      "depth": 1,
+      "extracted": {
+        "data": [
+          {
+            "title": "A Light in the Attic",
+            "price": "£51.77",
+            "rating": null
+          }
+        ],
+        "summary": "本页提取到1本名为《A Light in the Attic》的书籍，价格为£51.77，未找到评分信息。"
+      },
+      "timestamp": "2026-03-30T01:05:15.195592"
+    }
+  ],
+  "stats": {
+    "pages_crawled": 3,
+    "total_records": 41,
+    "duration_sec": 73.4
+  }
+}

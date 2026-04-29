@@ -1,0 +1,8 @@
+{
+  "taskId": "smoke-check",
+  "description": "Read-only smoke check for the scheduled Cursor task wrapper.",
+  "promptFile": "/opt/feishu-bridge/scheduled-tasks/prompts/smoke-check.md",
+  "timeoutSeconds": 300,
+  "niceLevel": 10,
+  "outputFile": "/opt/feishu-bridge/var/reports/scheduled-cursor/smoke-check-latest.txt"
+}

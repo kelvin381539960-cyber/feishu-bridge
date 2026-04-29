@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mermaid 泳道图编辑器</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f0f2f5;
+  --card: #ffffff;
+  --border: #e0e4ea;
+  --text: #1a1d23;
+  --text-dim: #6b7280;
+  --accent: #4f6ef7;
+  --accent-hover: #3b5de7;
+  --accent-bg: #eef1fe;
+  --green: #10b981;
+  --green-bg: #ecfdf5;
+  --red: #ef4444;
+  --red-bg: #fef2f2;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,.08);
+  --radius: 10px;
+  --editor-font: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+header h1 {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.status-badge {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  transition: all .2s;
+}
+.status-badge.ok { background: var(--green-bg); color: var(--green); }
+.status-badge.err { background: var(--red-bg); color: var(--red); }
+.status-badge.idle { background: var(--accent-bg); color: var(--accent); }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+button {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-radius: 7px;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--accent-hover); }
+
+.btn-secondary {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover { background: #e5e7eb; }
+
+.btn-danger {
+  background: var(--red-bg);
+  color: var(--red);
+}
+.btn-danger:hover { background: #fee2e2; }
+
+.main {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.panel-editor {
+  flex: 0 0 45%;
+  border-right: 1px solid var(--border);
+}
+
+.panel-preview {
+  flex: 1;
+  background: #fff;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.panel-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.editor-wrap {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+textarea#editor {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  padding: 16px;
+  font-family: var(--editor-font);
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--text);
+  background: #fafbfc;
+  tab-size: 4;
+}
+
+textarea#editor::placeholder { color: #c0c4cc; }
+
+.preview-wrap {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: #fff;
+}
+
+.preview-wrap svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.error-msg {
+  color: var(--red);
+  font-size: 13px;
+  padding: 16px;
+  font-family: var(--editor-font);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.resize-handle {
+  width: 5px;
+  cursor: col-resize;
+  background: transparent;
+  position: relative;
+  flex-shrink: 0;
+  z-index: 10;
+  margin-left: -3px;
+  margin-right: -2px;
+}
+.resize-handle:hover,
+.resize-handle.active { background: var(--accent); opacity: 0.4; }
+
+.toolbar-hint {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.saved-toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--text);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all .25s;
+  pointer-events: none;
+  z-index: 100;
+}
+.saved-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.templates-dropdown {
+  position: relative;
+  display: inline-block;
+}
+.templates-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  min-width: 220px;
+  z-index: 50;
+  padding: 4px;
+}
+.templates-menu.open { display: block; }
+.templates-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: none;
+  font-weight: 500;
+  color: var(--text);
+}
+.templates-menu button:hover { background: var(--bg); }
+
+@media (max-width: 768px) {
+  .main { flex-direction: column; }
+  .panel-editor { flex: 0 0 50%; border-right: none; border-bottom: 1px solid var(--border); }
+  .resize-handle { display: none; }
+  header { padding: 10px 12px; }
+  header h1 { font-size: 15px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>Mermaid 泳道图编辑器</h1>
+    <span id="statusBadge" class="status-badge idle">就绪</span>
+  </div>
+  <div class="header-right">
+    <span class="toolbar-hint">自动保存到本地</span>
+    <div class="templates-dropdown">
+      <button class="btn-secondary" id="templatesBtn">模板</button>
+      <div class="templates-menu" id="templatesMenu">
+        <button data-tpl="swimlane-lr">泳道图 (左→右)</button>
+        <button data-tpl="swimlane-td">泳道图 (上→下)</button>
+        <button data-tpl="approval">审批流程</button>
+        <button data-tpl="devops">DevOps 流水线</button>
+      </div>
+    </div>
+    <button class="btn-danger" id="resetBtn">重置</button>
+    <button class="btn-primary" id="exportSvgBtn">导出 SVG</button>
+    <button class="btn-primary" id="exportPngBtn">导出 PNG</button>
+  </div>
+</header>
+
+<div class="main">
+  <div class="panel panel-editor" id="editorPanel">
+    <div class="panel-header">
+      <span class="panel-title">Mermaid 代码</span>
+      <span class="toolbar-hint" id="charCount">0 字符</span>
+    </div>
+    <div class="editor-wrap">
+      <textarea id="editor" spellcheck="false" placeholder="在此输入 Mermaid 代码..."></textarea>
+    </div>
+  </div>
+  <div class="resize-handle" id="resizeHandle"></div>
+  <div class="panel panel-preview">
+    <div class="panel-header">
+      <span class="panel-title">实时预览</span>
+    </div>
+    <div class="preview-wrap" id="preview"></div>
+  </div>
+</div>
+
+<div class="saved-toast" id="toast">已保存</div>
+
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'default',
+  securityLevel: 'loose',
+  flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' }
+});
+
+const STORAGE_KEY = 'mermaid-swimlane-editor-v1';
+
+const DEFAULT_CODE = `flowchart LR
+    subgraph 产品经理
+        A[提需求] --> B[评审]
+    end
+    subgraph 开发
+        B --> C[编码] --> D[自测]
+    end
+    subgraph 测试
+        D --> E[测试] --> F{通过?}
+    end
+    subgraph 运维
+        F -- 是 --> G[部署上线]
+    end
+    F -- 否 --> C`;
+
+const TEMPLATES = {
+  'swimlane-lr': `flowchart LR
+    subgraph 产品经理
+        A[提需求] --> B[评审]
+    end
+    subgraph 开发
+        B --> C[编码] --> D[自测]
+    end
+    subgraph 测试
+        D --> E[测试] --> F{通过?}
+    end
+    subgraph 运维
+        F -- 是 --> G[部署上线]
+    end
+    F -- 否 --> C`,
+
+  'swimlane-td': `flowchart TD
+    subgraph 客户
+        A[发起订单] --> B[确认支付]
+    end
+    subgraph 系统
+        B --> C[生成订单] --> D[库存检查]
+        D --> E{有库存?}
+    end
+    subgraph 仓库
+        E -- 是 --> F[拣货打包] --> G[发货]
+    end
+    subgraph 客户
+        G --> H[收货确认]
+    end
+    E -- 否 --> I[通知缺货] --> A`,
+
+  'approval': `flowchart LR
+    subgraph 申请人
+        A[提交申请] --> B[填写表单]
+    end
+    subgraph 直属主管
+        B --> C[审批]
+        C --> D{同意?}
+    end
+    subgraph 部门总监
+        D -- 是 --> E[复审]
+        E --> F{通过?}
+    end
+    subgraph 财务
+        F -- 是 --> G[核算] --> H[打款]
+    end
+    subgraph 申请人
+        H --> I[收到款项]
+    end
+    D -- 否 --> J[退回修改] --> A
+    F -- 否 --> J`,
+
+  'devops': `flowchart LR
+    subgraph 开发者
+        A[编写代码] --> B[提交 PR]
+    end
+    subgraph CI
+        B --> C[代码扫描] --> D[单元测试]
+        D --> E{测试通过?}
+    end
+    subgraph CD
+        E -- 是 --> F[构建镜像] --> G[部署 Staging]
+    end
+    subgraph QA
+        G --> H[验收测试] --> I{通过?}
+    end
+    subgraph 运维
+        I -- 是 --> J[部署生产] --> K[监控告警]
+    end
+    E -- 否 --> L[通知修复] --> A
+    I -- 否 --> L`
+};
+
+const editor = document.getElementById('editor');
+const preview = document.getElementById('preview');
+const badge = document.getElementById('statusBadge');
+const charCount = document.getElementById('charCount');
+const toast = document.getElementById('toast');
+const templatesBtn = document.getElementById('templatesBtn');
+const templatesMenu = document.getElementById('templatesMenu');
+
+const saved = localStorage.getItem(STORAGE_KEY);
+editor.value = saved !== null ? saved : DEFAULT_CODE;
+
+let renderTimer = null;
+let renderCounter = 0;
+
+async function renderDiagram() {
+  const code = editor.value.trim();
+  charCount.textContent = `${editor.value.length} 字符`;
+
+  if (!code) {
+    preview.innerHTML = '<span style="color:var(--text-dim)">输入 Mermaid 代码后自动渲染</span>';
+    badge.textContent = '就绪';
+    badge.className = 'status-badge idle';
+    return;
+  }
+
+  try {
+    const id = `mermaid-graph-${++renderCounter}`;
+    const { svg } = await mermaid.render(id, code);
+    preview.innerHTML = svg;
+    badge.textContent = '渲染成功';
+    badge.className = 'status-badge ok';
+  } catch (err) {
+    const existing = document.getElementById(`dmermaid-graph-${renderCounter}`);
+    if (existing) existing.remove();
+    preview.innerHTML = `<div class="error-msg">渲染错误:\n${err.message || err}</div>`;
+    badge.textContent = '语法错误';
+    badge.className = 'status-badge err';
+  }
+}
+
+function saveToLocal() {
+  localStorage.setItem(STORAGE_KEY, editor.value);
+}
+
+function showToast(msg) {
+  toast.textContent = msg || '已保存';
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 1500);
+}
+
+let saveTimer = null;
+
+editor.addEventListener('input', () => {
+  clearTimeout(renderTimer);
+  renderTimer = setTimeout(renderDiagram, 350);
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { saveToLocal(); showToast(); }, 800);
+});
+
+editor.addEventListener('keydown', (e) => {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const start = editor.selectionStart;
+    const end = editor.selectionEnd;
+    editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(end);
+    editor.selectionStart = editor.selectionEnd = start + 4;
+    editor.dispatchEvent(new Event('input'));
+  }
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if (confirm('确定恢复为默认模板？当前内容会丢失。')) {
+    editor.value = DEFAULT_CODE;
+    saveToLocal();
+    renderDiagram();
+    showToast('已重置');
+  }
+});
+
+document.getElementById('exportSvgBtn').addEventListener('click', () => {
+  const svgEl = preview.querySelector('svg');
+  if (!svgEl) return alert('没有可导出的图表');
+  const svgData = new XMLSerializer().serializeToString(svgEl);
+  const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'swimlane-diagram.svg';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('SVG 已导出');
+});
+
+document.getElementById('exportPngBtn').addEventListener('click', () => {
+  const svgEl = preview.querySelector('svg');
+  if (!svgEl) return alert('没有可导出的图表');
+  const svgData = new XMLSerializer().serializeToString(svgEl);
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  const img = new Image();
+  img.onload = () => {
+    canvas.width = img.width * 2;
+    canvas.height = img.height * 2;
+    ctx.scale(2, 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+    canvas.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'swimlane-diagram.png';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('PNG 已导出');
+    }, 'image/png');
+  };
+  img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+});
+
+templatesBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  templatesMenu.classList.toggle('open');
+});
+
+document.addEventListener('click', () => templatesMenu.classList.remove('open'));
+
+templatesMenu.querySelectorAll('[data-tpl]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const key = btn.dataset.tpl;
+    if (TEMPLATES[key]) {
+      editor.value = TEMPLATES[key];
+      saveToLocal();
+      renderDiagram();
+      showToast(`已加载: ${btn.textContent}`);
+    }
+    templatesMenu.classList.remove('open');
+  });
+});
+
+const resizeHandle = document.getElementById('resizeHandle');
+const editorPanel = document.getElementById('editorPanel');
+let isResizing = false;
+
+resizeHandle.addEventListener('mousedown', (e) => {
+  isResizing = true;
+  resizeHandle.classList.add('active');
+  e.preventDefault();
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (!isResizing) return;
+  const container = document.querySelector('.main');
+  const rect = container.getBoundingClientRect();
+  const pct = ((e.clientX - rect.left) / rect.width) * 100;
+  const clamped = Math.max(20, Math.min(80, pct));
+  editorPanel.style.flex = `0 0 ${clamped}%`;
+});
+
+document.addEventListener('mouseup', () => {
+  if (isResizing) {
+    isResizing = false;
+    resizeHandle.classList.remove('active');
+  }
+});
+
+renderDiagram();
+</script>
+</body>
+</html>

@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swimlane Studio — 专业泳道图编辑器</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --text-dim: #64748b;
+  --text-muted: #94a3b8;
+  --header-bg: #1e293b;
+  --header-text: #e2e8f0;
+  --accent: #6366f1;
+  --accent-hover: #4f46e5;
+  --accent-bg: #eef2ff;
+  --green: #10b981;
+  --green-bg: #ecfdf5;
+  --red: #ef4444;
+  --red-bg: #fef2f2;
+  --amber: #f59e0b;
+  --amber-bg: #fffbeb;
+  --shadow: 0 1px 3px rgba(0,0,0,.08);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,.1);
+  --radius: 8px;
+  --mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Cascadia Code', Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", "PingFang SC", sans-serif;
+}
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 52px;
+  background: var(--header-bg);
+  flex-shrink: 0;
+  gap: 16px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+header h1 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--header-text);
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+}
+
+.mode-tabs {
+  display: flex;
+  background: rgba(255,255,255,.08);
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.mode-tab {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,.5);
+  padding: 5px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+
+.mode-tab:hover { color: rgba(255,255,255,.8); }
+.mode-tab.active { background: var(--accent); color: #fff; }
+
+.layout-tabs {
+  display: flex;
+  background: rgba(255,255,255,.08);
+  border-radius: 6px;
+  padding: 2px;
+}
+.layout-tab {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,.5);
+  padding: 5px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.layout-tab:hover { color: rgba(255,255,255,.8); }
+.layout-tab.active { background: #10b981; color: #fff; }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-badge {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  transition: all .2s;
+  white-space: nowrap;
+}
+.status-badge.ok { background: var(--green-bg); color: var(--green); }
+.status-badge.err { background: var(--red-bg); color: var(--red); }
+.status-badge.idle { background: var(--accent-bg); color: var(--accent); }
+
+select#templates {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 6px;
+  background: rgba(255,255,255,.06);
+  color: var(--header-text);
+  cursor: pointer;
+  outline: none;
+}
+select#templates:hover { background: rgba(255,255,255,.12); }
+select#templates option, select#templates optgroup { background: var(--header-bg); color: var(--header-text); }
+
+.hdr-btn {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.hdr-btn.primary { background: var(--accent); color: #fff; }
+.hdr-btn.primary:hover { background: var(--accent-hover); }
+.hdr-btn.ghost {
+  background: rgba(255,255,255,.06);
+  color: var(--header-text);
+  border: 1px solid rgba(255,255,255,.15);
+}
+.hdr-btn.ghost:hover { background: rgba(255,255,255,.12); }
+
+.main {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.panel-editor {
+  flex: 0 0 38%;
+  border-right: 1px solid var(--border);
+  background: var(--card);
+}
+
+.panel-preview {
+  flex: 1;
+  background: var(--card);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 14px;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  min-height: 34px;
+}
+
+.panel-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.char-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--mono);
+}
+
+.format-hint {
+  font-size: 10px;
+  color: var(--text-muted);
+  padding: 6px 14px;
+  background: var(--amber-bg);
+  border-bottom: 1px solid #fde68a;
+  line-height: 1.5;
+  flex-shrink: 0;
+}
+
+.editor-wrap {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  min-height: 0;
+}
+
+textarea#editor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  padding: 12px 14px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--text);
+  background: #fafbfc;
+  tab-size: 2;
+}
+textarea#editor::placeholder { color: #c0c4cc; }
+
+.preview-container {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  background:
+    radial-gradient(circle, var(--border) 0.8px, transparent 0.8px);
+  background-size: 24px 24px;
+  cursor: grab;
+}
+.preview-container.grabbing { cursor: grabbing; }
+
+.preview-content {
+  transform-origin: 0 0;
+  display: inline-block;
+  padding: 30px;
+}
+
+.preview-content svg {
+  display: block;
+}
+
+.preview-error {
+  color: var(--red);
+  font-size: 13px;
+  padding: 24px;
+  font-family: var(--mono);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.preview-placeholder {
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 40px;
+  text-align: center;
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.zoom-btn {
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 700;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--card);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all .12s;
+}
+.zoom-btn:hover { background: var(--bg); color: var(--text); }
+.zoom-btn.text-btn {
+  width: auto;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.zoom-level {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  min-width: 40px;
+  text-align: center;
+}
+
+.resize-handle {
+  width: 5px;
+  cursor: col-resize;
+  background: transparent;
+  position: relative;
+  flex-shrink: 0;
+  z-index: 10;
+  margin-left: -3px;
+  margin-right: -2px;
+}
+.resize-handle:hover,
+.resize-handle.active { background: var(--accent); opacity: 0.35; }
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--text);
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all .25s;
+  pointer-events: none;
+  z-index: 100;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+.syntax-ref {
+  flex-shrink: 0;
+  overflow: auto;
+  max-height: 120px;
+  padding: 6px 14px;
+  background: #f8fafc;
+  border-top: 1px solid var(--border);
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: var(--text-dim);
+  font-family: var(--mono);
+}
+.syntax-ref strong { color: var(--text); font-weight: 600; }
+.syntax-ref code { color: var(--accent); }
+
+@media (max-width: 900px) {
+  .main { flex-direction: column; }
+  .panel-editor { flex: 0 0 45%; border-right: none; border-bottom: 1px solid var(--border); }
+  .resize-handle { display: none; }
+  header { padding: 0 10px; height: auto; min-height: 48px; flex-wrap: wrap; padding-top: 6px; padding-bottom: 6px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>Swimlane Studio</h1>
+    <div class="mode-tabs">
+      <button class="mode-tab active" data-mode="swimlane">跨职能泳道图</button>
+      <button class="mode-tab" data-mode="sequence">Mermaid 时序图</button>
+    </div>
+    <div class="layout-tabs" id="layoutTabs">
+      <button class="layout-tab" data-dir="horizontal">横向</button>
+      <button class="layout-tab active" data-dir="vertical">纵向</button>
+    </div>
+  </div>
+  <div class="header-right">
+    <span id="status" class="status-badge idle">就绪</span>
+    <select id="templates">
+      <option value="">-- 选择模板 --</option>
+      <optgroup label="跨职能泳道图" id="tplGroupSwimlane">
+        <option value="sl-p2p">P2P/OTC 交易流程</option>
+        <option value="sl-ecommerce">电商订单流程</option>
+        <option value="sl-approval">审批报销流程</option>
+        <option value="sl-devops">DevOps CI/CD</option>
+      </optgroup>
+      <optgroup label="Mermaid 时序图" id="tplGroupSequence">
+        <option value="sq-p2p">P2P/OTC 交易时序</option>
+        <option value="sq-oauth">OAuth 2.0 认证</option>
+        <option value="sq-microservice">微服务调用链</option>
+      </optgroup>
+    </select>
+    <button class="hdr-btn ghost" id="resetBtn">重置</button>
+    <button class="hdr-btn ghost" id="exportSvgBtn">SVG</button>
+    <button class="hdr-btn primary" id="exportPngBtn">PNG</button>
+  </div>
+</header>
+
+<div class="main">
+  <div class="panel panel-editor" id="editorPanel">
+    <div class="panel-header">
+      <span class="panel-label" id="editorLabel">DSL 编辑器</span>
+      <span class="char-count" id="charCount">0</span>
+    </div>
+    <div class="format-hint" id="formatHint">
+      格式: <strong>title:</strong> 标题 &nbsp; <strong>@phases</strong> 阶段 &nbsp; <strong>@lanes</strong> 泳道 &nbsp; <strong>@nodes</strong> 节点 &nbsp; <strong>@edges</strong> 连线 &nbsp; 字段用 <code>|</code> 分隔，注释用 <code>//</code>
+    </div>
+    <div class="editor-wrap">
+      <textarea id="editor" spellcheck="false" placeholder="在此输入泳道图 DSL ..."></textarea>
+    </div>
+    <div class="syntax-ref" id="syntaxRef">
+      <strong>@lanes</strong> id | 显示名 | 颜色 &nbsp;&nbsp;
+      <strong>@nodes</strong> id | 泳道id | 列 | 类型(start/process/decision/end) | 标签 &nbsp;&nbsp;
+      <strong>@edges</strong> from -> to | 标签 | 出口(right/top/bottom) | 样式(dashed)
+    </div>
+  </div>
+  <div class="resize-handle" id="resizeHandle"></div>
+  <div class="panel panel-preview">
+    <div class="panel-header">
+      <span class="panel-label">实时预览</span>
+      <div class="zoom-controls">
+        <button class="zoom-btn" id="zoomOut" title="缩小">−</button>
+        <span class="zoom-level" id="zoomLevel">100%</span>
+        <button class="zoom-btn" id="zoomIn" title="放大">+</button>
+        <button class="zoom-btn text-btn" id="zoomFit" title="适应窗口">适应</button>
+      </div>
+    </div>
+    <div class="preview-container" id="previewContainer">
+      <div class="preview-content" id="preview"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+let mermaid = null;
+try {
+  const mod = await import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs');
+  mermaid = mod.default;
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'default',
+    securityLevel: 'loose',
+    sequence: { useMaxWidth: false, actorMargin: 60, mirrorActors: false }
+  });
+} catch (e) {
+  console.warn('Mermaid library failed to load:', e);
+}
+
+/* ───── XML escape ───── */
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ───── Color helpers ───── */
+function hexToRgba(hex, a) {
+  const c = hex.replace('#','');
+  const r = parseInt(c.substring(0,2),16);
+  const g = parseInt(c.substring(2,4),16);
+  const b = parseInt(c.substring(4,6),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+function lighten(hex, amount) {
+  const c = hex.replace('#','');
+  let r = parseInt(c.substring(0,2),16);
+  let g = parseInt(c.substring(2,4),16);
+  let b = parseInt(c.substring(4,6),16);
+  r = Math.min(255, r + Math.round((255-r)*amount));
+  g = Math.min(255, g + Math.round((255-g)*amount));
+  b = Math.min(255, b + Math.round((255-b)*amount));
+  return `rgb(${r},${g},${b})`;
+}
+
+/* ═══════════════════════════════════════════════════
+   DSL PARSER
+   ═══════════════════════════════════════════════════ */
+function parseDSL(text) {
+  const lines = text.split('\n');
+  let section = null;
+  const data = { title: '', phases: [], lanes: [], nodes: [], edges: [] };
+
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line || line.startsWith('//')) continue;
+
+    if (line.startsWith('title:')) {
+      data.title = line.substring(6).trim();
+      continue;
+    }
+    if (line.startsWith('@')) {
+      section = line.substring(1).toLowerCase().trim();
+      continue;
+    }
+
+    const parts = line.split('|').map(s => s.trim());
+
+    if (section === 'phases') {
+      const rangeMatch = (parts[1]||'').match(/(\d+)\s*[-–]\s*(\d+)/);
+      if (rangeMatch) {
+        data.phases.push({
+          name: parts[0],
+          startCol: parseInt(rangeMatch[1]),
+          endCol: parseInt(rangeMatch[2]),
+          color: parts[2] || '#f1f5f9'
+        });
+      }
+    }
+
+    if (section === 'lanes') {
+      data.lanes.push({
+        id: parts[0],
+        name: parts[1] || parts[0],
+        color: parts[2] || '#6366f1'
+      });
+    }
+
+    if (section === 'nodes') {
+      data.nodes.push({
+        id: parts[0],
+        lane: parts[1],
+        col: parseInt(parts[2]),
+        type: parts[3] || 'process',
+        label: (parts[4] || parts[0]).replace(/\\n/g, '\n')
+      });
+    }
+
+    if (section === 'edges') {
+      const connPart = parts[0] || '';
+      const arrowMatch = connPart.match(/^(\S+)\s*(-->|->)\s*(\S+)$/);
+      if (arrowMatch) {
+        const isDashed = arrowMatch[2] === '-->';
+        data.edges.push({
+          from: arrowMatch[1],
+          to: arrowMatch[3],
+          label: parts[1] || '',
+          fromPort: parts[2] || '',
+          style: parts[3] || (isDashed ? 'dashed' : '')
+        });
+      }
+    }
+  }
+  return data;
+}
+
+/* ═══════════════════════════════════════════════════
+   SWIMLANE DIAGRAM RENDERER
+   ═══════════════════════════════════════════════════ */
+class SwimlaneDiagram {
+  constructor(data, vertical = false) {
+    this.data = data;
+    this.vertical = vertical;
+    if (vertical) {
+      this.cfg = {
+        laneHeaderH: 56,
+        phaseW: data.phases.length ? 110 : 0,
+        laneW: 174,
+        rowH: 84,
+        nodeW: 126,
+        nodeH: 44,
+        decisionScale: 1.35,
+        titleH: data.title ? 44 : 0,
+        padRight: 40,
+        padBottom: 30,
+        cornerR: 7,
+        fontSize: 11.5,
+        labelFontSize: 10.5,
+        arrowSize: 9,
+      };
+    } else {
+      this.cfg = {
+        headerW: 150,
+        laneH: 88,
+        nodeW: 126,
+        nodeH: 44,
+        decisionScale: 1.35,
+        colW: 164,
+        titleH: data.title ? 44 : 0,
+        phaseH: data.phases.length ? 30 : 0,
+        padRight: 40,
+        padBottom: 20,
+        cornerR: 7,
+        fontSize: 11.5,
+        labelFontSize: 10.5,
+        arrowSize: 9,
+      };
+    }
+    this.positions = new Map();
+    this.laneMap = new Map();
+    data.lanes.forEach((l, i) => this.laneMap.set(l.id, i));
+  }
+
+  laneIdx(id) { return this.laneMap.get(id) ?? 0; }
+
+  topOffset() { return this.cfg.titleH + this.cfg.phaseH; }
+
+  nodeCenter(node) {
+    if (this.vertical) {
+      const { phaseW, laneW, nodeW, nodeH, laneHeaderH, rowH, titleH, decisionScale } = this.cfg;
+      const li = this.laneIdx(node.lane);
+      const w = node.type === 'decision' ? nodeW * decisionScale : nodeW;
+      const h = node.type === 'decision' ? nodeH * 1.15 : nodeH;
+      const cx = phaseW + li * laneW + laneW / 2;
+      const cy = titleH + laneHeaderH + node.col * rowH + rowH / 2;
+      return { cx, cy, w, h, li, col: node.col };
+    }
+    const { headerW, colW, nodeW, nodeH, laneH, decisionScale } = this.cfg;
+    const li = this.laneIdx(node.lane);
+    const w = node.type === 'decision' ? nodeW * decisionScale : nodeW;
+    const h = node.type === 'decision' ? nodeH * 1.15 : nodeH;
+    const cx = headerW + node.col * colW + colW / 2;
+    const cy = this.topOffset() + li * laneH + laneH / 2;
+    return { cx, cy, w, h, li, col: node.col };
+  }
+
+  calcLayout() {
+    for (const n of this.data.nodes) {
+      this.positions.set(n.id, { ...this.nodeCenter(n), type: n.type, label: n.label, lane: n.lane });
+    }
+  }
+
+  getPort(pos, port) {
+    const hw = pos.w / 2, hh = pos.h / 2;
+    switch (port) {
+      case 'right':  return { x: pos.cx + hw, y: pos.cy };
+      case 'left':   return { x: pos.cx - hw, y: pos.cy };
+      case 'top':    return { x: pos.cx, y: pos.cy - hh };
+      case 'bottom': return { x: pos.cx, y: pos.cy + hh };
+      default:       return { x: pos.cx, y: pos.cy };
+    }
+  }
+
+  autoPort(src, tgt) {
+    if (this.vertical) {
+      if (src.col === tgt.col) {
+        return tgt.li > src.li
+          ? { from: 'right', to: 'left' }
+          : { from: 'left', to: 'right' };
+      }
+      if (tgt.col > src.col) return { from: 'bottom', to: 'top' };
+      return { from: 'top', to: 'bottom' };
+    }
+    if (src.col === tgt.col) {
+      return tgt.li > src.li
+        ? { from: 'bottom', to: 'top' }
+        : { from: 'top', to: 'bottom' };
+    }
+    if (tgt.col > src.col) return { from: 'right', to: 'left' };
+    return { from: 'left', to: 'right' };
+  }
+
+  routeWaypoints(sp, tp, fp, toP) {
+    if (fp === 'right' && toP === 'left') {
+      if (Math.abs(sp.y - tp.y) < 2) return [sp, tp];
+      const mx = (sp.x + tp.x) / 2;
+      return [sp, {x:mx,y:sp.y}, {x:mx,y:tp.y}, tp];
+    }
+    if ((fp === 'bottom' || fp === 'top') && toP === 'left') {
+      if (Math.abs(sp.x - tp.x) < 8) return [sp, {x:sp.x,y:tp.y}, tp];
+      return [sp, {x:sp.x,y:tp.y}, tp];
+    }
+    if (fp === 'right' && (toP === 'top' || toP === 'bottom')) {
+      return [sp, {x:tp.x,y:sp.y}, tp];
+    }
+    if ((fp === 'bottom' && toP === 'top') || (fp === 'top' && toP === 'bottom')) {
+      if (Math.abs(sp.x - tp.x) < 2) return [sp, tp];
+      const my = (sp.y + tp.y) / 2;
+      return [sp, {x:sp.x,y:my}, {x:tp.x,y:my}, tp];
+    }
+    if (fp === 'left' && (toP === 'top' || toP === 'bottom')) {
+      return [sp, {x:tp.x,y:sp.y}, tp];
+    }
+    if ((fp === 'bottom' || fp === 'top') && toP === 'right') {
+      return [sp, {x:sp.x,y:tp.y}, tp];
+    }
+    if (fp === 'left' && toP === 'right') {
+      if (this.vertical) {
+        const totalW = this.cfg.phaseW + this.data.lanes.length * this.cfg.laneW + 25;
+        return [sp, {x:totalW,y:sp.y}, {x:totalW,y:tp.y}, tp];
+      }
+      const totalH = this.topOffset() + this.data.lanes.length * this.cfg.laneH + 25;
+      return [sp, {x:sp.x,y:totalH}, {x:tp.x,y:totalH}, tp];
+    }
+    return [sp, tp];
+  }
+
+  roundedPath(pts, r) {
+    if (pts.length < 2) return '';
+    if (pts.length === 2) return `M${pts[0].x} ${pts[0].y} L${pts[1].x} ${pts[1].y}`;
+    let d = `M${pts[0].x} ${pts[0].y}`;
+    for (let i = 1; i < pts.length - 1; i++) {
+      const prev = pts[i-1], curr = pts[i], next = pts[i+1];
+      const d1x = curr.x-prev.x, d1y = curr.y-prev.y;
+      const d2x = next.x-curr.x, d2y = next.y-curr.y;
+      const len1 = Math.hypot(d1x, d1y), len2 = Math.hypot(d2x, d2y);
+      if (len1 < 1 || len2 < 1) { d += ` L${curr.x} ${curr.y}`; continue; }
+      const cr = Math.min(r, len1/2, len2/2);
+      const ax = curr.x - (d1x/len1)*cr, ay = curr.y - (d1y/len1)*cr;
+      const bx = curr.x + (d2x/len2)*cr, by = curr.y + (d2y/len2)*cr;
+      d += ` L${ax} ${ay} Q${curr.x} ${curr.y} ${bx} ${by}`;
+    }
+    d += ` L${pts[pts.length-1].x} ${pts[pts.length-1].y}`;
+    return d;
+  }
+
+  labelPos(pts) {
+    if (pts.length < 2) return pts[0];
+    let maxLen = 0, best = null;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const len = Math.hypot(pts[i+1].x - pts[i].x, pts[i+1].y - pts[i].y);
+      if (len > maxLen) {
+        maxLen = len;
+        best = { x: (pts[i].x+pts[i+1].x)/2, y: (pts[i].y+pts[i+1].y)/2 };
+      }
+    }
+    return best;
+  }
+
+  multiText(cx, cy, text, attrs) {
+    const lines = text.split('\n');
+    const lh = 14;
+    if (lines.length === 1) {
+      return `<text x="${cx}" y="${cy}" ${attrs} text-anchor="middle" dominant-baseline="central">${esc(lines[0])}</text>`;
+    }
+    const startY = cy - ((lines.length - 1) * lh) / 2;
+    let s = `<text ${attrs} text-anchor="middle" dominant-baseline="central">`;
+    lines.forEach((l, i) => { s += `<tspan x="${cx}" y="${startY + i*lh}">${esc(l)}</tspan>`; });
+    return s + '</text>';
+  }
+
+  render() {
+    if (this.vertical) return this.renderVertical();
+    this.calcLayout();
+    const { headerW, laneH, colW, padRight, padBottom, nodeW, nodeH, decisionScale, cornerR, arrowSize } = this.cfg;
+
+    let maxCol = 0;
+    for (const n of this.data.nodes) { if (n.col > maxCol) maxCol = n.col; }
+
+    const totalW = headerW + (maxCol + 1) * colW + padRight;
+    const totalH = this.topOffset() + this.data.lanes.length * laneH + padBottom;
+
+    let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${totalW}" height="${totalH}" viewBox="0 0 ${totalW} ${totalH}" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans SC','PingFang SC',sans-serif;">`;
+
+    // Defs
+    svg += `<defs>
+      <marker id="sl-arrow" viewBox="0 0 12 8" refX="11" refY="4" markerWidth="10" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0.8 L10.5 4 L0 7.2z" fill="#64748b"/>
+      </marker>
+      <marker id="sl-arrow-d" viewBox="0 0 12 8" refX="11" refY="4" markerWidth="10" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0.8 L10.5 4 L0 7.2z" fill="#94a3b8"/>
+      </marker>
+      <filter id="sl-shadow"><feDropShadow dx="0" dy="1" stdDeviation="2.5" flood-opacity="0.1"/></filter>
+    </defs>`;
+
+    // Background
+    svg += `<rect width="${totalW}" height="${totalH}" fill="#ffffff" rx="0"/>`;
+
+    // Phase bar
+    if (this.data.phases.length) {
+      const py = this.cfg.titleH;
+      const ph = this.cfg.phaseH;
+      svg += `<rect x="0" y="${py}" width="${totalW}" height="${ph}" fill="#f8fafc"/>`;
+      svg += `<line x1="0" y1="${py+ph}" x2="${totalW}" y2="${py+ph}" stroke="#e2e8f0" stroke-width="0.5"/>`;
+      for (const p of this.data.phases) {
+        const px = headerW + p.startCol * colW;
+        const pw = (p.endCol - p.startCol + 1) * colW;
+        svg += `<rect x="${px+2}" y="${py+2}" width="${pw-4}" height="${ph-4}" fill="${p.color}" rx="4"/>`;
+        svg += `<text x="${px+pw/2}" y="${py+ph/2}" text-anchor="middle" dominant-baseline="central" fill="#475569" font-size="10.5" font-weight="600">${esc(p.name)}</text>`;
+      }
+    }
+
+    // Lanes
+    const top = this.topOffset();
+    for (let i = 0; i < this.data.lanes.length; i++) {
+      const lane = this.data.lanes[i];
+      const ly = top + i * laneH;
+      // Background
+      svg += `<rect x="${headerW}" y="${ly}" width="${totalW-headerW}" height="${laneH}" fill="${i%2===0 ? '#fafbfc' : '#ffffff'}"/>`;
+      // Separator
+      if (i < this.data.lanes.length - 1) {
+        svg += `<line x1="${headerW}" y1="${ly+laneH}" x2="${totalW}" y2="${ly+laneH}" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="4 2"/>`;
+      }
+      // Header
+      svg += `<rect x="0" y="${ly}" width="${headerW}" height="${laneH}" fill="${lane.color}" rx="0"/>`;
+      if (i > 0) svg += `<line x1="0" y1="${ly}" x2="${headerW}" y2="${ly}" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>`;
+      svg += `<text x="${headerW/2}" y="${ly+laneH/2}" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="13" font-weight="700" letter-spacing="0.3">${esc(lane.name)}</text>`;
+    }
+    // Bottom border
+    svg += `<line x1="0" y1="${top+this.data.lanes.length*laneH}" x2="${totalW}" y2="${top+this.data.lanes.length*laneH}" stroke="#cbd5e1" stroke-width="1"/>`;
+    // Header right border
+    svg += `<line x1="${headerW}" y1="${top}" x2="${headerW}" y2="${top+this.data.lanes.length*laneH}" stroke="#cbd5e1" stroke-width="1"/>`;
+
+    // Column guides (subtle)
+    for (let c = 1; c <= maxCol; c++) {
+      const cx = headerW + c * colW;
+      svg += `<line x1="${cx}" y1="${top}" x2="${cx}" y2="${top+this.data.lanes.length*laneH}" stroke="#f1f5f9" stroke-width="0.5"/>`;
+    }
+
+    // Edges
+    for (const e of this.data.edges) {
+      const src = this.positions.get(e.from);
+      const tgt = this.positions.get(e.to);
+      if (!src || !tgt) continue;
+
+      const auto = this.autoPort(src, tgt);
+      const fp = e.fromPort || auto.from;
+      let tp = auto.to;
+      if (fp === 'bottom' || fp === 'top') {
+        if (tgt.col > src.col) tp = 'left';
+        else if (tgt.col === src.col) tp = fp === 'bottom' ? 'top' : 'bottom';
+      }
+
+      const sp = this.getPort(src, fp);
+      const tpPt = this.getPort(tgt, tp);
+      const waypts = this.routeWaypoints(sp, tpPt, fp, tp);
+      const pathD = this.roundedPath(waypts, cornerR);
+
+      const isDashed = e.style === 'dashed';
+      const color = isDashed ? '#94a3b8' : '#64748b';
+      const marker = isDashed ? 'sl-arrow-d' : 'sl-arrow';
+      const dash = isDashed ? ' stroke-dasharray="5 3"' : '';
+      svg += `<path d="${pathD}" fill="none" stroke="${color}" stroke-width="1.5"${dash} marker-end="url(#${marker})"/>`;
+
+      if (e.label) {
+        const lp = this.labelPos(waypts);
+        if (lp) {
+          const tw = e.label.length * 7 + 10;
+          svg += `<rect x="${lp.x-tw/2}" y="${lp.y-9}" width="${tw}" height="18" rx="9" fill="#fff" stroke="${color}" stroke-width="0.5" opacity="0.95"/>`;
+          svg += `<text x="${lp.x}" y="${lp.y}" text-anchor="middle" dominant-baseline="central" fill="${isDashed?'#94a3b8':'#475569'}" font-size="${this.cfg.labelFontSize}" font-weight="500">${esc(e.label)}</text>`;
+        }
+      }
+    }
+
+    // Nodes
+    for (const n of this.data.nodes) {
+      const pos = this.positions.get(n.id);
+      if (!pos) continue;
+      const lane = this.data.lanes.find(l => l.id === n.lane);
+      const lc = lane ? lane.color : '#6366f1';
+      const { cx, cy, w, h } = pos;
+      const x = cx - w/2, y = cy - h/2;
+
+      if (n.type === 'start') {
+        svg += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="${lighten(lc, 0.88)}" stroke="${lc}" stroke-width="1.8" filter="url(#sl-shadow)"/>`;
+        svg += this.multiText(cx, cy, pos.label, `fill="${lc}" font-size="${this.cfg.fontSize}" font-weight="700"`);
+      } else if (n.type === 'end') {
+        svg += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="${lc}" stroke="${lc}" stroke-width="2" filter="url(#sl-shadow)"/>`;
+        svg += this.multiText(cx, cy, pos.label, `fill="#fff" font-size="${this.cfg.fontSize}" font-weight="700"`);
+      } else if (n.type === 'decision') {
+        const dw = w * 0.48, dh = h * 0.48;
+        svg += `<polygon points="${cx},${cy-dh} ${cx+dw},${cy} ${cx},${cy+dh} ${cx-dw},${cy}" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.8" filter="url(#sl-shadow)"/>`;
+        svg += this.multiText(cx, cy, pos.label, `fill="#92400E" font-size="${this.cfg.fontSize}" font-weight="700"`);
+      } else {
+        svg += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="#fff" stroke="${lc}" stroke-width="1.5" filter="url(#sl-shadow)"/>`;
+        svg += this.multiText(cx, cy, pos.label, `fill="#1e293b" font-size="${this.cfg.fontSize}" font-weight="500"`);
+      }
+    }
+
+    // Title
+    if (this.data.title) {
+      svg += `<text x="${totalW/2}" y="${this.cfg.titleH/2}" text-anchor="middle" dominant-baseline="central" fill="#0f172a" font-size="16" font-weight="800" letter-spacing="-0.3">${esc(this.data.title)}</text>`;
+    }
+
+    svg += '</svg>';
+    return svg;
+  }
+
+  renderVertical() {
+    this.calcLayout();
+    const { laneHeaderH, phaseW, laneW, rowH, nodeW, nodeH, decisionScale, titleH, padRight, padBottom, cornerR } = this.cfg;
+
+    let maxRow = 0;
+    for (const n of this.data.nodes) { if (n.col > maxRow) maxRow = n.col; }
+
+    const contentW = this.data.lanes.length * laneW;
+    const contentH = (maxRow + 1) * rowH;
+    const totalW = phaseW + contentW + padRight;
+    const totalH = titleH + laneHeaderH + contentH + padBottom;
+    const contentTop = titleH + laneHeaderH;
+
+    let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${totalW}" height="${totalH}" viewBox="0 0 ${totalW} ${totalH}" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans SC','PingFang SC',sans-serif;">`;
+
+    svg += `<defs>
+      <marker id="sl-arrow" viewBox="0 0 12 8" refX="11" refY="4" markerWidth="10" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0.8 L10.5 4 L0 7.2z" fill="#64748b"/>
+      </marker>
+      <marker id="sl-arrow-d" viewBox="0 0 12 8" refX="11" refY="4" markerWidth="10" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0.8 L10.5 4 L0 7.2z" fill="#94a3b8"/>
+      </marker>
+      <filter id="sl-shadow"><feDropShadow dx="0" dy="1" stdDeviation="2.5" flood-opacity="0.1"/></filter>
+    </defs>`;
+
+    svg += `<rect width="${totalW}" height="${totalH}" fill="#ffffff" rx="0"/>`;
+
+    if (this.data.title) {
+      svg += `<text x="${totalW/2}" y="${titleH/2}" text-anchor="middle" dominant-baseline="central" fill="#0f172a" font-size="16" font-weight="800" letter-spacing="-0.3">${esc(this.data.title)}</text>`;
+    }
+
+    for (let i = 0; i < this.data.lanes.length; i++) {
+      const lane = this.data.lanes[i];
+      const lx = phaseW + i * laneW;
+      svg += `<rect x="${lx}" y="${titleH}" width="${laneW}" height="${laneHeaderH}" fill="${lane.color}"/>`;
+      if (i > 0) svg += `<line x1="${lx}" y1="${titleH}" x2="${lx}" y2="${titleH + laneHeaderH}" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>`;
+      svg += `<text x="${lx + laneW/2}" y="${titleH + laneHeaderH/2}" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="13" font-weight="700" letter-spacing="0.3">${esc(lane.name)}</text>`;
+    }
+
+    for (let i = 0; i < this.data.lanes.length; i++) {
+      const lx = phaseW + i * laneW;
+      svg += `<rect x="${lx}" y="${contentTop}" width="${laneW}" height="${contentH}" fill="${i%2===0 ? '#fafbfc' : '#ffffff'}"/>`;
+      if (i < this.data.lanes.length - 1) {
+        svg += `<line x1="${lx + laneW}" y1="${contentTop}" x2="${lx + laneW}" y2="${contentTop + contentH}" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="4 2"/>`;
+      }
+    }
+
+    for (let r = 1; r <= maxRow; r++) {
+      const ry = contentTop + r * rowH;
+      svg += `<line x1="${phaseW}" y1="${ry}" x2="${phaseW + contentW}" y2="${ry}" stroke="#f1f5f9" stroke-width="0.5"/>`;
+    }
+
+    if (this.data.phases.length) {
+      svg += `<rect x="0" y="${contentTop}" width="${phaseW}" height="${contentH}" fill="#f8fafc"/>`;
+      svg += `<line x1="${phaseW}" y1="${contentTop}" x2="${phaseW}" y2="${contentTop + contentH}" stroke="#e2e8f0" stroke-width="0.5"/>`;
+      for (const p of this.data.phases) {
+        const py = contentTop + p.startCol * rowH;
+        const ph = (p.endCol - p.startCol + 1) * rowH;
+        svg += `<rect x="3" y="${py + 3}" width="${phaseW - 6}" height="${ph - 6}" fill="${p.color}" rx="4"/>`;
+        svg += `<text x="${phaseW/2}" y="${py + ph/2}" text-anchor="middle" dominant-baseline="central" fill="#475569" font-size="10.5" font-weight="600">${esc(p.name)}</text>`;
+      }
+    }
+
+    svg += `<line x1="${phaseW}" y1="${contentTop}" x2="${phaseW + contentW}" y2="${contentTop}" stroke="#cbd5e1" stroke-width="1"/>`;
+    svg += `<line x1="${phaseW}" y1="${contentTop + contentH}" x2="${phaseW + contentW}" y2="${contentTop + contentH}" stroke="#cbd5e1" stroke-width="1"/>`;
+
+    const portRemap = { top: 'left', bottom: 'right', right: 'bottom', left: 'top' };
+    for (const e of this.data.edges) {
+      const src = this.positions.get(e.from);
+      const tgt = this.positions.get(e.to);
+      if (!src || !tgt) continue;
+
+      const auto = this.autoPort(src, tgt);
+      const fp = e.fromPort ? (portRemap[e.fromPort] || e.fromPort) : auto.from;
+      let tp = auto.to;
+      if (fp === 'right' || fp === 'left') {
+        if (tgt.col > src.col) tp = 'top';
+        else if (tgt.col === src.col) tp = fp === 'right' ? 'left' : 'right';
+      }
+
+      const sp = this.getPort(src, fp);
+      const tpPt = this.getPort(tgt, tp);
+      const waypts = this.routeWaypoints(sp, tpPt, fp, tp);
+      const pathD = this.roundedPath(waypts, cornerR);
+
+      const isDashed = e.style === 'dashed';
+      const color = isDashed ? '#94a3b8' : '#64748b';
+      const marker = isDashed ? 'sl-arrow-d' : 'sl-arrow';
+      const dash = isDashed ? ' stroke-dasharray="5 3"' : '';
+      svg += `<path d="${pathD}" fill="none" stroke="${color}" stroke-width="1.5"${dash} marker-end="url(#${marker})"/>`;
+
+      if (e.label) {
+        const lp = this.labelPos(waypts);
+        if (lp) {
+          const tw = e.label.length * 7 + 10;
+          svg += `<rect x="${lp.x-tw/2}" y="${lp.y-9}" width="${tw}" height="18" rx="9" fill="#fff" stroke="${color}" stroke-width="0.5" opacity="0.95"/>`;
+          svg += `<text x="${lp.x}" y="${lp.y}" text-anchor="middle" dominant-baseline="central" fill="${isDashed?'#94a3b8':'#475569'}" font-size="${this.cfg.labelFontSize}" font-weight="500">${esc(e.label)}</text>`;
+        }
+      }
+    }
+
+    for (const n of this.data.nodes) {
+      const pos = this.positions.get(n.id);
+      if (!pos) continue;
+      const lane = this.data.lanes.find(l => l.id === n.lane);
+      const lc = lane ? lane.color : '#6366f1';
+      const { cx, cy, w, h } = pos;
+      const x = cx - w/2, y = cy - h/2;
+
+      if (n.type === 'start') {
+        svg += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="${lighten(lc, 0.88)}" stroke="${lc}" stroke-width="1.8" filter="url(#sl-shadow)"/>`;
+        svg += this.multiText(cx, cy, pos.label, `fill="${lc}" font-size="${this.cfg.fontSize}" font-weight="700"`);
+      } else if (n.type === 'end') {
+        svg += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="${lc}" stroke="${lc}" stroke-width="2" filter="url(#sl-shadow)"/>`;
+        svg += this.multiText(cx, cy, pos.label, `fill="#fff" font-size="${this.cfg.fontSize}" font-weight="700"`);
+      } else if (n.type === 'decision') {
+        const dw = w * 0.48, dh = h * 0.48;
+        svg += `<polygon points="${cx},${cy-dh} ${cx+dw},${cy} ${cx},${cy+dh} ${cx-dw},${cy}" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.8" filter="url(#sl-shadow)"/>`;
+        svg += this.multiText(cx, cy, pos.label, `fill="#92400E" font-size="${this.cfg.fontSize}" font-weight="700"`);
+      } else {
+        svg += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="#fff" stroke="${lc}" stroke-width="1.5" filter="url(#sl-shadow)"/>`;
+        svg += this.multiText(cx, cy, pos.label, `fill="#1e293b" font-size="${this.cfg.fontSize}" font-weight="500"`);
+      }
+    }
+
+    svg += '</svg>';
+    return svg;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   TEMPLATES
+   ═══════════════════════════════════════════════════ */
+
+const TPL_SL_P2P = `title: P2P/OTC 数字资产场外交易全流程
+
+@phases
+发起 | 0-1 | #EEF2FF
+风控审查 | 2-4 | #FEF3C7
+交易建立 | 5-7 | #ECFDF5
+支付流程 | 8-9 | #E0F2FE
+确认验收 | 10-11 | #FEF2F2
+清算交割 | 12-14 | #F0FDF4
+
+@lanes
+buyer    | 买方 (Buyer)      | #3B82F6
+platform | P2P 交易平台      | #F59E0B
+risk     | 风控 / 合规       | #8B5CF6
+escrow   | 托管系统 (Escrow) | #10B981
+seller   | 卖方 (Seller)     | #EF4444
+payment  | 支付渠道          | #0891B2
+settle   | 清算中心          | #6366F1
+
+@nodes
+b1     | buyer    | 0  | start    | 发起买入意向
+s1     | seller   | 0  | start    | 发布卖出广告
+p1     | platform | 1  | process  | 订单撮合引擎
+r1     | risk     | 2  | process  | KYC 身份核验
+r2     | risk     | 3  | process  | AML 反洗钱\\n筛查
+r3     | risk     | 4  | decision | 风控通过？
+b_rej  | buyer    | 5  | end      | 交易被拒
+p2     | platform | 5  | process  | 生成交易订单
+p2a    | platform | 6  | process  | 通知卖方接单
+s2     | seller   | 6  | process  | 确认接单
+e1     | escrow   | 7  | process  | 锁定加密资产
+b2     | buyer    | 8  | process  | 发起法币付款
+pay1   | payment  | 8  | process  | 处理银行转账
+b3     | buyer    | 9  | process  | 标记已付款
+pay2   | payment  | 9  | process  | 到账确认
+p3     | platform | 10 | process  | 通知卖方确认
+s3     | seller   | 10 | process  | 确认收到法币
+d1     | platform | 11 | decision | 有争议？
+p5     | platform | 12 | process  | 仲裁 & 裁决
+e2     | escrow   | 12 | process  | 释放加密资产
+b4     | buyer    | 13 | process  | 收到加密资产
+st1    | settle   | 13 | process  | 交易清算记录
+p6     | platform | 14 | end      | 交易完成
+
+@edges
+b1 -> p1     | 提交买入
+s1 -> p1     | 挂卖单
+p1 -> r1     | 风控审查
+r1 -> r2     |
+r2 -> r3     |
+r3 --> b_rej | 不通过 | top
+r3 -> p2     | 通过
+p2 -> p2a    |
+p2a -> s2    | 通知
+s2 -> e1     | 确认锁仓
+e1 -> b2     | 通知付款
+b2 -> pay1   | 银行转账
+pay1 -> pay2 |
+pay2 -> b3   | 到账通知
+b3 -> p3     | 确认已付
+p3 -> s3     | 请确认
+s3 -> d1     | 反馈平台
+d1 -> p5     | 有争议
+d1 -> e2     | 无争议 | bottom
+p5 -> e2     | 裁决完成 | bottom
+e2 -> b4     | 资产转入
+e2 -> st1    | 清算
+b4 -> p6     | 确认完成
+st1 -> p6    | 记录完成`;
+
+const TPL_SL_ECOMMERCE = `title: 电商订单全流程
+
+@phases
+下单 | 0-1 | #EEF2FF
+验证 | 2-3 | #FEF3C7
+履约 | 4-6 | #ECFDF5
+售后 | 7-8 | #FEF2F2
+
+@lanes
+customer | 客户         | #3B82F6
+frontend | 前端/APP     | #8B5CF6
+order    | 订单服务     | #F59E0B
+stock    | 库存服务     | #10B981
+pay      | 支付服务     | #EF4444
+ship     | 物流服务     | #0891B2
+notify   | 通知服务     | #6366F1
+
+@nodes
+c1  | customer | 0 | start    | 浏览商品
+c2  | customer | 1 | process  | 提交订单
+f1  | frontend | 1 | process  | 表单校验
+o1  | order    | 2 | process  | 创建订单
+s1  | stock    | 2 | process  | 锁定库存
+d1  | stock    | 3 | decision | 有库存？
+o2  | order    | 3 | end      | 订单取消
+p1  | pay      | 4 | process  | 发起支付
+p2  | pay      | 5 | decision | 支付成功？
+o3  | order    | 5 | process  | 更新状态
+sh1 | ship     | 6 | process  | 分配物流
+sh2 | ship     | 7 | process  | 配送中
+c3  | customer | 7 | process  | 确认收货
+n1  | notify   | 8 | process  | 发送通知
+o4  | order    | 8 | end      | 订单完成
+
+@edges
+c1 -> c2    | 选择下单
+c2 -> f1    | 提交
+f1 -> o1    | 创建
+o1 -> s1    | 锁库存
+s1 -> d1    |
+d1 --> o2   | 无库存 | top
+d1 -> p1    | 有库存
+p1 -> p2    |
+p2 --> o2   | 失败 | top
+p2 -> o3    | 成功
+o3 -> sh1   | 发货
+sh1 -> sh2  |
+sh2 -> c3   | 签收
+c3 -> n1    | 通知
+n1 -> o4    | 完成`;
+
+const TPL_SL_APPROVAL = `title: 企业费用报销审批流程
+
+@phases
+申请 | 0-1 | #EEF2FF
+审批 | 2-4 | #FEF3C7
+财务 | 5-6 | #ECFDF5
+完成 | 7-8 | #F0FDF4
+
+@lanes
+staff   | 申请人     | #3B82F6
+mgr     | 直属主管   | #F59E0B
+dir     | 部门总监   | #8B5CF6
+fin     | 财务部     | #10B981
+hr      | 人事/行政  | #EF4444
+
+@nodes
+a1  | staff | 0 | start    | 填写报销单
+a2  | staff | 1 | process  | 上传凭证
+m1  | mgr   | 2 | process  | 初审
+m2  | mgr   | 3 | decision | 批准？
+d1  | dir   | 4 | decision | 复审通过？
+a3  | staff | 3 | end      | 退回修改
+f1  | fin   | 5 | process  | 财务核算
+f2  | fin   | 6 | process  | 打款
+h1  | hr    | 7 | process  | 归档记录
+a4  | staff | 8 | end      | 报销完成
+
+@edges
+a1 -> a2    | 提交
+a2 -> m1    | 送审
+m1 -> m2    |
+m2 --> a3   | 驳回 | bottom
+m2 -> d1    | 同意
+d1 --> a3   | 退回 | bottom
+d1 -> f1    | 通过
+f1 -> f2    | 核准
+f2 -> h1    | 已打款
+h1 -> a4    | 通知`;
+
+const TPL_SL_DEVOPS = `title: DevOps CI/CD 全链路
+
+@phases
+开发 | 0-1 | #EEF2FF
+CI | 2-4 | #FEF3C7
+CD | 5-7 | #ECFDF5
+运维 | 8-9 | #FEF2F2
+
+@lanes
+dev     | 开发者       | #3B82F6
+git     | Git 仓库     | #F59E0B
+ci      | CI Server    | #8B5CF6
+reg     | 镜像仓库     | #10B981
+staging | Staging 环境 | #0891B2
+prod    | Production   | #EF4444
+mon     | 监控告警     | #6366F1
+
+@nodes
+d1  | dev     | 0 | start    | 编写代码
+d2  | dev     | 1 | process  | 提交 PR
+g1  | git     | 1 | process  | 触发 Webhook
+c1  | ci      | 2 | process  | 代码扫描
+c2  | ci      | 3 | process  | 单元测试
+c3  | ci      | 4 | decision | 测试通过？
+d3  | dev     | 4 | end      | 修复通知
+r1  | reg     | 5 | process  | 构建镜像
+s1  | staging | 6 | process  | 部署 Staging
+s2  | staging | 7 | decision | 验收通过？
+p1  | prod    | 8 | process  | 灰度发布
+p2  | prod    | 9 | process  | 全量上线
+m1  | mon     | 9 | end      | 监控 & 告警
+
+@edges
+d1 -> d2   | Commit
+d2 -> g1   | Push
+g1 -> c1   | Hook
+c1 -> c2   |
+c2 -> c3   |
+c3 --> d3  | 失败 | top
+c3 -> r1   | 通过
+r1 -> s1   | 推送
+s1 -> s2   | QA 验收
+s2 --> d3  | 不通过 | top
+s2 -> p1   | 通过
+p1 -> p2   | 观察
+p2 -> m1   | 启动`;
+
+const TPL_SQ_P2P = `sequenceDiagram
+    autonumber
+    participant B as 买方(Buyer)
+    participant P as P2P交易平台
+    participant R as 风控/合规系统
+    participant E as 托管系统(Escrow)
+    participant S as 卖方(Seller)
+    participant PAY as 支付渠道
+    participant CLR as 清算中心
+
+    rect rgb(238, 242, 255)
+    Note over B,P: Phase 1 — 交易发起
+    B->>+P: 提交买入意向单
+    S->>P: 发布卖出广告(挂单)
+    P->>P: 订单撮合匹配引擎
+    end
+
+    rect rgb(254, 243, 199)
+    Note over P,R: Phase 2 — 风控审查
+    P->>+R: 触发 KYC / AML 审查
+    R->>R: 身份核验 (KYC)
+    R->>R: 反洗钱筛查 (AML)
+    alt 风控不通过
+        R-->>P: 审查不通过
+        P-->>B: 交易被拒,通知原因
+    else 风控通过
+        R->>-P: 审查通过
+    end
+    end
+
+    rect rgb(236, 253, 245)
+    Note over P,E: Phase 3 — 交易建立
+    P->>S: 发送交易匹配通知
+    S->>P: 确认接受交易
+    P->>+E: 请求锁定卖方加密资产
+    E->>E: 验证余额 & 锁定资产
+    E->>-P: 锁定确认 (含锁仓ID)
+    P->>-B: 推送付款指引
+    end
+
+    rect rgb(224, 242, 254)
+    Note over B,PAY: Phase 4 — 支付流程
+    B->>+PAY: 发起法币转账
+    PAY->>PAY: 银行/第三方支付处理
+    PAY->>-B: 转账成功通知
+    B->>+P: 标记已付款 (上传凭证)
+    end
+
+    rect rgb(254, 242, 242)
+    Note over P,S: Phase 5 — 确认验收
+    P->>S: 通知卖方验收付款
+    S->>S: 核实银行到账
+    alt 卖方确认收款
+        S->>P: 确认已收款
+    else 卖方发起争议
+        S->>P: 发起争议
+        P->>P: 启动仲裁流程
+        P->>B: 收集买方证据
+        P->>S: 收集卖方证据
+        P->>P: 做出仲裁裁决
+        Note over P: 仲裁结果通知双方
+    end
+    end
+
+    rect rgb(240, 253, 250)
+    Note over E,CLR: Phase 6 — 清算交割
+    P->>+E: 指令释放加密资产
+    E->>B: 加密资产转入买方钱包
+    E->>-P: 释放完成确认
+    P->>+CLR: 提交清算记录
+    CLR->>CLR: 交易记账 & 费用清算
+    CLR->>-P: 清算完成
+    P->>B: 交易完成通知
+    P->>-S: 交易完成通知
+    Note over B,S: 双方互评 & 信用更新
+    end`;
+
+const TPL_SQ_OAUTH = `sequenceDiagram
+    autonumber
+    participant U as 用户
+    participant C as 客户端应用
+    participant AS as 授权服务器
+    participant RS as 资源服务器
+
+    rect rgb(238, 242, 255)
+    Note over U,C: Step 1 — 授权请求
+    U->>C: 点击"第三方登录"
+    C->>U: 重定向到授权页面
+    end
+
+    rect rgb(254, 243, 199)
+    Note over U,AS: Step 2 — 用户授权
+    U->>AS: 输入凭证 & 同意授权
+    AS->>AS: 验证用户身份
+    AS->>C: 返回 Authorization Code
+    end
+
+    rect rgb(236, 253, 245)
+    Note over C,AS: Step 3 — 获取令牌
+    C->>AS: Code + Client Secret
+    AS->>AS: 验证 Code & Secret
+    AS->>C: 返回 Access Token + Refresh Token
+    end
+
+    rect rgb(224, 242, 254)
+    Note over C,RS: Step 4 — 访问资源
+    C->>RS: 携带 Access Token 请求
+    RS->>AS: 验证 Token 有效性
+    AS->>RS: Token 有效
+    RS->>C: 返回受保护资源
+    C->>U: 展示数据
+    end
+
+    rect rgb(254, 242, 242)
+    Note over C,AS: Step 5 — 刷新令牌
+    C->>AS: Refresh Token
+    AS->>C: 新的 Access Token
+    end`;
+
+const TPL_SQ_MICRO = `sequenceDiagram
+    autonumber
+    participant GW as API Gateway
+    participant AUTH as Auth Service
+    participant US as User Service
+    participant OS as Order Service
+    participant IS as Inventory Service
+    participant PS as Payment Service
+    participant MQ as Message Queue
+    participant NS as Notification Service
+
+    rect rgb(238, 242, 255)
+    Note over GW,AUTH: 认证链路
+    GW->>+AUTH: 验证 JWT Token
+    AUTH->>AUTH: 校验签名 & 过期
+    AUTH->>-GW: 用户上下文
+    end
+
+    rect rgb(254, 243, 199)
+    Note over GW,IS: 下单链路
+    GW->>+OS: POST /orders
+    OS->>+US: 查询用户信息
+    US->>-OS: 用户数据
+    OS->>+IS: 锁定库存
+    IS->>IS: 检查库存 & 扣减
+    IS->>-OS: 库存锁定确认
+    end
+
+    rect rgb(236, 253, 245)
+    Note over OS,PS: 支付链路
+    OS->>+PS: 创建支付单
+    PS->>PS: 调用第三方支付
+    PS->>-OS: 支付结果回调
+    end
+
+    rect rgb(224, 242, 254)
+    Note over OS,NS: 异步通知
+    OS->>MQ: 发布 OrderPaid 事件
+    MQ->>IS: 确认库存扣减
+    MQ->>+NS: 触发通知
+    NS->>NS: 发送短信/推送
+    NS->>-MQ: ACK
+    OS->>-GW: 订单创建成功
+    end`;
+
+const TEMPLATES = {
+  'sl-p2p': TPL_SL_P2P,
+  'sl-ecommerce': TPL_SL_ECOMMERCE,
+  'sl-approval': TPL_SL_APPROVAL,
+  'sl-devops': TPL_SL_DEVOPS,
+  'sq-p2p': TPL_SQ_P2P,
+  'sq-oauth': TPL_SQ_OAUTH,
+  'sq-microservice': TPL_SQ_MICRO,
+};
+
+/* ═══════════════════════════════════════════════════
+   UI STATE
+   ═══════════════════════════════════════════════════ */
+const STORAGE_KEY = 'swimlane-studio-v2';
+
+let currentMode = 'swimlane';
+let currentDir = 'vertical';
+let zoom = 1, panX = 0, panY = 0;
+let renderCounter = 0;
+
+const editor = document.getElementById('editor');
+const preview = document.getElementById('preview');
+const previewContainer = document.getElementById('previewContainer');
+const status = document.getElementById('status');
+const charCount = document.getElementById('charCount');
+const toast = document.getElementById('toast');
+const editorLabel = document.getElementById('editorLabel');
+const formatHint = document.getElementById('formatHint');
+const syntaxRef = document.getElementById('syntaxRef');
+const zoomLevelEl = document.getElementById('zoomLevel');
+
+function loadPersistedState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || null; } catch { return null; }
+}
+
+function saveState() {
+  const persisted = loadPersistedState() || {};
+  if (!persisted.content) persisted.content = {};
+  persisted.mode = currentMode;
+  persisted.dir = currentDir;
+  persisted.content[currentMode] = editor.value;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(persisted));
+}
+
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 1800);
+}
+
+function setStatus(type, text) {
+  status.textContent = text;
+  status.className = 'status-badge ' + type;
+}
+
+function updateTransform() {
+  preview.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+  zoomLevelEl.textContent = Math.round(zoom * 100) + '%';
+}
+
+/* ═══════════════════════════════════════════════════
+   RENDER LOGIC
+   ═══════════════════════════════════════════════════ */
+async function renderDiagram() {
+  const code = editor.value.trim();
+  charCount.textContent = editor.value.length + ' 字符';
+
+  if (!code) {
+    preview.innerHTML = '<div class="preview-placeholder">输入代码后自动渲染预览</div>';
+    setStatus('idle', '就绪');
+    return;
+  }
+
+  if (currentMode === 'swimlane') {
+    try {
+      const data = parseDSL(code);
+      if (!data.lanes.length) throw new Error('至少需要定义一个泳道 (@lanes)');
+      if (!data.nodes.length) throw new Error('至少需要定义一个节点 (@nodes)');
+      const diagram = new SwimlaneDiagram(data, currentDir === 'vertical');
+      const svgStr = diagram.render();
+      preview.innerHTML = svgStr;
+      setStatus('ok', '渲染成功');
+    } catch (err) {
+      preview.innerHTML = `<div class="preview-error">DSL 解析/渲染错误:\n${err.message}</div>`;
+      setStatus('err', '语法错误');
+    }
+  } else {
+    if (!mermaid) {
+      preview.innerHTML = '<div class="preview-error">Mermaid 库未加载，请检查网络连接后刷新页面</div>';
+      setStatus('err', '库未加载');
+      return;
+    }
+    try {
+      const id = `mm-${++renderCounter}`;
+      const { svg } = await mermaid.render(id, code);
+      preview.innerHTML = svg;
+      setStatus('ok', '渲染成功');
+    } catch (err) {
+      const el = document.getElementById(`dmm-${renderCounter}`);
+      if (el) el.remove();
+      preview.innerHTML = `<div class="preview-error">Mermaid 渲染错误:\n${err.message || err}</div>`;
+      setStatus('err', '语法错误');
+    }
+  }
+}
+
+function switchMode(mode) {
+  saveState();
+  currentMode = mode;
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+
+  if (mode === 'swimlane') {
+    editorLabel.textContent = 'DSL 编辑器';
+    formatHint.style.display = '';
+    syntaxRef.style.display = '';
+    formatHint.innerHTML = '格式: <strong>title:</strong> 标题 &nbsp; <strong>@phases</strong> 阶段 &nbsp; <strong>@lanes</strong> 泳道 &nbsp; <strong>@nodes</strong> 节点 &nbsp; <strong>@edges</strong> 连线 &nbsp; 字段用 <code>|</code> 分隔，注释用 <code>//</code>';
+    document.getElementById('layoutTabs').style.display = 'flex';
+  } else {
+    editorLabel.textContent = 'Mermaid 编辑器';
+    formatHint.style.display = '';
+    syntaxRef.style.display = 'none';
+    formatHint.innerHTML = '支持 <strong>sequenceDiagram</strong>, <strong>flowchart</strong>, <strong>graph</strong> 等 Mermaid 语法';
+    document.getElementById('layoutTabs').style.display = 'none';
+  }
+
+  const persisted = loadPersistedState();
+  const savedContent = persisted && persisted.content && persisted.content[mode];
+  editor.value = savedContent || (mode === 'swimlane' ? TPL_SL_P2P : TPL_SQ_P2P);
+
+  zoom = 1; panX = 0; panY = 0;
+  updateTransform();
+  renderDiagram();
+}
+
+/* ═══════════════════════════════════════════════════
+   EVENT HANDLERS
+   ═══════════════════════════════════════════════════ */
+let renderTimer = null, saveTimer = null;
+
+editor.addEventListener('input', () => {
+  clearTimeout(renderTimer);
+  renderTimer = setTimeout(renderDiagram, 400);
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { saveState(); showToast('已保存'); }, 1000);
+});
+
+editor.addEventListener('keydown', e => {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const s = editor.selectionStart, en = editor.selectionEnd;
+    editor.value = editor.value.substring(0, s) + '  ' + editor.value.substring(en);
+    editor.selectionStart = editor.selectionEnd = s + 2;
+    editor.dispatchEvent(new Event('input'));
+  }
+});
+
+document.querySelectorAll('.mode-tab').forEach(tab => {
+  tab.addEventListener('click', () => switchMode(tab.dataset.mode));
+});
+
+document.querySelectorAll('.layout-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    currentDir = tab.dataset.dir;
+    document.querySelectorAll('.layout-tab').forEach(t => t.classList.toggle('active', t.dataset.dir === currentDir));
+    saveState();
+    zoom = 1; panX = 0; panY = 0;
+    updateTransform();
+    renderDiagram();
+  });
+});
+
+document.getElementById('templates').addEventListener('change', e => {
+  const key = e.target.value;
+  if (!key || !TEMPLATES[key]) return;
+  const isSeq = key.startsWith('sq-');
+  if ((isSeq && currentMode !== 'sequence') || (!isSeq && currentMode !== 'swimlane')) {
+    switchMode(isSeq ? 'sequence' : 'swimlane');
+  }
+  editor.value = TEMPLATES[key];
+  saveState();
+  zoom = 1; panX = 0; panY = 0;
+  updateTransform();
+  renderDiagram();
+  showToast('已加载模板');
+  e.target.value = '';
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  editor.value = currentMode === 'swimlane' ? TPL_SL_P2P : TPL_SQ_P2P;
+  saveState();
+  zoom = 1; panX = 0; panY = 0;
+  updateTransform();
+  renderDiagram();
+  showToast('已重置');
+});
+
+// Export
+function getSvgEl() { return preview.querySelector('svg'); }
+
+document.getElementById('exportSvgBtn').addEventListener('click', () => {
+  const svg = getSvgEl();
+  if (!svg) return showToast('没有可导出的图表');
+  const data = new XMLSerializer().serializeToString(svg);
+  const blob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'swimlane-diagram.svg';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('SVG 已导出');
+});
+
+document.getElementById('exportPngBtn').addEventListener('click', () => {
+  const svg = getSvgEl();
+  if (!svg) return showToast('没有可导出的图表');
+  const data = new XMLSerializer().serializeToString(svg);
+  const img = new Image();
+  img.onload = () => {
+    const scale = 2;
+    const c = document.createElement('canvas');
+    c.width = img.width * scale;
+    c.height = img.height * scale;
+    const ctx = c.getContext('2d');
+    ctx.scale(scale, scale);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.drawImage(img, 0, 0);
+    c.toBlob(blob => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'swimlane-diagram.png';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      showToast('PNG 已导出');
+    });
+  };
+  img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(data)));
+});
+
+// Zoom & Pan
+document.getElementById('zoomIn').addEventListener('click', () => { zoom = Math.min(5, zoom * 1.2); updateTransform(); });
+document.getElementById('zoomOut').addEventListener('click', () => { zoom = Math.max(0.1, zoom / 1.2); updateTransform(); });
+document.getElementById('zoomFit').addEventListener('click', () => {
+  const svg = getSvgEl();
+  if (!svg) return;
+  const sw = parseFloat(svg.getAttribute('width')) || svg.getBoundingClientRect().width;
+  const sh = parseFloat(svg.getAttribute('height')) || svg.getBoundingClientRect().height;
+  const cr = previewContainer.getBoundingClientRect();
+  const pad = 60;
+  zoom = Math.min((cr.width - pad) / (sw + 60), (cr.height - pad) / (sh + 60), 1.5);
+  panX = Math.max(0, (cr.width - (sw + 60) * zoom) / 2);
+  panY = Math.max(0, (cr.height - (sh + 60) * zoom) / 2);
+  updateTransform();
+});
+
+previewContainer.addEventListener('wheel', e => {
+  e.preventDefault();
+  const factor = e.deltaY > 0 ? 0.92 : 1.08;
+  zoom = Math.max(0.1, Math.min(5, zoom * factor));
+  updateTransform();
+}, { passive: false });
+
+let isPanning = false, pStartX = 0, pStartY = 0;
+previewContainer.addEventListener('mousedown', e => {
+  isPanning = true;
+  pStartX = e.clientX - panX;
+  pStartY = e.clientY - panY;
+  previewContainer.classList.add('grabbing');
+});
+document.addEventListener('mousemove', e => {
+  if (!isPanning) return;
+  panX = e.clientX - pStartX;
+  panY = e.clientY - pStartY;
+  updateTransform();
+});
+document.addEventListener('mouseup', () => {
+  isPanning = false;
+  previewContainer.classList.remove('grabbing');
+});
+
+// Resize
+const resizeHandle = document.getElementById('resizeHandle');
+const editorPanel = document.getElementById('editorPanel');
+let isResizing = false;
+
+resizeHandle.addEventListener('mousedown', e => {
+  isResizing = true;
+  resizeHandle.classList.add('active');
+  e.preventDefault();
+});
+document.addEventListener('mousemove', e => {
+  if (!isResizing) return;
+  const main = document.querySelector('.main');
+  const rect = main.getBoundingClientRect();
+  const pct = ((e.clientX - rect.left) / rect.width) * 100;
+  editorPanel.style.flex = `0 0 ${Math.max(18, Math.min(75, pct))}%`;
+});
+document.addEventListener('mouseup', () => {
+  if (isResizing) { isResizing = false; resizeHandle.classList.remove('active'); }
+});
+
+/* ═══════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════ */
+const persisted = loadPersistedState();
+if (persisted) {
+  if (persisted.mode) currentMode = persisted.mode;
+  if (persisted.dir) currentDir = persisted.dir;
+}
+const initContent = persisted && persisted.content && persisted.content[currentMode];
+if (initContent) {
+  editor.value = initContent;
+} else {
+  editor.value = currentMode === 'swimlane' ? TPL_SL_P2P : TPL_SQ_P2P;
+}
+document.querySelectorAll('.layout-tab').forEach(t => t.classList.toggle('active', t.dataset.dir === currentDir));
+if (currentMode === 'sequence') {
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === currentMode));
+  editorLabel.textContent = 'Mermaid 编辑器';
+  formatHint.innerHTML = '支持 <strong>sequenceDiagram</strong>, <strong>flowchart</strong>, <strong>graph</strong> 等 Mermaid 语法';
+  syntaxRef.style.display = 'none';
+  document.getElementById('layoutTabs').style.display = 'none';
+}
+
+renderDiagram().then(() => {
+  setTimeout(() => {
+    document.getElementById('zoomFit').click();
+  }, 200);
+});
+</script>
+</body>
+</html>

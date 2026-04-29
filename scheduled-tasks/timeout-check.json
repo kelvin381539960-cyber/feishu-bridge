@@ -1,0 +1,8 @@
+{
+  "taskId": "timeout-check",
+  "description": "Verification task for timeout enforcement.",
+  "promptFile": "/opt/feishu-bridge/scheduled-tasks/prompts/timeout-check.md",
+  "timeoutSeconds": 5,
+  "niceLevel": 10,
+  "outputFile": "/opt/feishu-bridge/var/reports/scheduled-cursor/timeout-check-latest.txt"
+}

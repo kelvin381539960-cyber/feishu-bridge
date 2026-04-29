@@ -1,0 +1,159 @@
+<mxfile host="65bd71144e">
+    <diagram id="aix-phase2-account-structure" name="Page-1">
+        <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="title" value="AIX Phase 2&#10;账户结构与资金路由总览" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;fontColor=#142033;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="30" width="500" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="subtitle" value="规则：对象名称保留英文，解释说明使用中文。该图只表达账户分层与主要资金路由，不展开步骤级流程。" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#5f6f86;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="92" width="900" height="38" as="geometry"/>
+                </mxCell>
+
+                <mxCell id="group-ext" value="外部世界" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#64748b;" parent="1" vertex="1">
+                    <mxGeometry x="90" y="160" width="180" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="group-ledger" value="AIX 账本域" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#1459c7;" parent="1" vertex="1">
+                    <mxGeometry x="430" y="160" width="220" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="group-custody" value="加密托管账户域（Cobo）" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#7a45c7;" parent="1" vertex="1">
+                    <mxGeometry x="780" y="160" width="260" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="group-fiat" value="法币 / 清算账户域" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#c76a14;" parent="1" vertex="1">
+                    <mxGeometry x="1110" y="160" width="250" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="group-yield" value="收益账户域" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#0d7a5f;" parent="1" vertex="1">
+                    <mxGeometry x="790" y="700" width="180" height="30" as="geometry"/>
+                </mxCell>
+
+                <mxCell id="externalWallet" value="&lt;b&gt;External Crypto Wallet&lt;/b&gt;&lt;br&gt;用户控制的资金来源 / 去向" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f7fa;strokeColor=#d7dfe8;strokeWidth=1.2;fontColor=#475569;fontSize=14;align=center;verticalAlign=middle;arcSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="70" y="230" width="230" height="88" as="geometry"/>
+                </mxCell>
+                <mxCell id="merchant" value="&lt;b&gt;Merchant / Card Spend&lt;/b&gt;&lt;br&gt;卡支付受理侧" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f7fa;strokeColor=#d7dfe8;strokeWidth=1.2;fontColor=#475569;fontSize=14;align=center;verticalAlign=middle;arcSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="70" y="560" width="230" height="88" as="geometry"/>
+                </mxCell>
+                <mxCell id="localBank" value="&lt;b&gt;Local Bank / e-Wallet&lt;/b&gt;&lt;br&gt;法币出金目的地" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f7fa;strokeColor=#d7dfe8;strokeWidth=1.2;fontColor=#475569;fontSize=14;align=center;verticalAlign=middle;arcSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="70" y="780" width="230" height="88" as="geometry"/>
+                </mxCell>
+
+                <mxCell id="ledger" value="&lt;b&gt;AIX Balance Ledger&lt;/b&gt;&lt;br&gt;用户侧余额真相源&lt;br&gt;钱包 / 产品余额记录" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eaf2ff;strokeColor=#bdd4ff;strokeWidth=1.5;fontColor=#103b31;fontSize=15;align=center;verticalAlign=middle;arcSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="410" y="230" width="250" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="walletView" value="&lt;b&gt;User Wallet View&lt;/b&gt;&lt;br&gt;AIX App 中展示的余额" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eaf2ff;strokeColor=#bdd4ff;strokeWidth=1.5;fontColor=#103b31;fontSize=14;align=center;verticalAlign=middle;arcSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="410" y="410" width="250" height="86" as="geometry"/>
+                </mxCell>
+                <mxCell id="yieldBalance" value="&lt;b&gt;Yield Product Balance&lt;/b&gt;&lt;br&gt;用户持有的收益头寸" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eaf2ff;strokeColor=#bdd4ff;strokeWidth=1.5;fontColor=#103b31;fontSize=14;align=center;verticalAlign=middle;arcSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="410" y="720" width="250" height="86" as="geometry"/>
+                </mxCell>
+
+                <mxCell id="depositAddress" value="&lt;b&gt;User Deposit Address&lt;/b&gt;&lt;br&gt;按用户分配的接收地址" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f2eaff;strokeColor=#caaef6;strokeWidth=1.5;fontColor=#3e2568;fontSize=14;align=center;verticalAlign=middle;arcSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="760" y="230" width="260" height="86" as="geometry"/>
+                </mxCell>
+                <mxCell id="pool" value="&lt;b&gt;AIX Pool Account&lt;/b&gt;&lt;br&gt;主归集托管池账户" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f2eaff;strokeColor=#caaef6;strokeWidth=1.5;fontColor=#3e2568;fontSize=14;align=center;verticalAlign=middle;arcSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="760" y="400" width="260" height="92" as="geometry"/>
+                </mxCell>
+                <mxCell id="withdrawal" value="&lt;b&gt;AIX Withdrawal Account&lt;/b&gt;&lt;br&gt;链上出账执行钱包" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f2eaff;strokeColor=#caaef6;strokeWidth=1.5;fontColor=#3e2568;fontSize=14;align=center;verticalAlign=middle;arcSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="760" y="560" width="260" height="92" as="geometry"/>
+                </mxCell>
+
+                <mxCell id="otc" value="&lt;b&gt;AIX OTC Account&lt;/b&gt;&lt;br&gt;换汇 / Off-ramp 流动性账户" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2e5;strokeColor=#efc08d;strokeWidth=1.5;fontColor=#6a3c09;fontSize=14;align=center;verticalAlign=middle;arcSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="1110" y="230" width="260" height="86" as="geometry"/>
+                </mxCell>
+                <mxCell id="settlement" value="&lt;b&gt;AIX Settlement Account&lt;/b&gt;&lt;br&gt;卡消费清算资金账户" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2e5;strokeColor=#efc08d;strokeWidth=1.5;fontColor=#6a3c09;fontSize=14;align=center;verticalAlign=middle;arcSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="1110" y="390" width="260" height="86" as="geometry"/>
+                </mxCell>
+                <mxCell id="bank" value="&lt;b&gt;AIX HK USD Bank Account&lt;/b&gt;&lt;br&gt;法币清算 / 银行层账户" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2e5;strokeColor=#efc08d;strokeWidth=1.5;fontColor=#6a3c09;fontSize=14;align=center;verticalAlign=middle;arcSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="1110" y="550" width="260" height="86" as="geometry"/>
+                </mxCell>
+                <mxCell id="prefund" value="&lt;b&gt;Payout Pre-fund Account&lt;/b&gt;&lt;br&gt;Thunes / AirWallex 预充值账户" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2e5;strokeColor=#efc08d;strokeWidth=1.5;fontColor=#6a3c09;fontSize=14;align=center;verticalAlign=middle;arcSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="1105" y="850" width="260" height="86" as="geometry"/>
+                </mxCell>
+
+                <mxCell id="yieldAccount" value="&lt;b&gt;AIX Yield Account&lt;/b&gt;&lt;br&gt;分配给收益产品的本金账户" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8fbf5;strokeColor=#8ed0bf;strokeWidth=1.5;fontColor=#103b31;fontSize=14;align=center;verticalAlign=middle;arcSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="760" y="720" width="260" height="86" as="geometry"/>
+                </mxCell>
+                <mxCell id="yieldProvider" value="&lt;b&gt;Yield Provider Account&lt;/b&gt;&lt;br&gt;digiFT / Ondo 本金账户" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8fbf5;strokeColor=#8ed0bf;strokeWidth=1.5;fontColor=#103b31;fontSize=14;align=center;verticalAlign=middle;arcSize=16;" parent="1" vertex="1">
+                    <mxGeometry x="1110" y="720" width="260" height="86" as="geometry"/>
+                </mxCell>
+
+                <mxCell id="r1" value="链上充值" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7a8799;strokeWidth=2;endArrow=block;endFill=1;fontSize=11;fontColor=#5f6f86;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" parent="1" source="externalWallet" target="depositAddress" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="r2" value="归集 Sweeping" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7a8799;strokeWidth=2;endArrow=block;endFill=1;fontSize=11;fontColor=#5f6f86;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;" parent="1" source="depositAddress" target="pool" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="r3" value="入账记账" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7a8799;strokeWidth=2;endArrow=block;endFill=1;fontSize=11;fontColor=#5f6f86;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" parent="1" source="pool" target="ledger" edge="1">
+                    <mxGeometry x="0.2506" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="r4" value="余额展示" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7a8799;strokeWidth=2;endArrow=block;endFill=1;fontSize=11;fontColor=#5f6f86;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;" parent="1" source="ledger" target="walletView" edge="1">
+                    <mxGeometry x="-0.4286" y="5" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="r5" value="自动补充" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7a8799;strokeWidth=2;endArrow=block;endFill=1;fontSize=11;fontColor=#5f6f86;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;" parent="1" source="pool" target="withdrawal" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="r6" value="链上提现" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7a8799;strokeWidth=2;endArrow=block;endFill=1;fontSize=11;fontColor=#5f6f86;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;entryX=0.75;entryY=1;entryDx=0;entryDy=0;curved=1;" parent="1" source="withdrawal" target="externalWallet" edge="1">
+                    <mxGeometry x="-0.1806" y="-46" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="r7" value="换汇 / Off-ramp 流动性" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7a8799;strokeWidth=2;endArrow=block;endFill=1;fontSize=11;fontColor=#5f6f86;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" parent="1" source="pool" target="otc" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1070" y="400"/>
+                            <mxPoint x="1070" y="295"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="r8" value="卡清算资金补给" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7a8799;strokeWidth=2;endArrow=block;endFill=1;fontSize=11;fontColor=#5f6f86;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;" parent="1" source="pool" target="settlement" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="r9" value="商户消费" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7a8799;strokeWidth=2;endArrow=block;endFill=1;fontSize=11;fontColor=#5f6f86;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;" parent="1" source="settlement" target="merchant" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1240" y="380"/>
+                            <mxPoint x="185" y="380"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="r10" value="法币清算" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7a8799;strokeWidth=2;endArrow=block;endFill=1;fontSize=11;fontColor=#5f6f86;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;" parent="1" source="settlement" target="bank" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="r11" value="预充值" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7a8799;strokeWidth=2;endArrow=block;endFill=1;fontSize=11;fontColor=#5f6f86;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;entryX=1;entryY=0.25;entryDx=0;entryDy=0;exitX=1;exitY=0.75;exitDx=0;exitDy=0;" parent="1" source="bank" target="prefund" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1410" y="615"/>
+                            <mxPoint x="1410" y="871"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="r12" value="本地法币出金" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7a8799;strokeWidth=2;endArrow=block;endFill=1;fontSize=11;fontColor=#5f6f86;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;" parent="1" source="prefund" target="localBank" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="r13" value="分配至收益账户" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7a8799;strokeWidth=2;endArrow=block;endFill=1;fontSize=11;fontColor=#5f6f86;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" parent="1" source="pool" target="yieldAccount" edge="1">
+                    <mxGeometry x="-0.5459" relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="720" y="469"/>
+                            <mxPoint x="720" y="742"/>
+                        </Array>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="r14" value="申购 / 赎回执行" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7a8799;strokeWidth=2;endArrow=block;endFill=1;fontSize=11;fontColor=#5f6f86;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;" parent="1" source="yieldAccount" target="yieldProvider" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="r15" value="用户收益余额" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7a8799;strokeWidth=2;endArrow=block;endFill=1;fontSize=11;fontColor=#5f6f86;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;" parent="1" source="yieldAccount" target="yieldBalance" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+
+                <mxCell id="footer" value="老板版视角：先看账户分层，再看主要资金从外部钱包 → 托管账户 → 账本 / 清算 / 收益 / 出金的大路由。这里不展开 KYT、Travel Rule、KYC 等检查顺序。" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#5f6f86;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="915" width="1180" height="40" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

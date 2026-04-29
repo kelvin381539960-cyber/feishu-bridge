@@ -1,0 +1,37 @@
+<script type="module">
+/**
+ * Markdown 装订产物里是 <pre><code class="language-mermaid">，默认不会渲染。
+ * 转为 <div class="mermaid"> 后由 Mermaid 10 运行时绘制（需能访问 CDN，或改用本地拷贝的 mermaid.min.js）。
+ */
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10.9.3/dist/mermaid.esm.min.mjs";
+
+mermaid.initialize({
+  startOnLoad: false,
+  theme: "neutral",
+  securityLevel: "loose",
+  fontFamily: '"Segoe UI", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif',
+});
+
+function promoteMermaidBlocks() {
+  document.querySelectorAll("pre > code.language-mermaid").forEach((code) => {
+    const pre = code.parentElement;
+    if (!pre || pre.tagName !== "PRE") return;
+    const src = code.textContent.trim();
+    const wrap = document.createElement("div");
+    wrap.className = "mermaid-diagram";
+    const graph = document.createElement("div");
+    graph.className = "mermaid";
+    graph.textContent = src;
+    wrap.appendChild(graph);
+    pre.replaceWith(wrap);
+  });
+}
+
+promoteMermaidBlocks();
+try {
+  await mermaid.run({ querySelector: ".mermaid" });
+} catch (err) {
+  console.error("Mermaid 渲染失败（可检查网络是否能访问 jsdelivr）:", err);
+}
+</script>
+</body></html>

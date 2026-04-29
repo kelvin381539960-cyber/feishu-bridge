@@ -1,0 +1,71 @@
+﻿涉及工作流,架构分层,文件名,路径,职责,备注,子表名(与飞书脚本一致)
+五类 registry,注册与契约,workflow-registry.js,lib/feishu-cursor/workflows/workflow-registry.js,五类 workflow 元数据注册表（taskType/contract/gate 等）,与 FINAL_WORKFLOWS 一致；pipeline/classifier 的配置真源之一,02_workflow-registry.js
+五类 contract,注册与契约,contracts/index.js,lib/feishu-cursor/contracts/index.js,聚合导出各 workflow 契约,,03_contracts_index.js
+五类 contract,注册与契约,base.contract.js,lib/feishu-cursor/contracts/base.contract.js,契约公共基座,,04_base.contract.js
+专项 prd,注册与契约,prd.contract.js,lib/feishu-cursor/contracts/prd.contract.js,PRD workflow 契约定义,,05_prd.contract.js
+专项 research,注册与契约,research.contract.js,lib/feishu-cursor/contracts/research.contract.js,调研 workflow 契约定义,,06_research.contract.js
+专项 code,注册与契约,code.contract.js,lib/feishu-cursor/contracts/code.contract.js,代码类 workflow 契约（inspect/execute 等）,,07_code.contract.js
+专项 solution,注册与契约,solution.contract.js,lib/feishu-cursor/contracts/solution.contract.js,方案类 workflow 契约（feasibility/roadmap 等模式）,,08_solution.contract.js
+通用 general,注册与契约,general.contract.js,lib/feishu-cursor/contracts/general.contract.js,兜底 general 契约（飞书回复形态等）,,09_general.contract.js
+全链路,接入与解析,feishu-ws-cursor.js,feishu-ws-cursor.js,进程入口，启动 bridge host,,10_feishu-ws-cursor.js
+全链路,接入与解析,bridge-host.js,lib/feishu-channel/bridge-host.js,渠道宿主装配、校验与 pipeline 接线,,11_bridge-host.js
+全链路,接入与解析,channel-runner.js,lib/feishu-channel/channel-runner.js,渠道 runner：装配 pipeline 依赖（媒体、记忆、@、引用、链式下一步等）,上下文装载相关函数多在此注入 pipeline,12_channel-runner.js
+全链路,接入与解析,plugin-runtime.js,lib/feishu-channel/plugin-runtime.js,渠道插件运行时（解析/发送/格式化等）,,13_plugin-runtime.js
+全链路,接入与解析,feishu-im-parse.js,lib/feishu-im-parse.js,WS 消息体解析（文本/合并转发/媒体类型等）,,14_feishu-im-parse.js
+全链路,媒体与富化,media-processor.js,lib/feishu-cursor/task-builders/media-processor.js,pipeline 内媒体处理编排（图/文件/音视频/合并转发等）,,15_media-processor.js
+全链路,媒体与富化,media-process.js,lib/media-process.js,具体媒体能力（describeImage、转写、抽文本等）,由 channel-runner 注入 pipeline,16_media-process.js
+全链路,媒体与富化,feishu-media.js,lib/feishu-media.js,飞书媒体资源拉取等（含合并转发子消息）,,17_feishu-media.js
+全链路,上下文装载,feishu-quoted-parent-context.js,lib/feishu-quoted-parent-context.js,引用父消息上下文注入任务文本,pipeline-v2 内 augmentTaskWithQuotedParent,18_feishu-quoted-parent-context
+全链路,上下文装载,feishu-at-context.js,lib/feishu-at-context.js,@提及 open_id 等上下文注入,,19_feishu-at-context.js
+全链路,上下文装载,task-context-builder.js,lib/feishu-cursor/task-builders/task-context-builder.js,构建 TaskContext（trace、归一化任务、注入标记位等）,parentContextInjected / mentionContextInjected 等写入模型,20_task-context-builder.js
+全链路,上下文装载,task-context.js,lib/feishu-cursor/models/task-context.js,任务上下文数据模型,,21_task-context.js
+全链路,上下文装载,feishu-session-memory.js,lib/feishu-session-memory.js,会话记忆组装与落库（assemble / persist / epoch）,与「记忆注入」强相关,22_feishu-session-memory.js
+全链路,上下文装载,memory-facade.js,lib/feishu-cursor/memory/memory-facade.js,pipeline 侧记忆门面（若存在封装）,与 default-memory-provider 配合,23_memory-facade.js
+全链路,上下文装载,default-memory-provider.js,lib/feishu-cursor/memory/default-memory-provider.js,默认记忆 epoch / provider,pipeline-v2 引用,24_default-memory-provider.js
+全链路,路由与触发,feishu-cursor-route.js,lib/feishu-cursor-route.js,direct/prefix、白名单、调研/报告启发式、profile 决策,影响上下文与分类侧行为,25_feishu-cursor-route.js
+全链路,路由与触发,load-feishu-cursor-config.js,lib/feishu-cursor/config/load-feishu-cursor-config.js,环境变量集中解析（队列、超时、回复格式等）,,26_load-feishu-cursor-config.js
+全链路,路由与触发,routing-policy.js,lib/feishu-cursor/policies/routing-policy.js,Pipeline 内路由资格与任务解析后路由,,27_routing-policy.js
+专项 solution,路由与触发,solution-mode.js,lib/feishu-cursor/policies/solution-mode.js,方案类模式相关策略,与 solution workflow 配合,28_solution-mode.js
+全链路,意图与分类,task-classifier.js,lib/feishu-cursor/policies/task-classifier.js,任务语义分类，映射到五类 workflow 或 general 子类型,非 PRD 专属；五类入口前的重要分支,29_task-classifier.js
+全链路,意图与分类,task-classification.js,lib/feishu-cursor/models/task-classification.js,分类结果模型与 FINAL_WORKFLOW_KEYS,,30_task-classification.js
+全链路,意图与分类,intent-router.js,lib/openclaw-control-plane/intent-router.js,控制平面意图路由（含调研等）,,31_intent-router.js
+全链路,策略治理,relay-policy.js,lib/feishu-cursor/policies/relay-policy.js,Relay 确定性短路,,32_relay-policy.js
+全链路,策略治理,safety-policy.js,lib/feishu-cursor/policies/safety-policy.js,安全门禁（含 parentContextInjected 等）,,33_safety-policy.js
+全链路,策略治理,prompt-policy.js,lib/feishu-cursor/policies/prompt-policy.js,Prompt 组装策略,,34_prompt-policy.js
+全链路,策略治理,policy-engine.js,lib/openclaw-control-plane/policy-engine.js,汇总 relay/safety/prompt 的开放策略门面,,35_policy-engine.js
+全链路,门闸与执行策略,pipeline-gate-adapter.js,lib/feishu-cursor/runtime/pipeline-gate-adapter.js,Pipeline 门闸（分类后违规兜底等）,,36_pipeline-gate-adapter.js
+专项 research+多类,门闸与执行策略,workflow-execution-policy.js,lib/openclaw-control-plane/workflow-execution-policy.js,taskSize、multiAgent、forcedRuntimeV2 等执行定型,对 research 与 prd/code/solution 多 Agent 策略分支,37_workflow-execution-policy.js
+全链路,门闸与执行策略,multi-agent-runtime-guards.js,lib/feishu-cursor/runtime/multi-agent-runtime-guards.js,专项运行时校验与守卫,,38_multi-agent-runtime-guards.j
+全链路,门闸与执行策略,conversation-reset.js,lib/feishu-cursor/conversation-reset.js,会话刷新、弱跟进检测、workflow 证据,影响调研状态是否延续,39_conversation-reset.js
+全链路,状态与持久,in-memory-state.js,lib/feishu-cursor/ingestion/in-memory-state.js,去重、合并转发去抖等内存状态,,40_in-memory-state.js
+全链路,状态与持久,state-store.js,lib/feishu-cursor/ingestion/state-store.js,可选文件型状态存储,,41_state-store.js
+专项 research,状态与持久,research-workflow-state.js,lib/feishu-cursor/research-workflow-state.js,调研多阶段状态机与存储键,,42_research-workflow-state.js
+专项 research,状态与持久,failed-research-snapshot-store.js,lib/feishu-cursor/failed-research-snapshot-store.js,调研失败快照落盘,,43_failed-research-snapshot-sto
+全链路,控制平面与执行,request-planner.js,lib/openclaw-control-plane/request-planner.js,控制平面门面：规划 classify/broker/派发,,44_request-planner.js
+全链路,控制平面与执行,execution-broker.js,lib/openclaw-control-plane/execution-broker.js,执行派发请求构建,,45_execution-broker.js
+全链路,控制平面与执行,session-dispatch.js,lib/openclaw-control-plane/session-dispatch.js,会话命名空间与幂等派发,,46_session-dispatch.js
+全链路,控制平面与执行,route-policy.js,lib/openclaw-control-plane/route-policy.js,网关路由策略（含 research runner 分支）,,47_route-policy.js
+全链路,控制平面与执行,result-policy.js,lib/openclaw-control-plane/result-policy.js,跑完后的结果策略（导出等）,,48_result-policy.js
+全链路,控制平面与执行,structured-result.js,lib/openclaw-control-plane/structured-result.js,结构化结果归一,,49_structured-result.js
+全链路,控制平面与执行,openclaw-gateway-adhoc.js,lib/openclaw-gateway-adhoc.js,OpenClaw gateway call 适配,,50_openclaw-gateway-adhoc.js
+全链路,主编排与运行,pipeline-v2.js,lib/feishu-cursor/pipeline-v2.js,主编排器：dedup→parse→…→run→reply,五类 workflow 最终都在此汇合执行,51_pipeline-v2.js
+全链路,主编排与运行,task-queue.js,lib/feishu-cursor/runner/task-queue.js,任务队列（串并行）,,52_task-queue.js
+全链路,主编排与运行,runner-selector.js,lib/feishu-cursor/runner/runner-selector.js,Runner 选择,,53_runner-selector.js
+专项 prd/code/solution,主编排与运行,specialized-solo-runner.js,lib/feishu-cursor/runtime/specialized-solo-runner.js,专项 solo 执行与 trace,,54_specialized-solo-runner.js
+专项 research,主编排与运行,research-workflow-runner.js,lib/openclaw-control-plane/research-workflow-runner.js,调研 V2 多阶段执行,,55_research-workflow-runner.js
+全链路,出站与后处理,ack-sender.js,lib/feishu-cursor/outbound/ack-sender.js,ACK（reaction/文本）,,56_ack-sender.js
+全链路,出站与后处理,feishu-docx-export.js,lib/feishu-docx-export.js,长内容/报告类飞书云文档导出,与调研/报告意图常联动,57_feishu-docx-export.js
+全链路,出站与后处理,feishu-llm-usage-footer.js,lib/feishu-llm-usage-footer.js,回复末尾用量脚注,,58_feishu-llm-usage-footer.js
+全链路,出站与后处理,strip-process-narration.js,lib/feishu-cursor/strip-process-narration.js,剥离过程叙述再回复,,59_strip-process-narration.js
+全链路,出站与后处理,feishu-chain-next.js,lib/feishu-chain-next.js,执行完成后链式下一步,,60_feishu-chain-next.js
+全链路,出站与后处理,run-reply-format.js,lib/run-reply-format.js,stdout/stderr 等到飞书正文的格式化,多由 channel 注入 formatReply,61_run-reply-format.js
+全链路,模型与载荷,execution-result.js,lib/feishu-cursor/models/execution-result.js,执行结果归一模型,,62_execution-result.js
+全链路,模型与载荷,feishu-task-envelope.js,lib/feishu-channel/models/feishu-task-envelope.js,渠道中立任务信封构建,,63_feishu-task-envelope.js
+全链路,可观测,telemetry.js,lib/feishu-cursor/observability/telemetry.js,pipeline 遥测 JSONL 等,,64_telemetry.js
+专项 prd（治理）,PRD 人机流程,prd-workflow.mdc,.cursor/rules/prd-workflow.mdc,Cursor 侧 PRD 工作流规则（状态机/子 Agent）,约束写作流程；非飞书 pipeline 运行时,65_prd-workflow.mdc
+专项 prd（治理）,PRD 人机流程,prd-workflow.md,docs/cursor-architecture/prd-workflow.md,PRD 流程说明文档,,66_prd-workflow.md
+专项 prd（治理）,PRD 人机流程,verify-prd-gates.py,scripts/verify-prd-gates.py,PRD 门禁校验脚本,,67_verify-prd-gates.py
+专项 prd（治理）,PRD 人机流程,verify-prd-brief-gate.py,scripts/verify-prd-brief-gate.py,Brief 门禁校验脚本,,68_verify-prd-brief-gate.py
+工程入口,PRD 人机流程,package.json,package.json,npm verify:prd-gates / verify:prd-brief 等脚本入口,,69_package.json
+运维,部署与配置,feishu-ws-cursor-bot.service,deploy/feishu-ws-cursor-bot.service,systemd 服务单元,,70_feishu-ws-cursor-bot.service
+运维,部署与配置,feishu-ws-cursor-bot.env.example,deploy/feishu-ws-cursor-bot.env.example,环境变量模板,,71_feishu-ws-cursor-bot.env.exa
