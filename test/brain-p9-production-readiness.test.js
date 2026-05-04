@@ -164,6 +164,7 @@ describe("brain P9 production readiness", { concurrency: false }, () => {
     assert.strictEqual(flags.memory, true);
     assert.strictEqual(flags.workflowPlugins, false);
     assert.strictEqual(flags.outputPlugins, false);
+    assert.strictEqual(flags.observability, false);
 
     const mutable = createFeatureFlags({ overrides: { memory: false } });
     assert.strictEqual(mutable.isEnabled("memory"), false);
@@ -233,6 +234,26 @@ describe("brain P9 production readiness", { concurrency: false }, () => {
     assert.match(String(h.calls.sentReply[0].text), /OK:PLUGIN_FAILSAFE_OK/);
     assert.ok(h.loggerCalls.error.some((args) => String(args[0]).includes("[workflow-plugin] failed")));
     assert.ok(h.telemetry.some((e) => e.name === "plugin_execution" && e.payload.status === "error"));
+  });
+
+  test("observability flag on emits stage latency and memory token usage", async () => {
+    const h = buildHarness({
+      featureFlags: createFeatureFlags({ overrides: { observability: true } }),
+      memoryInject: true,
+      stdout: "OBS_OK",
+    });
+
+    await h.run(textEvent({ chatId: "oc_p9_obs", messageId: "om_p9_obs", text: "hello obs" }));
+    await flushAsyncPersist();
+
+    const stages = h.telemetry.filter((e) => e.name === "stage_latency").map((e) => e.payload.stage);
+    assert.ok(stages.includes("parse"));
+    assert.ok(stages.includes("planning_pre"));
+    assert.ok(stages.includes("planning_final"));
+    assert.ok(stages.includes("memory"));
+    assert.ok(stages.includes("output_plugins"));
+    const memoryMetric = h.telemetry.find((e) => e.name === "stage_latency" && e.payload.stage === "memory");
+    assert.deepStrictEqual(memoryMetric.payload.memoryTokenUsage, { totalTokens: 3 });
   });
 
   test("memory throw is logged, skipped, and executor reply still succeeds", async () => {
