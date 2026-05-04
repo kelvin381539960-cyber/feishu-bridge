@@ -11,7 +11,7 @@
 | 输出 | 分阶段 WBS 台账、架构文档、协议定义、Harness 测试、模块化代码重构、长期记忆模块、token 预算控制、workflow 插件化、compat 治理、迁移记录 |
 | 完成标准 | 代码可测试；主链路保持兼容；核心协议有 schema/fixture/test；pipeline-v2 被阶段化瘦身；research/doc-export/memory/output 逐步插件化；长期记忆受 token budget 控制；所有关键改动有 Harness 覆盖；每阶段均有明确验收与回填 |
 | 状态 | Doing |
-| 当前阶段 | P7：Output 插件化：Doc Export / Usage / Feishu Limit |
+| 当前阶段 | P8：Compat Adapter 与 Planning 收敛 |
 | 结果回填 | P2 已完成：架构文档、核心协议、迁移不变量已产出；等待用户检查确认 |
 
 ---
@@ -42,8 +42,8 @@
 | P4 | Brain Kernel 骨架与阶段化 Pipeline | 新增 brain/kernel/context/registry，并把 pipeline-v2 第一层阶段化 | Done | `lib/brain/*`、阶段文件、行为保持测试 |
 | P5 | Long Memory + Token Budget | 建立长期记忆分层、Memory Router、Budget Controller 和对应 Harness | Done | `lib/memory/*`、memory tests、token budget tests |
 | P6 | Workflow 插件化：Research 优先 | 将 research clarify/execute/finalize 状态机迁出 pipeline 主体 | Done | `lib/workflows/research/*`、research replay/harness |
-| P7 | Output 插件化：Doc Export / Usage / Feishu Limit | 将 doc export、usage footer、输出限制从 pipeline 主体拆出 | Doing | output plugin、Feishu output harness |
-| P8 | Compat Adapter 与 Planning 收敛 | 集中治理 legacy/plugin-native/session/idempotency，并统一 prePlan/finalPlan | Todo | `lib/compat/*`、planning stage、compat tests |
+| P7 | Output 插件化：Doc Export / Usage / Feishu Limit | 将 doc export、usage footer、输出限制从 pipeline 主体拆出 | Done | output plugin、Feishu output harness |
+| P8 | Compat Adapter 与 Planning 收敛 | 集中治理 legacy/plugin-native/session/idempotency，并统一 prePlan/finalPlan | Doing | `lib/compat/*`、planning stage、compat tests |
 | P9 | 全量回归、性能与收口 | 运行全量测试，验证效率、token 预算、兼容与风险关闭 | Todo | 测试报告、风险清单、最终回填 |
 
 ---
@@ -593,7 +593,7 @@ Doing
 
 ### 阶段状态
 
-Todo
+Doing
 
 ### 阶段任务
 
@@ -756,6 +756,7 @@ Todo
 11. 用户确认：P4 通过，进入 P5。
 12. 用户确认：P5 通过，进入 P6。
 13. 用户确认：P6 通过，进入 P7。
+14. 用户确认：P7 通过，进入 P8。
 
 ---
 
