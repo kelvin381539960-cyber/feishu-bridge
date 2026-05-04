@@ -9,6 +9,7 @@
   },
   "scripts": {
     "test": "node --test test/*.test.js",
+    "test:p6-workflow": "node --test test/brain-replay-harness.test.js test/feishu-cursor-pipeline-v2.test.js test/research-workflow-plugin.test.js test/research-workflow-runner.test.js test/research-workflow-state.test.js test/conversation-reset.test.js test/workflow-registry.test.js",
     "selfcheck": "node scripts/feishu-bridge-selfcheck.js",
     "screenshot-server": "node scripts/feishu-research-screenshot-server.js",
     "verify:prd-brief": "python3 scripts/verify-prd-brief-gate.py",
