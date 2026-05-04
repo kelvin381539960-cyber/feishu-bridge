@@ -372,4 +372,136 @@ describe("brain replay harness", { concurrency: false }, () => {
     assert.ok(h.telemetry.some((e) => e.name === "ack_sent" && e.payload.ackMode === "fallback_text"));
     assert.strictEqual(h.channel.calls.sentReply.length, 1);
   });
+
+  test("output plugins: doc export error keeps reply order, memory and telemetry stable", async () => {
+    const prev = process.env.FEISHU_CLOUD_DOC_EXPORT;
+    process.env.FEISHU_CLOUD_DOC_EXPORT = "1";
+    try {
+      const h = buildHarness({
+        runtimeConfig: { researchClarifyFirst: false },
+        isResearchLikeTask: () => true,
+        docExport: { throwOnExport: "doc failed" },
+        executor: { stdout: "DOC_ORDER_OK" },
+      });
+      await h.run(textEvent({ chatId: "oc_doc_order", messageId: "om_doc_order", text: "技术调研 doc error" }));
+      await flushAsyncPersist();
+
+      assert.strictEqual(h.doc.calls.length, 1);
+      assert.strictEqual(h.channel.calls.sentReply.length, 1);
+      assert.match(String(h.channel.calls.sentReply[0].text), /OK:DOC_ORDER_OK/);
+      assert.strictEqual(h.memory.calls.persist.length, 1);
+      assert.match(String(h.memory.calls.persist[0].replyBody), /OK:DOC_ORDER_OK/);
+      assert.ok(h.telemetry.some((e) => e.name === "runner_completed"));
+      assert.ok(h.telemetry.some((e) => e.name === "reply_sent" && e.payload.exportKind === "research"));
+      assert.ok(h.trace.indexOf("send:reply") < h.trace.indexOf("memory:persist"));
+      assert.ok(h.trace.indexOf("memory:persist") < h.trace.indexOf("telemetry:reply_sent"));
+    } finally {
+      if (prev === undefined) delete process.env.FEISHU_CLOUD_DOC_EXPORT;
+      else process.env.FEISHU_CLOUD_DOC_EXPORT = prev;
+    }
+  });
+
+  test("output plugins: usage append keeps single reply, memory and telemetry", async () => {
+    const prev = {
+      FEISHU_OUTPUT_USAGE_PLUGIN: process.env.FEISHU_OUTPUT_USAGE_PLUGIN,
+      FEISHU_REPLY_USAGE_TOKENS_RAW: process.env.FEISHU_REPLY_USAGE_TOKENS_RAW,
+    };
+    process.env.FEISHU_OUTPUT_USAGE_PLUGIN = "1";
+    process.env.FEISHU_REPLY_USAGE_TOKENS_RAW = "1";
+    try {
+      const h = buildHarness({
+        executor: {
+          responses: [{
+            code: 0,
+            stdout: "USAGE_OK",
+            stderr: "",
+            error: null,
+            structuredResult: {
+              raw: {
+                openclaw: { model: "gw", usage: { total_tokens: 7 } },
+                cursor: { model: "ex", usage: { total_tokens: 9 } },
+              },
+            },
+            routeAgentId: process.env.OPENCLAW_HEAVY_AGENT_ID || "cursor",
+          }],
+        },
+      });
+      await h.run(textEvent({ chatId: "oc_usage", messageId: "om_usage", text: "hello usage" }));
+      await flushAsyncPersist();
+
+      assert.strictEqual(h.channel.calls.sentReply.length, 1);
+      assert.match(String(h.channel.calls.sentReply[0].text), /OK:USAGE_OK/);
+      assert.match(String(h.channel.calls.sentReply[0].text), /gw · 7/);
+      assert.strictEqual(h.memory.calls.persist.length, 1);
+      assert.match(String(h.memory.calls.persist[0].replyBody), /gw · 7/);
+      assert.ok(h.telemetry.some((e) => e.name === "reply_sent"));
+      assert.deepStrictEqual(h.trace.filter((x) => x === "send:reply"), ["send:reply"]);
+    } finally {
+      for (const [key, value] of Object.entries(prev)) {
+        if (value === undefined) delete process.env[key];
+        else process.env[key] = value;
+      }
+    }
+  });
+
+  test("output plugins: limit segment is opt-in and preserves reply order, memory and telemetry", async () => {
+    const prev = {
+      FEISHU_OUTPUT_LIMIT_MODE: process.env.FEISHU_OUTPUT_LIMIT_MODE,
+      FEISHU_OUTPUT_MAX_CHARS: process.env.FEISHU_OUTPUT_MAX_CHARS,
+      FEISHU_OUTPUT_LIMIT_TRUNCATE_ENABLED: process.env.FEISHU_OUTPUT_LIMIT_TRUNCATE_ENABLED,
+    };
+    process.env.FEISHU_OUTPUT_LIMIT_MODE = "segment";
+    process.env.FEISHU_OUTPUT_MAX_CHARS = "500";
+    delete process.env.FEISHU_OUTPUT_LIMIT_TRUNCATE_ENABLED;
+    try {
+      const longText = Array.from({ length: 90 }, (_, i) => `段落${i}：这是一段用于验证分段顺序的长文本。`).join("\n\n");
+      const h = buildHarness({ executor: { stdout: longText } });
+      await h.run(textEvent({ chatId: "oc_segment", messageId: "om_segment", text: "hello segment" }));
+      await flushAsyncPersist();
+
+      assert.ok(h.channel.calls.sentReply.length > 1);
+      assert.match(String(h.channel.calls.sentReply[0].text), /^（1\/\d+）\nOK:/);
+      assert.match(String(h.channel.calls.sentReply[1].text), /^（2\/\d+）\n/);
+      assert.deepStrictEqual(h.trace.filter((x) => x === "send:reply").length, h.channel.calls.sentReply.length);
+      assert.strictEqual(h.memory.calls.persist.length, 1);
+      assert.match(String(h.memory.calls.persist[0].replyBody), /OK:/);
+      assert.ok(!String(h.memory.calls.persist[0].replyBody).startsWith("（1/"));
+      assert.ok(h.telemetry.some((e) => e.name === "reply_sent"));
+      assert.ok(h.trace.lastIndexOf("send:reply") < h.trace.indexOf("memory:persist"));
+      assert.ok(h.trace.indexOf("memory:persist") < h.trace.indexOf("telemetry:reply_sent"));
+    } finally {
+      for (const [key, value] of Object.entries(prev)) {
+        if (value === undefined) delete process.env[key];
+        else process.env[key] = value;
+      }
+    }
+  });
+
+  test("output plugins: truncate mode is ignored unless explicitly opted in", async () => {
+    const prev = {
+      FEISHU_OUTPUT_LIMIT_MODE: process.env.FEISHU_OUTPUT_LIMIT_MODE,
+      FEISHU_OUTPUT_MAX_CHARS: process.env.FEISHU_OUTPUT_MAX_CHARS,
+      FEISHU_OUTPUT_LIMIT_TRUNCATE_ENABLED: process.env.FEISHU_OUTPUT_LIMIT_TRUNCATE_ENABLED,
+    };
+    process.env.FEISHU_OUTPUT_LIMIT_MODE = "truncate";
+    process.env.FEISHU_OUTPUT_MAX_CHARS = "500";
+    delete process.env.FEISHU_OUTPUT_LIMIT_TRUNCATE_ENABLED;
+    try {
+      const longText = "T".repeat(900);
+      const h = buildHarness({ executor: { stdout: longText } });
+      await h.run(textEvent({ chatId: "oc_truncate_off", messageId: "om_truncate_off", text: "hello truncate" }));
+      await flushAsyncPersist();
+
+      assert.strictEqual(h.channel.calls.sentReply.length, 1);
+      assert.match(String(h.channel.calls.sentReply[0].text), /T{100}/);
+      assert.ok(!String(h.channel.calls.sentReply[0].text).includes("已截断"));
+      assert.strictEqual(h.memory.calls.persist.length, 1);
+      assert.ok(h.telemetry.some((e) => e.name === "reply_sent"));
+    } finally {
+      for (const [key, value] of Object.entries(prev)) {
+        if (value === undefined) delete process.env[key];
+        else process.env[key] = value;
+      }
+    }
+  });
 });
