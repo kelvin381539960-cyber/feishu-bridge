@@ -11,8 +11,8 @@
 | 输出 | 分阶段 WBS 台账、架构文档、协议定义、Harness 测试、模块化代码重构、长期记忆模块、token 预算控制、workflow 插件化、compat 治理、迁移记录 |
 | 完成标准 | 代码可测试；主链路保持兼容；核心协议有 schema/fixture/test；pipeline-v2 被阶段化瘦身；research/doc-export/memory/output 逐步插件化；长期记忆受 token budget 控制；所有关键改动有 Harness 覆盖；每阶段均有明确验收与回填 |
 | 状态 | Doing |
-| 当前阶段 | P0：PM 台账重构与项目治理 |
-| 结果回填 | 已根据用户反馈，将任务台账从平铺任务清单重构为阶段化 WBS |
+| 当前阶段 | P1：现状盘点与架构边界 |
+| 结果回填 | P0 已完成：任务台账已从平铺清单重构为阶段化 WBS；当前推进到 P1 现状盘点 |
 
 ---
 
@@ -35,8 +35,8 @@
 
 | 阶段 | 名称 | 目标 | 状态 | 主要交付物 |
 |---|---|---|---|---|
-| P0 | PM 台账重构与项目治理 | 将任务从平铺清单升级为阶段化 WBS，明确每阶段任务、文件、验收和风险 | Doing | 本台账新版 |
-| P1 | 现状盘点与架构边界 | 盘点现有主链路、模块职责、风险与可迁移边界 | Todo | 现状盘点回填、架构边界清单 |
+| P0 | PM 台账重构与项目治理 | 将任务从平铺清单升级为阶段化 WBS，明确每阶段任务、文件、验收和风险 | Done | 本台账新版 |
+| P1 | 现状盘点与架构边界 | 盘点现有主链路、模块职责、风险与可迁移边界 | Doing | 现状盘点回填、架构边界清单 |
 | P2 | 目标架构文档与协议冻结 | 产出 Brain Kernel + Harness + Long Memory 架构文档与核心协议草案 | Todo | `docs/brain-kernel-harness-long-memory-architecture.md` |
 | P3 | Harness 基线与 Replay 锁行为 | 建立 Contract / Replay / Fake Adapter 基线，先锁住现有行为 | Todo | contract tests、replay tests、fixtures、fake adapters |
 | P4 | Brain Kernel 骨架与阶段化 Pipeline | 新增 brain/kernel/context/registry，并把 pipeline-v2 第一层阶段化 | Todo | `lib/brain/*`、阶段文件、行为保持测试 |
@@ -58,7 +58,7 @@
 
 ### 阶段状态
 
-Doing
+Done
 
 ### 阶段任务
 
@@ -86,7 +86,7 @@ Doing
 
 ### 阶段状态
 
-Todo
+Doing
 
 ### 阶段输入
 
@@ -738,7 +738,7 @@ Todo
 2. 尚未读取所有 openclaw-control-plane 与 memory 相关文件，详细拆分点待盘点。
 3. 长期记忆的持久化位置未最终确认，初步建议先以文件/本地 store 抽象接口开始，避免绑定实现。
 4. 是否允许新增较多测试 fixtures 待执行中根据需要控制。
-5. P1 之前不应直接改运行链路代码，避免在边界未确认前引入风险。
+5. P1 阶段不应直接改运行链路代码，避免在边界未确认前引入风险。
 
 ---
 
