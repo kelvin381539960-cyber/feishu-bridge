@@ -1,10 +1,16 @@
 # Workflow Plugin Ownership
 
-## P6 scope
+## P6 acceptance scope
 
-P6 introduces an execution plugin boundary for workflows without changing P3 replay behavior.
+P6 is accepted only as **Research execute dispatch pluginization**.
 
-## Research workflow ownership
+It must not be described as full research lifecycle decoupling. The accepted P6 boundary is:
+
+- `ResearchWorkflowPlugin` owns choosing the research execute runner;
+- `pipeline-v2.js` continues to own lifecycle state and replay-visible side effects;
+- P3 replay order must remain unchanged.
+
+## Research execute ownership
 
 `ResearchWorkflowPlugin` owns only the **research execute dispatch decision**:
 
@@ -24,6 +30,30 @@ The following lifecycle behavior intentionally remains in `pipeline-v2.js` for P
 - doc export, reply send, memory persist, and telemetry ordering.
 
 This is deliberate: P6 is an **execution plugin** phase, not a full lifecycle plugin phase. Moving lifecycle ownership requires a later phase with replay fixtures dedicated to state-machine migration.
+
+## P7 migration note
+
+Keep this file through P7 planning. P7 must explicitly define which lifecycle responsibilities move from `pipeline-v2.js` into workflow plugins, and must add replay fixtures for every moved responsibility before changing ownership.
+
+## Plugin registry order contract
+
+Workflow plugins are registered as entries:
+
+```js
+{
+  id: string,
+  workflow: string,
+  priority: integer,
+  order: integer,
+  plugin: WorkflowPlugin
+}
+```
+
+Selection is deterministic:
+
+1. lower `priority` runs first;
+2. when priority ties, lower `order` runs first;
+3. the first plugin whose `match(ctx)` returns true is selected.
 
 ## Result contract
 
