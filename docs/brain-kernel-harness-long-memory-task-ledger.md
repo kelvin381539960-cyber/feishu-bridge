@@ -10,9 +10,9 @@
 | 输入 | 当前 feishu-bridge 仓库；已确认的 9 分版架构方案；用户确认的全方位代码重构落地范围 |
 | 输出 | 分阶段 WBS 台账、架构文档、协议定义、Harness 测试、模块化代码重构、长期记忆模块、token 预算控制、workflow 插件化、compat 治理、迁移记录 |
 | 完成标准 | 代码可测试；主链路保持兼容；核心协议有 schema/fixture/test；pipeline-v2 被阶段化瘦身；research/doc-export/memory/output 逐步插件化；长期记忆受 token budget 控制；所有关键改动有 Harness 覆盖；每阶段均有明确验收与回填 |
-| 状态 | Doing |
-| 当前阶段 | P1：现状盘点与架构边界 |
-| 结果回填 | P0 已完成：任务台账已从平铺清单重构为阶段化 WBS；当前推进到 P1 现状盘点 |
+| 状态 | Confirming |
+| 当前阶段 | P1：已完成，等待用户检查确认 |
+| 结果回填 | P1 已完成：主链路、pipeline-v2、control-plane、memory/research/doc-export 风险已盘点；暂停等待用户检查确认 |
 
 ---
 
@@ -36,7 +36,7 @@
 | 阶段 | 名称 | 目标 | 状态 | 主要交付物 |
 |---|---|---|---|---|
 | P0 | PM 台账重构与项目治理 | 将任务从平铺清单升级为阶段化 WBS，明确每阶段任务、文件、验收和风险 | Done | 本台账新版 |
-| P1 | 现状盘点与架构边界 | 盘点现有主链路、模块职责、风险与可迁移边界 | Doing | 现状盘点回填、架构边界清单 |
+| P1 | 现状盘点与架构边界 | 盘点现有主链路、模块职责、风险与可迁移边界 | Done | 现状盘点回填、架构边界清单 |
 | P2 | 目标架构文档与协议冻结 | 产出 Brain Kernel + Harness + Long Memory 架构文档与核心协议草案 | Todo | `docs/brain-kernel-harness-long-memory-architecture.md` |
 | P3 | Harness 基线与 Replay 锁行为 | 建立 Contract / Replay / Fake Adapter 基线，先锁住现有行为 | Todo | contract tests、replay tests、fixtures、fake adapters |
 | P4 | Brain Kernel 骨架与阶段化 Pipeline | 新增 brain/kernel/context/registry，并把 pipeline-v2 第一层阶段化 | Todo | `lib/brain/*`、阶段文件、行为保持测试 |
@@ -86,7 +86,7 @@ Done
 
 ### 阶段状态
 
-Doing
+Done
 
 ### 阶段输入
 
@@ -107,7 +107,7 @@ Doing
 
 | 字段 | 内容 |
 |---|---|
-| 状态 | Todo |
+| 状态 | Done |
 | 执行角色 | Architect |
 | 输出 | 飞书事件从入口到回复的调用链图 |
 | 涉及文件 | `AGENTS.md`、`feishu-ws-cursor.js`、`bridge-host.js`、`channel-runner.js`、`pipeline-v2.js` |
@@ -121,7 +121,7 @@ Doing
 
 | 字段 | 内容 |
 |---|---|
-| 状态 | Todo |
+| 状态 | Done |
 | 执行角色 | Architect |
 | 输出 | pipeline-v2 职责拆分表：sensory / attention / cognition / memory / planning / execution / output / feedback |
 | 涉及文件 | `lib/feishu-cursor/pipeline-v2.js` |
@@ -135,7 +135,7 @@ Doing
 
 | 字段 | 内容 |
 |---|---|
-| 状态 | Todo |
+| 状态 | Done |
 | 执行角色 | Architect |
 | 输出 | OpenClaw planning / policy / result 相关模块职责图 |
 | 涉及文件 | `lib/openclaw-control-plane/request-planner.js`、`intent-router.js`、`policy-engine.js`、`workflow-execution-policy.js`、`result-policy.js` |
@@ -149,7 +149,7 @@ Doing
 
 | 字段 | 内容 |
 |---|---|
-| 状态 | Todo |
+| 状态 | Done |
 | 执行角色 | Architect / Harness Reviewer |
 | 输出 | 高风险模块清单与 Harness 优先级 |
 | 涉及文件 | `feishu-session-memory.js`、`default-memory-provider.js`、`research-workflow-state.js`、`research-workflow-runner.js`、`conversation-reset.js`、`feishu-docx-export.js` |
@@ -735,10 +735,9 @@ Todo
 ## 4. 当前 Gap
 
 1. 尚未运行仓库测试，未知现有基线是否全部通过。
-2. 尚未读取所有 openclaw-control-plane 与 memory 相关文件，详细拆分点待盘点。
-3. 长期记忆的持久化位置未最终确认，初步建议先以文件/本地 store 抽象接口开始，避免绑定实现。
-4. 是否允许新增较多测试 fixtures 待执行中根据需要控制。
-5. P1 阶段不应直接改运行链路代码，避免在边界未确认前引入风险。
+2. 长期记忆的持久化位置未最终确认，初步建议先以文件/本地 store 抽象接口开始，避免绑定实现。
+3. 是否允许新增较多测试 fixtures 待执行中根据需要控制。
+4. P1 已完成但尚未经过用户检查确认；P2 暂不推进。
 
 ---
 
@@ -766,3 +765,159 @@ Todo
 问题 / Gap：暂无
 需要确认的决策：暂无
 下一步：进入 P1 现状盘点与架构边界。
+
+### P1-T01：主链路调用链盘点
+
+状态：Done
+执行角色：Architect
+输入：`AGENTS.md`、`feishu-ws-cursor.js`、`bridge-host.js`、`channel-runner.js`、`pipeline-v2.js`
+输出：主链路调用链与边界判断
+结果摘要：
+
+```text
+飞书 im.message.receive_v1
+→ feishu-ws-cursor.js
+→ startFeishuBridgeHost()
+→ bridge-host：加载配置 / 校验 env / 启动 Lark WSClient / 注册 EventDispatcher
+→ channel-runner：装配 runtimeConfig、routing、channelPlugin、telemetry、pipelineState、taskQueue、OpenClaw 调用、memory、media、ack 等依赖
+→ pipeline-v2：主编排
+→ taskQueue
+→ OpenClaw Gateway / research workflow / specialized runner
+→ reply format / doc export / send reply
+→ memory persist / telemetry / chain-next
+```
+
+关键判断：
+
+1. `feishu-ws-cursor.js` 已足够薄，只是兼容入口，不应再加业务逻辑。
+2. `bridge-host.js` 主要是飞书 WS 生命周期、配置校验、凭证等待、事件注册、shutdown 和安全提示，边界清晰。
+3. `channel-runner.js` 是当前 composition root / service container，负责把飞书通道能力、OpenClaw、memory、media、telemetry、queue 注入 pipeline。
+4. `plugin-runtime.js` 已经是 Feishu Channel Plugin 的雏形，可作为 P3 Fake Channel Adapter 和 P4 Channel Plugin 边界参考。
+5. 当前不能破坏的行为点：env 校验、secret file 轮询、direct/prefix 模式、allowed chat、group @bot、session/idempotency、飞书 reply/reaction、OpenClaw Gateway 调用。
+
+问题 / Gap：未运行测试，测试基线未知。
+需要确认的决策：P2 前无需新决策；P1 等待用户检查。
+下一步：用户确认 P1 后进入 P2。
+
+### P1-T02：pipeline-v2 职责切片
+
+状态：Done
+执行角色：Architect
+输入：`lib/feishu-cursor/pipeline-v2.js`
+输出：pipeline-v2 目标阶段切片与迁移边界
+结果摘要：
+
+| 目标阶段 | 当前 pipeline-v2 职责 | 迁移判断 |
+|---|---|---|
+| Sensory 感知 | parse inbound event、raw content log、media processor 装配与文本拼接 | 可拆，但 media 与 merge_forward 联动需 replay |
+| Attention 注意力 | dedup、route eligibility、group @bot、echo reply skip、merge_forward debounce/coalesce | 必须 Harness 先行，属于关键行为过滤层 |
+| Cognition 理解 | prefix/direct task 提取、quoted parent、sheet normalize、@ context、classificationMerge | quoted/@/sheet 可分模块，classification 暂不先动 |
+| Memory 记忆 | research state key、fresh reset、memoryMode、assembleMemoryContext、persistMemoryTurn | 高风险，P5 前不直接重写 |
+| Planning 决策 | probePlanned、planned、controlPlanned、pipeline gate、workflow execution policy | 存在重复 planning，P8 收敛为 prePlan/finalPlan |
+| Execution 执行 | ACK、taskQueue、research V2、specialized solo、OpenClaw gateway、normalize result、runtime validation | 需要 Replay + Fake Executor 后再拆 |
+| Output 输出 | format reply、strip process narration、clarify footer、timing、sanitize、doc export、usage footer、send reply | doc export 高副作用；reply formatter 可较早抽出 |
+| Feedback 反馈 | telemetry、failed research snapshot、memory persist、chain-next | 可模块化，但 snapshot/memory 需先锁行为 |
+
+第一批相对安全切口：
+
+1. pipeline 内纯 helper：workflow hint、clarify control、firstHttpUrl、reply post-process helper。
+2. output 辅助模块：usage footer wrapper、reply formatter wrapper。
+3. channel fake adapter：不影响生产链路。
+4. Contract/Replay Harness：优先于运行代码重构。
+
+暂不直接动刀区域：
+
+1. research clarify/execute/fresh reset。
+2. session/idempotency/runtime mode。
+3. memory epoch 与 meta_followup。
+4. doc export 真实飞书 API 副作用。
+5. 多次 planning 收敛前的 dispatch/session 细节。
+
+问题 / Gap：pipeline-v2 内状态变量多，不能只做机械拆文件。
+需要确认的决策：无。
+下一步：P2 将这些边界沉淀为架构文档；P3 先建 Harness。
+
+### P1-T03：control-plane 与 planning 现状盘点
+
+状态：Done
+执行角色：Architect
+输入：`request-planner.js`、`policy-engine.js`、`execution-broker.js`、`session-dispatch.js`、`workflow-execution-policy.js`、相关 routing/result policy
+输出：control-plane 职责图与 P8 收敛重点
+结果摘要：
+
+```text
+planOpenclawExecution
+→ classifyOpenclawIntent
+→ mergeClassification
+→ resolveOpenclawPolicies
+   → relay-policy / safety-policy / prompt-policy
+→ planExecutionBroker
+   → selectRunner
+   → buildOpenclawDispatchRequest
+      → resolveGatewayRoute
+      → buildFeishuSessionKey
+      → buildFeishuIdempotencyKey
+```
+
+关键判断：
+
+1. `request-planner.js` 已经是控制平面 facade，方向正确。
+2. `policy-engine.js` 仍反向依赖 `feishu-cursor/policies/*`，说明 control-plane 尚未完全纯化，是迁移中间态。
+3. `session-dispatch.js` 是最高兼容风险点之一，负责 `legacy-bridge` / `plugin-native` runtime mode、sessionKey、idempotencyKey、namespace、agentId 拼接。
+4. `workflow-execution-policy.js` 不是普通 policy，而是 research 多 Agent、taskSize、forecast metadata 的执行决策层，P6 迁移 research 时必须保留该语义。
+5. `pipeline-v2.js` 目前至少存在 probe/planned/controlPlanned 多次 `planOpenclawExecution`，可能导致重复计算、调试困难和结果不一致。
+
+P8 收敛重点：
+
+1. 定义 `prePlan`：只产出 session/workflow/memory/fresh-reset 所需 hint，不能作为最终执行依据。
+2. 定义 `finalPlan`：唯一执行依据，包含 classification、prompt、runner、dispatch、reasonCodes。
+3. 把 compat/session/idempotency 抽到 `lib/compat/*` 或 planning adapter，但保持现有输出不变。
+
+问题 / Gap：未运行 `test/openclaw-control-plane.test.js`，现有基线未知。
+需要确认的决策：无。
+下一步：P2 记录 prePlan/finalPlan 原则；P8 再实现。
+
+### P1-T04：memory / research / doc-export 风险盘点
+
+状态：Done
+执行角色：Architect / Harness Reviewer
+输入：`feishu-session-memory.js`、`memory-facade.js`、`default-memory-provider.js`、`research-workflow-state.js`、`conversation-reset.js`、`research-workflow-runner.js`、`feishu-docx-export.js`
+输出：高风险模块清单与 Harness 优先级
+结果摘要：
+
+高风险模块：
+
+1. Memory：`feishu-session-memory.js` 已有可插拔 facade；默认 provider 使用本地 JSON store、epoch、最近 24 turns、summary、recent turns、retrieval snippets、meta_followup。问题是缺少统一 token budget，长期使用后仍可能上下文膨胀。
+2. Research State：`research-workflow-state.js` 使用本地 JSON store、`clarify_sent` phase、TTL、chat+namespace key。状态简单但和 pipeline fresh reset 深度耦合。
+3. Conversation Reset：`conversation-reset.js` 决定 fresh task vs follow-up，依赖 researchRow、lastTurnMeta、assistantReplyLen，误判会导致上下文丢失或串任务。
+4. Research Runner：`research-workflow-runner.js` 已实现 crawler/analyst 双阶段、session/idempotency suffix、quality repair、run trace、learning memory record。它已经像 workflow plugin，但位置仍在 control-plane。
+5. Doc Export：`feishu-docx-export.js` 真实调用飞书 docx API，创建文档、写 blocks、grant permission、失败删除、verify raw_content、长回复截断、chat summary only、图片 appendix。副作用重，必须 fake adapter/harness 先行。
+
+P3 Harness 优先级：
+
+1. Pipeline Replay：text basic、prefix miss、direct mode、group @bot、merge_forward、relay-like task。
+2. Fake Adapter：Feishu send/reply/reaction/download/fetchMessage、OpenClaw executor、memory store、doc export hook，禁止测试触发真实外部副作用。
+3. Research Harness：clarify→execute、继续澄清、结束任务、fresh reset、失败 snapshot。
+4. Memory Harness：epoch、meta_followup、session/project隔离、maxTokens/maxRecords、negative memory 优先。
+5. Doc Export Harness：clarify 不导出、长回复触发导出、导出失败不影响主回复、半成品链接不发送。
+6. Compat Harness：legacy-bridge/plugin-native sessionKey/idempotencyKey 不回归。
+
+问题 / Gap：P1 只做现状盘点，未执行真实测试；doc export 的真实 API 行为后续必须用 fake adapter 隔离。
+需要确认的决策：P1 等待用户检查确认后再进入 P2。
+下一步：暂停，等待用户检查 P1。
+
+### P1 阶段验收回填
+
+状态：Done，等待用户检查确认。
+
+验收项：
+
+- 有明确现状职责图：已完成。
+- 有 pipeline-v2 拆分边界：已完成。
+- 有高风险模块清单：已完成。
+- 有 P3 Harness 优先级建议：已完成。
+- 不修改运行代码：已遵守；本阶段只修改任务台账。
+
+阶段结论：
+
+当前系统不是缺能力，而是能力集中在 `pipeline-v2.js` 和若干副作用模块中。P2 应先冻结架构协议与行为不变量，P3 必须先建立 Harness，再进入 P4 之后的实际拆分。
