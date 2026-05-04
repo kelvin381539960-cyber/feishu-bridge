@@ -101,3 +101,31 @@ test("getFallbackWorkflow returns the general entry", () => {
   assert.strictEqual(e.taskType, "general");
   assert.strictEqual(e.role, "fallback");
 });
+
+test("workflow plugin registry exposes deterministic priority/order contract", () => {
+  assert.ok(Array.isArray(registry.WORKFLOW_PLUGIN_ENTRIES));
+  assert.ok(registry.WORKFLOW_PLUGIN_ENTRIES.length >= 1);
+  for (const entry of registry.WORKFLOW_PLUGIN_ENTRIES) {
+    assert.strictEqual(typeof entry.id, "string");
+    assert.strictEqual(typeof entry.workflow, "string");
+    assert.strictEqual(Number.isInteger(entry.priority), true);
+    assert.strictEqual(Number.isInteger(entry.order), true);
+    assert.strictEqual(typeof entry.plugin.match, "function");
+    assert.strictEqual(typeof entry.plugin.run, "function");
+  }
+  const sorted = [...registry.WORKFLOW_PLUGIN_ENTRIES].sort((a, b) => {
+    if (a.priority !== b.priority) return a.priority - b.priority;
+    return a.order - b.order;
+  });
+  assert.deepStrictEqual(
+    registry.WORKFLOW_PLUGIN_ENTRIES.map((x) => x.id),
+    sorted.map((x) => x.id),
+  );
+});
+
+test("workflow plugin selector selects research execute dispatch plugin", () => {
+  const plugin = registry.selectWorkflowPlugin({ classification: { taskType: "research" } });
+  assert.ok(plugin);
+  assert.strictEqual(plugin, registry.WORKFLOW_PLUGIN_ENTRIES[0].plugin);
+  assert.strictEqual(registry.selectWorkflowPlugin({ classification: { taskType: "general" } }), null);
+});
