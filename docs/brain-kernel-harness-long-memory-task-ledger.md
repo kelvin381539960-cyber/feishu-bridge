@@ -11,7 +11,7 @@
 | 输出 | 分阶段 WBS 台账、架构文档、协议定义、Harness 测试、模块化代码重构、长期记忆模块、token 预算控制、workflow 插件化、compat 治理、迁移记录 |
 | 完成标准 | 代码可测试；主链路保持兼容；核心协议有 schema/fixture/test；pipeline-v2 被阶段化瘦身；research/doc-export/memory/output 逐步插件化；长期记忆受 token budget 控制；所有关键改动有 Harness 覆盖；每阶段均有明确验收与回填 |
 | 状态 | Doing |
-| 当前阶段 | P4：Brain Kernel 骨架与阶段化 Pipeline |
+| 当前阶段 | P5：Long Memory + Token Budget |
 | 结果回填 | P2 已完成：架构文档、核心协议、迁移不变量已产出；等待用户检查确认 |
 
 ---
@@ -39,8 +39,8 @@
 | P1 | 现状盘点与架构边界 | 盘点现有主链路、模块职责、风险与可迁移边界 | Done | 现状盘点回填、架构边界清单 |
 | P2 | 目标架构文档与协议冻结 | 产出 Brain Kernel + Harness + Long Memory 架构文档与核心协议草案 | Done | `docs/brain-kernel-harness-long-memory-architecture.md` |
 | P3 | Harness 基线与 Replay 锁行为 | 建立 Contract / Replay / Fake Adapter 基线，先锁住现有行为 | Done | contract tests、replay tests、fixtures、fake adapters |
-| P4 | Brain Kernel 骨架与阶段化 Pipeline | 新增 brain/kernel/context/registry，并把 pipeline-v2 第一层阶段化 | Doing | `lib/brain/*`、阶段文件、行为保持测试 |
-| P5 | Long Memory + Token Budget | 建立长期记忆分层、Memory Router、Budget Controller 和对应 Harness | Todo | `lib/memory/*`、memory tests、token budget tests |
+| P4 | Brain Kernel 骨架与阶段化 Pipeline | 新增 brain/kernel/context/registry，并把 pipeline-v2 第一层阶段化 | Done | `lib/brain/*`、阶段文件、行为保持测试 |
+| P5 | Long Memory + Token Budget | 建立长期记忆分层、Memory Router、Budget Controller 和对应 Harness | Doing | `lib/memory/*`、memory tests、token budget tests |
 | P6 | Workflow 插件化：Research 优先 | 将 research clarify/execute/finalize 状态机迁出 pipeline 主体 | Todo | `lib/workflows/research/*`、research replay/harness |
 | P7 | Output 插件化：Doc Export / Usage / Feishu Limit | 将 doc export、usage footer、输出限制从 pipeline 主体拆出 | Todo | output plugin、Feishu output harness |
 | P8 | Compat Adapter 与 Planning 收敛 | 集中治理 legacy/plugin-native/session/idempotency，并统一 prePlan/finalPlan | Todo | `lib/compat/*`、planning stage、compat tests |
@@ -376,7 +376,7 @@ Doing
 
 ### 阶段状态
 
-Todo
+Doing
 
 ### 阶段任务
 
@@ -753,6 +753,7 @@ Todo
 8. 用户确认：P1 通过，进入 P2。
 9. 用户确认：P2 通过，进入 P3。
 10. 用户确认：P3 通过，进入 P4。
+11. 用户确认：P4 通过，进入 P5。
 
 ---
 
