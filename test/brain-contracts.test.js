@@ -12,10 +12,16 @@ function assertRequiredString(obj, key) {
   assert.ok(obj[key].trim(), `${key} must not be empty`);
 }
 
+function assertEnum(value, allowed, label) {
+  assert.ok(allowed.includes(value), `${label} must be one of ${allowed.join(",")}`);
+}
+
 function validateTaskEnvelope(envelope) {
   assertRequiredString(envelope, "source");
+  assertEnum(envelope.source, ["feishu"], "source");
   assert.ok(envelope.channel && typeof envelope.channel === "object");
   assertRequiredString(envelope.channel, "name");
+  assertEnum(envelope.channel.name, ["feishu"], "channel.name");
   assertRequiredString(envelope.channel, "chatId");
   assertRequiredString(envelope.channel, "messageId");
   assert.ok(envelope.content && typeof envelope.content === "object");
@@ -25,6 +31,7 @@ function validateTaskEnvelope(envelope) {
   assert.ok(Array.isArray(envelope.context.mentions));
   assert.ok(envelope.routing && typeof envelope.routing === "object");
   assert.strictEqual(typeof envelope.routing.mode, "string");
+  assertEnum(envelope.routing.mode, ["direct", "prefix"], "routing.mode");
   assert.strictEqual(typeof envelope.routing.allowed, "boolean");
   assert.ok(envelope.trace && typeof envelope.trace === "object");
   assertRequiredString(envelope.trace, "traceId");
@@ -51,7 +58,7 @@ function validateExecutionPlan(plan) {
   assertRequiredString(plan, "workflowKey");
   assertRequiredString(plan, "taskType");
   assertRequiredString(plan, "stage");
-  assert.ok(["clarify", "execute", "finalize"].includes(plan.stage));
+  assertEnum(plan.stage, ["clarify", "execute", "finalize"], "stage");
   assert.ok(plan.runner && typeof plan.runner === "object");
   assertRequiredString(plan.runner, "type");
   assert.strictEqual(typeof plan.runner.multiAgentRequired, "boolean");
@@ -78,7 +85,7 @@ function validateMemoryRecord(record) {
   for (const key of ["id", "scope", "subject", "key", "value", "source", "updatedAt"]) {
     assertRequiredString(record, key);
   }
-  assert.ok(["user", "project", "workflow", "session", "artifact", "negative"].includes(record.scope));
+  assertEnum(record.scope, ["user", "project", "workflow", "session", "artifact", "negative"], "scope");
   assert.strictEqual(typeof record.confidence, "number");
   assert.ok(record.confidence >= 0 && record.confidence <= 1);
 }
@@ -88,6 +95,7 @@ function validateMemoryPack(pack) {
   assert.ok(Array.isArray(pack.records));
   for (const record of pack.records) validateMemoryRecord(record);
   assert.strictEqual(typeof pack.tokenEstimate, "number");
+  assert.ok(pack.tokenEstimate >= 0);
   if (pack.injected) assert.strictEqual(typeof pack.summary, "string");
   assert.ok(Array.isArray(pack.omitted));
 }
@@ -115,52 +123,55 @@ function validateTokenBudget(budget) {
   assert.ok(allocated < budget.totalLimit, "allocated budget must stay below total limit");
 }
 
+function validEnvelope() {
+  return buildFeishuTaskEnvelope({
+    data: {
+      sender: { sender_id: { open_id: "ou_1" } },
+      message: {
+        message_id: "om_1",
+        chat_id: "oc_1",
+        message_type: "text",
+        content: JSON.stringify({ text: "hello" }),
+      },
+    },
+    extracted: {
+      chatId: "oc_1",
+      messageId: "om_1",
+      senderId: "ou_1",
+      messageType: "text",
+      text: "hello",
+    },
+    routing: { enabled: true, direct: true, prefix: "/figma" },
+    runtimeMode: "plugin-native",
+    groupRequireAtBot: false,
+    fullTaskPrefixes: [],
+    task: "hello",
+    userTask: "hello",
+    receivedAtMs: 1710000000000,
+  });
+}
+
 describe("brain contracts", () => {
   test("TaskEnvelope contract is validated against production buildFeishuTaskEnvelope output", () => {
-    const envelope = buildFeishuTaskEnvelope({
-      data: {
-        sender: { sender_id: { open_id: "ou_1" } },
-        message: {
-          message_id: "om_1",
-          chat_id: "oc_1",
-          message_type: "text",
-          content: JSON.stringify({ text: "hello" }),
-        },
-      },
-      extracted: {
-        chatId: "oc_1",
-        messageId: "om_1",
-        senderId: "ou_1",
-        messageType: "text",
-        text: "hello",
-      },
-      routing: { enabled: true, direct: true, prefix: "/figma" },
-      runtimeMode: "plugin-native",
-      groupRequireAtBot: false,
-      fullTaskPrefixes: [],
-      task: "hello",
-      userTask: "hello",
-      receivedAtMs: 1710000000000,
-    });
+    const envelope = validEnvelope();
     validateTaskEnvelope(envelope);
     assert.strictEqual(envelope.channel.runtimeMode, "plugin-native");
     assert.strictEqual(envelope.routing.mode, "direct");
   });
 
+  test("TaskEnvelope contract rejects missing fields, wrong types and invalid enums", () => {
+    const envelope = validEnvelope();
+    assert.throws(() => validateTaskEnvelope({ ...envelope, source: "" }));
+    assert.throws(() => validateTaskEnvelope({ ...envelope, source: "slack" }));
+    assert.throws(() => validateTaskEnvelope({ ...envelope, channel: { ...envelope.channel, chatId: "" } }));
+    assert.throws(() => validateTaskEnvelope({ ...envelope, content: { ...envelope.content, attachments: null } }));
+    assert.throws(() => validateTaskEnvelope({ ...envelope, routing: { ...envelope.routing, mode: "unknown" } }));
+    assert.throws(() => validateTaskEnvelope({ ...envelope, trace: { ...envelope.trace, receivedAtMs: "171" } }));
+  });
+
   test("BrainContext v0 is intentionally minimal for P3/P4", () => {
-    const envelope = buildFeishuTaskEnvelope({
-      data: {
-        sender: { sender_id: { open_id: "ou_1" } },
-        message: { message_id: "om_1", chat_id: "oc_1", message_type: "text" },
-      },
-      extracted: { chatId: "oc_1", messageId: "om_1", messageType: "text", text: "hello" },
-      routing: { enabled: true, direct: true },
-      task: "hello",
-      userTask: "hello",
-      receivedAtMs: 1710000000000,
-    });
     validateBrainContextV0({
-      envelope,
+      envelope: validEnvelope(),
       flags: {
         shortCircuited: false,
         needsAck: true,
@@ -173,18 +184,17 @@ describe("brain contracts", () => {
     });
   });
 
+  test("BrainContext v0 rejects missing required flags", () => {
+    assert.throws(() => validateBrainContextV0({
+      envelope: validEnvelope(),
+      flags: { shortCircuited: false },
+      telemetry: [],
+      errors: [],
+    }));
+  });
+
   test("ExecutionPlan contract is validated against production planOpenclawExecution output", () => {
-    const envelope = buildFeishuTaskEnvelope({
-      data: {
-        sender: { sender_id: { open_id: "ou_1" } },
-        message: { message_id: "om_plan", chat_id: "oc_plan", message_type: "text" },
-      },
-      extracted: { chatId: "oc_plan", messageId: "om_plan", messageType: "text", text: "hello" },
-      routing: { enabled: true, direct: true },
-      task: "hello",
-      userTask: "hello",
-      receivedAtMs: 1710000000000,
-    });
+    const envelope = validEnvelope();
     const planned = planOpenclawExecution({
       envelope,
       task: "hello",
@@ -218,6 +228,20 @@ describe("brain contracts", () => {
         reasonCodes: planned.dispatch.route.reasonCodes || [],
       },
     });
+  });
+
+  test("ExecutionPlan contract rejects invalid stage and missing gateway request", () => {
+    const plan = {
+      workflowKey: "general",
+      taskType: "general",
+      stage: "execute",
+      runner: { type: "openclaw", multiAgentRequired: false },
+      dispatch: { task: "hello", opts: { sessionId: "s1", gatewayRequest: {} }, route: { reasonCodes: [] } },
+      policy: { reasonCodes: [] },
+    };
+    validateExecutionPlan(plan);
+    assert.throws(() => validateExecutionPlan({ ...plan, stage: "run" }));
+    assert.throws(() => validateExecutionPlan({ ...plan, dispatch: { ...plan.dispatch, opts: { sessionId: "s1" } } }));
   });
 
   test("ExecutionResult contract is validated against production normalizeExecutionResult output", () => {
@@ -263,5 +287,32 @@ describe("brain contracts", () => {
       conversationBudget: 1200,
       safetyMargin: 0.2,
     });
+  });
+
+  test("MemoryPack and TokenBudget reject invalid scope, confidence and over-allocation", () => {
+    assert.throws(() => validateMemoryPack({ injected: true, records: [], tokenEstimate: 1, omitted: [] }));
+    assert.throws(() => validateMemoryPack({
+      injected: true,
+      records: [{ id: "m", scope: "bad", subject: "s", key: "k", value: "v", source: "explicit", confidence: 1, updatedAt: "now" }],
+      summary: "x",
+      tokenEstimate: 1,
+      omitted: [],
+    }));
+    assert.throws(() => validateMemoryPack({
+      injected: true,
+      records: [{ id: "m", scope: "user", subject: "s", key: "k", value: "v", source: "explicit", confidence: 2, updatedAt: "now" }],
+      summary: "x",
+      tokenEstimate: 1,
+      omitted: [],
+    }));
+    assert.throws(() => validateTokenBudget({
+      totalLimit: 100,
+      reservedForOutput: 50,
+      reservedForTools: 30,
+      memoryBudget: 20,
+      artifactBudget: 10,
+      conversationBudget: 5,
+      safetyMargin: 0.2,
+    }));
   });
 });

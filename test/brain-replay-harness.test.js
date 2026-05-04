@@ -32,8 +32,18 @@ function textEvent({ chatId, messageId, text, mentions }) {
   };
 }
 
+function assertOrdered(trace, expected) {
+  let cursor = -1;
+  for (const step of expected) {
+    const next = trace.findIndex((x, index) => index > cursor && x === step);
+    assert.ok(next > cursor, `expected trace step ${step} after index ${cursor}; got ${trace.join(" -> ")}`);
+    cursor = next;
+  }
+}
+
 function buildHarness(overrides) {
   const o = overrides || {};
+  const trace = [];
   const channel = createFakeFeishuChannel({
     shouldSkipGroupMessageWithoutAtBot: o.shouldSkipGroupMessageWithoutAtBot,
     botOpenId: "ou_fake_bot",
@@ -72,25 +82,46 @@ function buildHarness(overrides) {
       }),
     },
     telemetry: {
-      emit: (name, payload) => telemetry.push({ name, payload }),
+      emit: (name, payload) => {
+        trace.push(`telemetry:${name}`);
+        telemetry.push({ name, payload });
+      },
     },
     logger: { log: () => {}, error: () => {}, warn: () => {} },
     enqueueEvent: () => {},
     shouldSkipGroupMessageWithoutAtBot: channel.shouldSkipGroupMessageWithoutAtBot,
-    sendFeishuTextToChat: async (chatId, text) => channel.sendText(chatId, text),
-    sendFeishuChatReply: async (chatId, text) => channel.sendReply(chatId, text),
-    addFeishuMessageReaction: async (messageId, emoji) => channel.addReaction(messageId, emoji),
+    sendFeishuTextToChat: async (chatId, text) => {
+      trace.push(String(text).includes("已识别：") ? "send:workflow_hint" : "send:text");
+      return channel.sendText(chatId, text);
+    },
+    sendFeishuChatReply: async (chatId, text) => {
+      trace.push("send:reply");
+      return channel.sendReply(chatId, text);
+    },
+    addFeishuMessageReaction: async (messageId, emoji) => {
+      trace.push("send:reaction");
+      return channel.addReaction(messageId, emoji);
+    },
     getBotSelfOpenId: channel.getBotSelfOpenId,
     fetchChatMemberOpenIdLines: channel.fetchChatMemberOpenIdLines,
     getCursorTaskAckMessage: channel.getAckMessage,
-    runCursorAdhocPrompt: executor.run,
+    runCursorAdhocPrompt: async (task, opts) => {
+      trace.push("execute:openclaw");
+      return executor.run(task, opts);
+    },
     formatCursorAdhocReply: channel.formatReply,
     appendFeishuTimingToReplyBody: channel.appendTiming,
     augmentTaskWithQuotedParent: async (task) => ({ task, injected: false }),
     normalizeSheetWriteTask: (task) => task,
     augmentTaskWithFeishuAtContext: async (task) => task,
-    assembleMemoryContext: memory.assembleMemoryContext,
-    persistMemoryTurn: memory.persistMemoryTurn,
+    assembleMemoryContext: async (payload) => {
+      trace.push("memory:assemble");
+      return memory.assembleMemoryContext(payload);
+    },
+    persistMemoryTurn: async (payload) => {
+      trace.push("memory:persist");
+      return memory.persistMemoryTurn(payload);
+    },
     bumpConversationEpoch: memory.bumpConversationEpoch,
     getLastTurnMetaForFresh: memory.getLastTurnMetaForFresh,
     maybeChainAfterCursor: async () => ({ chained: false }),
@@ -100,7 +131,10 @@ function buildHarness(overrides) {
     isRelayLikeTask: o.isRelayLikeTask || (() => false),
     isReportLikeTask: o.isReportLikeTask || (() => false),
     isResearchLikeTask: o.isResearchLikeTask || (() => false),
-    exportResearchDocHook: doc.hook,
+    exportResearchDocHook: async (payload) => {
+      trace.push("doc:export");
+      return doc.hook(payload);
+    },
     downloadImage: channel.downloadImage,
     downloadResource: channel.downloadResource,
     fetchMessage: channel.fetchMessage,
@@ -122,11 +156,12 @@ function buildHarness(overrides) {
     memory,
     doc,
     telemetry,
+    trace,
   };
 }
 
 describe("brain replay harness", { concurrency: false }, () => {
-  test("text basic: direct mode locks executor opts, ack reaction, telemetry, reply and memory", async () => {
+  test("text basic: direct mode locks executor opts, ordering, ack reaction, telemetry, reply and memory", async () => {
     const h = buildHarness({ executor: { stdout: "BASIC_OK" } });
     await h.run(textEvent({ chatId: "oc_basic", messageId: "om_basic", text: "hello" }));
     await flushAsyncPersist();
@@ -153,6 +188,19 @@ describe("brain replay harness", { concurrency: false }, () => {
     assert.ok(h.telemetry.some((e) => e.name === "classification" && e.payload.taskType === "general"));
     assert.ok(h.telemetry.some((e) => e.name === "ack_sent" && e.payload.ackSent === true));
     assert.ok(h.telemetry.some((e) => e.name === "reply_sent" && e.payload.replyStatus === "sent"));
+    assertOrdered(h.trace, [
+      "telemetry:classification",
+      "memory:assemble",
+      "telemetry:policy_decision",
+      "send:workflow_hint",
+      "send:reaction",
+      "telemetry:ack_sent",
+      "execute:openclaw",
+      "telemetry:runner_completed",
+      "send:reply",
+      "memory:persist",
+      "telemetry:reply_sent",
+    ]);
   });
 
   test("prefix miss: prefix mode short-circuits cleanly without ack, memory, doc or executor", async () => {
