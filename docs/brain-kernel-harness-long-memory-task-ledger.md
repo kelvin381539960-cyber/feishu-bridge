@@ -115,7 +115,7 @@ Done
 | 依赖 | 无 |
 | 风险 | 若入口职责判断错误，后续拆分会破坏线上飞书链路 |
 | 验证方式 | 对照现有测试和 AGENTS.md 中核心链路描述 |
-| 结果回填 | 待执行 |
+| 结果回填 | 见第 6 节 `P1-T01：主链路调用链盘点` 回填 |
 
 #### P1-T02：pipeline-v2 职责切片
 
@@ -129,7 +129,7 @@ Done
 | 依赖 | P1-T01 |
 | 风险 | pipeline-v2 同时承载状态机与副作用，过早拆分会产生回归 |
 | 验证方式 | 形成拆分边界后再进入 P3/P4，不直接改行为 |
-| 结果回填 | 待执行 |
+| 结果回填 | 见第 6 节 `P1-T02：pipeline-v2 职责切片` 回填 |
 
 #### P1-T03：control-plane 与 planning 现状盘点
 
@@ -143,7 +143,7 @@ Done
 | 依赖 | P1-T02 |
 | 风险 | pipeline 与 control-plane 双重决策导致行为不一致 |
 | 验证方式 | 标记重复 planning 点，后续 P8 收敛 |
-| 结果回填 | 待执行 |
+| 结果回填 | 见第 6 节 `P1-T03：control-plane 与 planning 现状盘点` 回填 |
 
 #### P1-T04：memory / research / doc-export 风险盘点
 
@@ -157,7 +157,7 @@ Done
 | 依赖 | P1-T02 |
 | 风险 | 长期记忆、调研状态、文档导出都是高副作用模块 |
 | 验证方式 | 产出 P3 fixture 优先级列表 |
-| 结果回填 | 待执行 |
+| 结果回填 | 见第 6 节 `P1-T04：memory / research / doc-export 风险盘点` 回填 |
 
 ### 阶段验收标准
 
@@ -737,7 +737,7 @@ Todo
 1. 尚未运行仓库测试，未知现有基线是否全部通过。
 2. 长期记忆的持久化位置未最终确认，初步建议先以文件/本地 store 抽象接口开始，避免绑定实现。
 3. 是否允许新增较多测试 fixtures 待执行中根据需要控制。
-4. P1 已完成但尚未经过用户检查确认；P2 暂不推进。
+4. P1 已完成并已按 QA 评审意见修正台账一致性、补充 `result-policy.js` 说明和现有测试资产盘点；P2 暂不推进，等待用户最终确认。
 
 ---
 
@@ -866,6 +866,7 @@ planOpenclawExecution
 3. `session-dispatch.js` 是最高兼容风险点之一，负责 `legacy-bridge` / `plugin-native` runtime mode、sessionKey、idempotencyKey、namespace、agentId 拼接。
 4. `workflow-execution-policy.js` 不是普通 policy，而是 research 多 Agent、taskSize、forecast metadata 的执行决策层，P6 迁移 research 时必须保留该语义。
 5. `pipeline-v2.js` 目前至少存在 probe/planned/controlPlanned 多次 `planOpenclawExecution`，可能导致重复计算、调试困难和结果不一致。
+6. `result-policy.js` 属于 control-plane 的结果策略层，负责根据 classification / structuredResult 判断 doc export intent，并在已有 `feishu_doc` artifact 时避免重复导出；它应在 P7/P8 中与 doc export output plugin 协同，而不是继续让 pipeline 直接承担导出决策细节。
 
 P8 收敛重点：
 
@@ -892,6 +893,17 @@ P8 收敛重点：
 3. Conversation Reset：`conversation-reset.js` 决定 fresh task vs follow-up，依赖 researchRow、lastTurnMeta、assistantReplyLen，误判会导致上下文丢失或串任务。
 4. Research Runner：`research-workflow-runner.js` 已实现 crawler/analyst 双阶段、session/idempotency suffix、quality repair、run trace、learning memory record。它已经像 workflow plugin，但位置仍在 control-plane。
 5. Doc Export：`feishu-docx-export.js` 真实调用飞书 docx API，创建文档、写 blocks、grant permission、失败删除、verify raw_content、长回复截断、chat summary only、图片 appendix。副作用重，必须 fake adapter/harness 先行。
+
+现有测试资产盘点：
+
+1. Pipeline 相关：`test/feishu-cursor-pipeline-v2.test.js`、`test/feishu-pipeline-fallback.test.js`、`test/pipeline-gate-adapter.test.js`。
+2. Control-plane 相关：`test/openclaw-control-plane.test.js`、`test/workflow-execution-policy.test.js`、`test/gates.test.js`、`test/task-classifier-five-workflows.test.js`。
+3. Research 相关：`test/research-workflow-runner.test.js`、`test/research-workflow-state.test.js`、`test/conversation-reset.test.js`。
+4. Memory 相关：`test/memory-epoch.test.js`、`test/learning-memory-record.test.js`。
+5. Doc export / output 相关：`test/feishu-docx-export.test.js`、`test/feishu-docx-markdown.test.js`、`test/feishu-llm-usage-footer.test.js`、`test/run-reply-format.test.js`。
+6. Feishu channel / parsing 相关：`test/feishu-im-parse.test.js`、`test/feishu-group-at-bot.test.js`、`test/feishu-task-envelope.test.js`、`test/feishu-cursor-route.test.js`。
+
+判断：P3 不需要从零开始，可以复用现有测试作为 baseline，并补充 replay/fake adapter/contract harness。
 
 P3 Harness 优先级：
 
