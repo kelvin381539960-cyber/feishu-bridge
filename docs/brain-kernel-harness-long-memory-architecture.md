@@ -892,7 +892,304 @@ AI Agent 遇到以下情况必须停止并等待确认：
 
 ---
 
-## 13. 最终目标
+## 13. Intent Classification Governance
+
+当前 `lib/feishu-cursor/policies/task-classifier.js` 是真实任务分类入口，但它同时承担了分类、路由、兼容字段、执行策略前置判断和 semantic fallback，长期会导致规则漂移、误判难回归、优先级隐性化。
+
+后续应将它治理为可解释、可回归、低漂移的 Intent Classification System。
+
+### 13.1 目标
+
+```text
+准确识别用户真实意图
+规则清晰，不靠代码顺序暗中决定结果
+分类结果可解释、可回归、可灰度
+普通任务本地规则完成，不调用模型
+新增 workflow 不重写整个分类器
+```
+
+### 13.2 目标链路
+
+```text
+userTask
+→ normalize
+→ signal extraction
+→ candidate generation
+→ conflict arbitration
+→ classification policy
+→ final classification
+```
+
+对应模块建议：
+
+| 层 | 文件 | 职责 |
+|---|---|---|
+| Normalize | `lib/brain/intent/task-normalizer.js` | 清洗文本、提取 URL、mention、命令前缀 |
+| Signals | `lib/brain/intent/intent-signals.js` | 只提取信号，不做最终判断 |
+| Rules | `lib/brain/intent/intent-rules.js` | 显式规则列表，带 priority / ruleId |
+| Candidate | `lib/brain/intent/intent-candidates.js` | 生成多个可能 intent |
+| Arbiter | `lib/brain/intent/intent-arbiter.js` | 冲突仲裁，选最终 intent |
+| Policy | `lib/brain/intent/classification-policy.js` | 决定 requiresTooling / fullRunner / clarify |
+| Facade | `lib/feishu-cursor/policies/task-classifier.js` | 保持旧入口，内部调用新系统 |
+
+### 13.3 分类与执行策略分离
+
+分类器只回答：
+
+```text
+用户想做什么？
+```
+
+示例输出：
+
+```js
+{
+  workflowKey: "research",
+  taskSubtype: "none",
+  confidence: 0.88,
+  reasons: ["research.keyword", "research.verb"],
+  candidates: []
+}
+```
+
+执行策略再回答：
+
+```text
+这个任务怎么执行？
+```
+
+示例输出：
+
+```js
+{
+  requiresTooling: true,
+  requiresFullRunner: true,
+  needsClarification: false,
+  executionMode: "workflow"
+}
+```
+
+约束：分类规则不得直接承载执行策略；执行策略不得反向改变 workflowKey。
+
+### 13.4 多维意图信号
+
+分类不应只做扁平 workflowKey 判断，而应先提取信号：
+
+| 维度 | 示例 |
+|---|---|
+| 用户动作 | 生成 / 修复 / 调研 / 分析 / 询问 / 写入 / 读取 |
+| 对象 | PRD / 代码 / 方案 / 表格 / 文档 / 人 |
+| 资源 | URL / sheet / doc / file / mention |
+| 期望输出 | 报告 / 方案 / 代码改动 / 转述 / 表格写入 |
+| 强制命令 | `/调研`、`/code`、`/solution` |
+| 上下文状态 | research follow-up / memory follow-up |
+| 风险信号 | relay / 外部副作用 / doc export |
+
+### 13.5 显式优先级规则
+
+当前分类不能继续依赖代码 if 顺序隐式决定结果。规则必须显式声明 priority：
+
+```js
+{
+  id: "research.force_command",
+  priority: 1000,
+  workflowKey: "research",
+  match: signals => signals.forceResearch,
+  reason: "force_research_command"
+}
+```
+
+建议优先级：
+
+| 优先级 | 类型 | 示例 |
+|---:|---|---|
+| 1000 | 强制命令 | `/调研`、`/code`、`/solution` |
+| 900 | 结构化资源 | sheet URL、doc URL、interactive card |
+| 800 | 明确业务意图 | PRD、代码修复、深度调研 |
+| 700 | relay / mention | 转告、问某人 |
+| 600 | solution / planning | 方案、路线图、可行性 |
+| 500 | weak semantic | 普通关键词 |
+| 100 | fallback | general |
+
+### 13.6 冲突仲裁
+
+真实输入经常同时命中多个候选，例如：
+
+```text
+帮我调研一个技术方案
+帮我写一个修复方案
+帮我生成 PRD 调研报告
+帮我分析这个发布方案
+```
+
+因此必须输出 candidates 并由 arbiter 显式决策：
+
+```js
+{
+  candidates: [
+    { workflowKey: "research", score: 0.82, reasons: ["research.keyword"] },
+    { workflowKey: "solution", score: 0.76, reasons: ["solution.keyword"] }
+  ],
+  winner: "research",
+  decision: "research beats solution because research verb is explicit"
+}
+```
+
+关键仲裁原则：
+
+| 冲突 | 处理 |
+|---|---|
+| PRD + research | 生成需求文档时 PRD 优先；调研 PRD 模板时 research 优先 |
+| research + solution | 调研/分析强时 research；设计/落地/路线图强时 solution |
+| code + solution | 修复/报错/部署强时 code；设计技术方案时 solution |
+| sheet URL + 写入词 | sheet_write |
+| sheet URL 无写入词 | sheet_read |
+| relay + 其他 | 明确 @人 + 问/转告时 relay short-circuit 优先 |
+| URL + research | research with resource |
+| doc URL 无明确动作 | resource_read |
+
+### 13.7 Semantic Classifier 边界
+
+Semantic classifier 只能做仲裁辅助，不能成为主分类器。
+
+```text
+强规则命中 → 不调用 semantic
+多候选冲突 → 可选调用 semantic arbiter
+弱信号 / general fallback → 可选调用 semantic
+semantic 结果必须落在白名单 enum
+semantic confidence < 0.8 → 忽略
+semantic 不能创造新 workflowKey
+```
+
+也就是说：
+
+```text
+LLM 不是分类器
+LLM 是冲突裁判助理
+```
+
+这样可以保持灵活，同时避免模型漂移。
+
+### 13.8 最终分类输出
+
+统一输出结构：
+
+```js
+{
+  version: "intent-classifier-v2",
+  workflowKey: "research",
+  taskType: "research",
+  taskSubtype: "none",
+  confidence: 0.88,
+  policy: {
+    requiresTooling: true,
+    requiresFullRunner: true,
+    needsClarification: false,
+    executionMode: "workflow"
+  },
+  reasons: ["research.keyword", "research.deep_analysis"],
+  candidates: [
+    { workflowKey: "research", score: 0.88, reasons: ["research.keyword"] },
+    { workflowKey: "solution", score: 0.61, reasons: ["solution.keyword"] }
+  ],
+  decision: {
+    winner: "research",
+    rule: "research_over_solution_when_research_verb_present"
+  }
+}
+```
+
+兼容字段必须保留：
+
+```text
+taskType
+workflowKey
+taskSubtype
+requiresTooling
+requiresFullRunner
+needsClarification
+reasons
+```
+
+### 13.9 误判样本集
+
+必须新增 regression corpus：
+
+```text
+test/fixtures/intent-classifier-corpus.json
+test/intent-classifier-regression.test.js
+test/intent-arbiter.test.js
+```
+
+样本格式：
+
+```json
+[
+  {
+    "input": "帮我调研 Redis 缓存方案",
+    "expected": { "workflowKey": "research" },
+    "reason": "调研意图强于方案词"
+  },
+  {
+    "input": "帮我设计 Redis 缓存方案",
+    "expected": { "workflowKey": "solution" },
+    "reason": "设计方案是 solution"
+  },
+  {
+    "input": "帮我修复这个部署失败问题",
+    "expected": { "workflowKey": "code" },
+    "reason": "修复/部署失败属于 code"
+  },
+  {
+    "input": "生成一个登录功能 PRD",
+    "expected": { "workflowKey": "prd" },
+    "reason": "明确 PRD 产出"
+  },
+  {
+    "input": "帮我问一下小王今天能不能上线",
+    "expected": { "workflowKey": "general", "taskSubtype": "relay" },
+    "reason": "转述/问人属于 relay"
+  }
+]
+```
+
+原则：每次线上误判都必须补充样本。
+
+### 13.10 防漂移机制
+
+| 机制 | 作用 |
+|---|---|
+| enum 白名单 | 不允许产生未知 workflow |
+| rule id | 每个判断都有来源 |
+| priority 显式化 | 不靠代码顺序 |
+| candidate + arbiter | 冲突可解释 |
+| regression corpus | 防止修 A 坏 B |
+| semantic 只做辅助 | 防止模型漂移 |
+| feature flag | 支持 shadow / on / off 灰度 |
+
+### 13.11 迁移策略
+
+不允许一次性替换。必须分阶段：
+
+```text
+1. shadow mode：oldResult 生效，newResult 旁路运行并记录 diff
+2. regression corpus：历史误判和核心场景全部入测试
+3. feature flag 灰度：INTENT_CLASSIFIER_V2=off/shadow/on
+4. 旧入口保留 30 天：task-classifier.js 作为 facade
+```
+
+上线前必须确认：
+
+```text
+old/new diff 可观测
+高频误判样本已覆盖
+强规则不被 semantic 覆盖
+classification latency 不显著增加
+```
+
+---
+
+## 14. 最终目标
 
 最终形态不是一个更复杂的 pipeline，而是：
 
