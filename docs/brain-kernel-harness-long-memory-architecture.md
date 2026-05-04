@@ -748,7 +748,151 @@ planning 多次调用收敛
 
 ---
 
-## 12. 最终目标
+## 12. AI Agent 执行约束
+
+本项目后续会由 AI Agent 分阶段执行，因此必须限制执行范围，避免一次性生成过多空目录、过早接管主链路或引入不可验证改动。
+
+### 12.1 最小可落地单元
+
+每个阶段只允许新增该阶段必要文件，不允许提前创建大批空目录。
+
+P3 最小落地文件：
+
+```text
+test/helpers/fake-feishu-channel.js
+test/helpers/fake-openclaw-executor.js
+test/helpers/fake-memory-store.js
+test/helpers/fake-doc-exporter.js
+test/brain-contracts.test.js
+test/brain-replay-harness.test.js
+```
+
+P4 最小落地文件：
+
+```text
+lib/brain/context.js
+lib/brain/registry.js
+lib/brain/kernel.js
+test/brain-kernel.test.js
+```
+
+P5 之后再新增 `lib/memory/*`，P6 之后再新增 `lib/workflows/research/*`，P7 之后再新增 output plugin 文件，P8 之后再新增 compat adapter 文件。
+
+### 12.2 P3 执行限制
+
+P3 只允许新增 Harness、fixtures、fake adapters 和 contract tests。
+
+P3 禁止事项：
+
+```text
+禁止修改 pipeline-v2.js
+禁止修改 channel-runner.js
+禁止修改 bridge-host.js
+禁止修改 openclaw-control-plane 运行逻辑
+禁止触发真实飞书 API / OpenClaw Gateway / doc export / memory store 副作用
+```
+
+### 12.3 P4 执行限制
+
+P4 只允许新增 Brain Kernel 骨架和旁路测试。
+
+P4 的 Brain Kernel 不直接接管生产链路，只能被测试加载和运行。
+
+允许：
+
+```text
+新增 context / registry / kernel
+新增最小 runPhase 编排
+新增 brain-kernel.test.js
+```
+
+禁止：
+
+```text
+禁止把 pipeline-v2.js 主流程直接替换为 Brain Kernel
+禁止一次性迁移 research / memory / doc export
+禁止重写 session / idempotency
+```
+
+### 12.4 Plugin 读写约束演进
+
+Plugin 的 `reads` / `writes` / `sideEffects` 分两阶段落地：
+
+```text
+P4：只声明，不强拦截，用于文档化和 Harness 可见性。
+P5/P6：引入 mutation guard，检测插件是否写入未声明字段。
+```
+
+这样避免 P4 过重，同时保留后续治理能力。
+
+### 12.5 BrainContext 分阶段演进
+
+禁止一次性接入完整 BrainContext。
+
+v0 只实现：
+
+```js
+{
+  envelope,
+  flags,
+  telemetry,
+  errors
+}
+```
+
+v1 再接入：
+
+```js
+{
+  classification,
+  memory,
+  plan,
+  execution,
+  output
+}
+```
+
+v0 用于 P3/P4，v1 用于 P5 之后的迁移。
+
+### 12.6 提交约束
+
+每次提交必须对应一个 WBS task。
+
+每次提交信息应体现阶段与任务，例如：
+
+```text
+P3-T02 Add fake Feishu channel adapter
+P4-T01 Add Brain Kernel skeleton
+P5-T02 Add Memory Budget Controller
+```
+
+每次完成一个 WBS task，必须回填台账中的：
+
+```text
+状态
+输出路径
+结果摘要
+问题 / Gap
+下一步
+```
+
+### 12.7 AI Agent 停止条件
+
+AI Agent 遇到以下情况必须停止并等待确认：
+
+```text
+需要删除 / 移动 / 大规模重命名文件
+需要修改生产入口
+需要改变 session / idempotency 语义
+需要改变 research clarify 默认行为
+需要改变 doc export 触发条件
+需要绑定长期记忆的真实持久化存储
+测试基线失败且原因不明确
+```
+
+---
+
+## 13. 最终目标
 
 最终形态不是一个更复杂的 pipeline，而是：
 
