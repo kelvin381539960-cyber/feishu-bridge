@@ -14,6 +14,10 @@ const { createFakeOpenclawExecutor } = require("./helpers/fake-openclaw-executor
 const { createFakeMemoryStore } = require("./helpers/fake-memory-store");
 const { createFakeDocExporter } = require("./helpers/fake-doc-exporter");
 
+function flushAsyncPersist() {
+  return new Promise((resolve) => setImmediate(resolve));
+}
+
 function textEvent({ chatId, messageId, text, mentions }) {
   return {
     sender: { sender_type: "user" },
@@ -33,6 +37,9 @@ function buildHarness(overrides) {
   const channel = createFakeFeishuChannel({
     shouldSkipGroupMessageWithoutAtBot: o.shouldSkipGroupMessageWithoutAtBot,
     botOpenId: "ou_fake_bot",
+    formatReply:
+      o.formatReply ||
+      ((r) => (r && r.code !== 0 ? `ERR:${r.stderr || r.stdout || "failed"}` : `OK:${r.stdout || ""}`)),
   });
   const executor = createFakeOpenclawExecutor(o.executor);
   const memory = createFakeMemoryStore(o.memory);
@@ -103,8 +110,8 @@ function buildHarness(overrides) {
     transcribeAudio: async () => "",
     processVideo: async () => "",
     processSticker: () => "",
-    ackMode: "reaction",
-    ackReactionEmoji: "Typing",
+    ackMode: o.ackMode || "reaction",
+    ackReactionEmoji: o.ackReactionEmoji || "Typing",
     ackFallbackText: true,
   };
   return {
@@ -119,36 +126,68 @@ function buildHarness(overrides) {
 }
 
 describe("brain replay harness", { concurrency: false }, () => {
-  test("text basic: direct mode runs executor, sends ack hint and final reply", async () => {
-    const h = buildHarness();
+  test("text basic: direct mode locks executor opts, ack reaction, telemetry, reply and memory", async () => {
+    const h = buildHarness({ executor: { stdout: "BASIC_OK" } });
     await h.run(textEvent({ chatId: "oc_basic", messageId: "om_basic", text: "hello" }));
+    await flushAsyncPersist();
+
     assert.strictEqual(h.executor.calls.length, 1);
     assert.match(String(h.executor.calls[0].task), /hello/);
-    assert.ok(h.channel.calls.sentText.some((x) => String(x.text).includes("已识别：general")));
+    assert.strictEqual(h.executor.calls[0].opts.messageId, "om_basic");
+    assert.strictEqual(h.executor.calls[0].opts.chatId, "oc_basic");
+    assert.ok(String(h.executor.calls[0].opts.sessionId || "").includes("oc_basic"));
+    assert.ok(h.executor.calls[0].opts.gatewayRequest);
+
+    assert.deepStrictEqual(h.channel.calls.reactions, [
+      { messageId: "om_basic", emoji: "Typing" },
+    ]);
+    assert.ok(h.channel.calls.sentText.some((x) => x.chatId === "oc_basic" && String(x.text).includes("已识别：general")));
     assert.strictEqual(h.channel.calls.sentReply.length, 1);
+    assert.strictEqual(h.channel.calls.sentReply[0].chatId, "oc_basic");
+    assert.match(String(h.channel.calls.sentReply[0].text), /OK:BASIC_OK/);
+
     assert.strictEqual(h.memory.calls.assemble.length, 1);
+    assert.strictEqual(h.memory.calls.assemble[0].chatId, "oc_basic");
     assert.strictEqual(h.memory.calls.persist.length, 1);
+    assert.strictEqual(h.memory.calls.persist[0].chatId, "oc_basic");
+    assert.ok(h.telemetry.some((e) => e.name === "classification" && e.payload.taskType === "general"));
+    assert.ok(h.telemetry.some((e) => e.name === "ack_sent" && e.payload.ackSent === true));
+    assert.ok(h.telemetry.some((e) => e.name === "reply_sent" && e.payload.replyStatus === "sent"));
   });
 
-  test("prefix miss: prefix mode short-circuits without executor", async () => {
+  test("prefix miss: prefix mode short-circuits cleanly without ack, memory, doc or executor", async () => {
     const h = buildHarness({ routing: { direct: false, prefix: "/figma" } });
     await h.run(textEvent({ chatId: "oc_prefix", messageId: "om_prefix", text: "hello" }));
+    await flushAsyncPersist();
+
     assert.strictEqual(h.executor.calls.length, 0);
-    assert.ok(h.channel.calls.sentText.some((x) => String(x.text).includes("/figma")));
+    assert.deepStrictEqual(h.channel.calls.reactions, []);
+    assert.strictEqual(h.channel.calls.sentText.length, 1);
+    assert.strictEqual(h.channel.calls.sentText[0].chatId, "oc_prefix");
+    assert.ok(String(h.channel.calls.sentText[0].text).includes("/figma"));
+    assert.strictEqual(h.channel.calls.sentReply.length, 0);
+    assert.strictEqual(h.memory.calls.assemble.length, 0);
+    assert.strictEqual(h.memory.calls.persist.length, 0);
+    assert.strictEqual(h.doc.calls.length, 0);
   });
 
-  test("group @bot gate: skipped group message does not call executor or reply", async () => {
+  test("group @bot gate: skipped group message does not call downstream side effects", async () => {
     const h = buildHarness({
       runtimeConfig: { groupRequireAtBot: true },
       shouldSkipGroupMessageWithoutAtBot: () => true,
     });
     await h.run(textEvent({ chatId: "oc_group", messageId: "om_group", text: "hello group" }));
+    await flushAsyncPersist();
+
     assert.strictEqual(h.executor.calls.length, 0);
     assert.strictEqual(h.channel.calls.sentText.length, 0);
     assert.strictEqual(h.channel.calls.sentReply.length, 0);
+    assert.strictEqual(h.channel.calls.reactions.length, 0);
+    assert.strictEqual(h.memory.calls.assemble.length, 0);
+    assert.strictEqual(h.memory.calls.persist.length, 0);
   });
 
-  test("relay-like task in enforce mode short-circuits before executor", async () => {
+  test("relay-like task in enforce mode short-circuits before executor and memory", async () => {
     const h = buildHarness({
       runtimeConfig: { relayPolicyMode: "enforce" },
       isRelayLikeTask: () => true,
@@ -162,8 +201,85 @@ describe("brain replay harness", { concurrency: false }, () => {
         { id: { open_id: "ou_u1" }, name: "小王" },
       ],
     }));
+    await flushAsyncPersist();
+
     assert.strictEqual(h.executor.calls.length, 0);
     assert.strictEqual(h.channel.calls.sentReply.length, 1);
-    assert.match(String(h.channel.calls.sentReply[0].text), /@ou_u1/);
+    assert.deepStrictEqual(h.channel.calls.sentReply[0], {
+      chatId: "oc_relay",
+      text: "@ou_u1 今天雨大吗？",
+    });
+    assert.strictEqual(h.memory.calls.assemble.length, 0);
+    assert.strictEqual(h.memory.calls.persist.length, 0);
+    assert.ok(h.telemetry.some((e) => e.name === "relay_short_circuit"));
+  });
+
+  test("memory injected: executor receives injected task and memory persist keeps final reply", async () => {
+    const h = buildHarness({
+      memory: {
+        assemble: async (payload) => ({
+          injected: true,
+          task: `${payload.task}\n\n[MEMORY] user prefers concise output`,
+          memoryMode: payload.memoryMode,
+        }),
+      },
+      executor: { stdout: "MEMORY_OK" },
+    });
+    await h.run(textEvent({ chatId: "oc_mem", messageId: "om_mem", text: "summarize" }));
+    await flushAsyncPersist();
+
+    assert.strictEqual(h.executor.calls.length, 1);
+    assert.match(h.executor.calls[0].task, /\[MEMORY\]/);
+    assert.strictEqual(h.memory.calls.persist.length, 1);
+    assert.strictEqual(h.memory.calls.persist[0].taskContext.memoryInjected, true);
+    assert.match(String(h.memory.calls.persist[0].replyBody), /OK:MEMORY_OK/);
+  });
+
+  test("executor non-zero: sends formatted error reply and still records telemetry", async () => {
+    const h = buildHarness({
+      executor: { responses: [{ code: 1, stdout: "", stderr: "boom", error: { message: "boom" } }] },
+    });
+    await h.run(textEvent({ chatId: "oc_fail", messageId: "om_fail", text: "fail please" }));
+    await flushAsyncPersist();
+
+    assert.strictEqual(h.executor.calls.length, 1);
+    assert.strictEqual(h.channel.calls.sentReply.length, 1);
+    assert.match(String(h.channel.calls.sentReply[0].text), /ERR:boom/);
+    assert.ok(h.telemetry.some((e) => e.name === "runner_completed" && e.payload.code === 1));
+    assert.ok(h.telemetry.some((e) => e.name === "reply_sent"));
+  });
+
+  test("doc export throw: final reply is still sent without leaking exporter failure", async () => {
+    const prev = process.env.FEISHU_CLOUD_DOC_EXPORT;
+    process.env.FEISHU_CLOUD_DOC_EXPORT = "1";
+    try {
+      const h = buildHarness({
+        runtimeConfig: { researchClarifyFirst: false },
+        isResearchLikeTask: () => true,
+        docExport: { throwOnExport: "doc failed" },
+        executor: { stdout: "DOC_OK" },
+      });
+      await h.run(textEvent({ chatId: "oc_doc", messageId: "om_doc", text: "技术调研 Redis" }));
+      await flushAsyncPersist();
+
+      assert.strictEqual(h.doc.calls.length, 1);
+      assert.strictEqual(h.doc.calls[0].exportKind, "research");
+      assert.strictEqual(h.channel.calls.sentReply.length, 1);
+      assert.match(String(h.channel.calls.sentReply[0].text), /OK:DOC_OK/);
+    } finally {
+      if (prev === undefined) delete process.env.FEISHU_CLOUD_DOC_EXPORT;
+      else process.env.FEISHU_CLOUD_DOC_EXPORT = prev;
+    }
+  });
+
+  test("reaction fallback: failed reaction falls back to text ack", async () => {
+    const h = buildHarness({ ackMode: "reaction", executor: { stdout: "ACK_OK" } });
+    h.deps.addFeishuMessageReaction = async () => false;
+    await h.run(textEvent({ chatId: "oc_ack", messageId: "om_ack", text: "hello ack" }));
+    await flushAsyncPersist();
+
+    assert.ok(h.channel.calls.sentText.some((x) => x.chatId === "oc_ack" && String(x.text).includes("⏳")));
+    assert.ok(h.telemetry.some((e) => e.name === "ack_sent" && e.payload.ackMode === "text"));
+    assert.strictEqual(h.channel.calls.sentReply.length, 1);
   });
 });
