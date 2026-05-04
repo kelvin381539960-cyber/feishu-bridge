@@ -11,8 +11,8 @@
 | 输出 | 分阶段 WBS 台账、架构文档、协议定义、Harness 测试、模块化代码重构、长期记忆模块、token 预算控制、workflow 插件化、compat 治理、迁移记录 |
 | 完成标准 | 代码可测试；主链路保持兼容；核心协议有 schema/fixture/test；pipeline-v2 被阶段化瘦身；research/doc-export/memory/output 逐步插件化；长期记忆受 token budget 控制；所有关键改动有 Harness 覆盖；每阶段均有明确验收与回填 |
 | 状态 | Confirming |
-| 当前阶段 | P1：已完成，等待用户检查确认 |
-| 结果回填 | P1 已完成：主链路、pipeline-v2、control-plane、memory/research/doc-export 风险已盘点；暂停等待用户检查确认 |
+| 当前阶段 | P2：目标架构文档与协议冻结 |
+| 结果回填 | P1 已通过用户确认；当前进入 P2：目标架构文档与协议冻结 |
 
 ---
 
@@ -37,7 +37,7 @@
 |---|---|---|---|---|
 | P0 | PM 台账重构与项目治理 | 将任务从平铺清单升级为阶段化 WBS，明确每阶段任务、文件、验收和风险 | Done | 本台账新版 |
 | P1 | 现状盘点与架构边界 | 盘点现有主链路、模块职责、风险与可迁移边界 | Done | 现状盘点回填、架构边界清单 |
-| P2 | 目标架构文档与协议冻结 | 产出 Brain Kernel + Harness + Long Memory 架构文档与核心协议草案 | Todo | `docs/brain-kernel-harness-long-memory-architecture.md` |
+| P2 | 目标架构文档与协议冻结 | 产出 Brain Kernel + Harness + Long Memory 架构文档与核心协议草案 | Doing | `docs/brain-kernel-harness-long-memory-architecture.md` |
 | P3 | Harness 基线与 Replay 锁行为 | 建立 Contract / Replay / Fake Adapter 基线，先锁住现有行为 | Todo | contract tests、replay tests、fixtures、fake adapters |
 | P4 | Brain Kernel 骨架与阶段化 Pipeline | 新增 brain/kernel/context/registry，并把 pipeline-v2 第一层阶段化 | Todo | `lib/brain/*`、阶段文件、行为保持测试 |
 | P5 | Long Memory + Token Budget | 建立长期记忆分层、Memory Router、Budget Controller 和对应 Harness | Todo | `lib/memory/*`、memory tests、token budget tests |
@@ -177,7 +177,7 @@ Done
 
 ### 阶段状态
 
-Todo
+Doing
 
 ### 阶段任务
 
@@ -737,7 +737,7 @@ Todo
 1. 尚未运行仓库测试，未知现有基线是否全部通过。
 2. 长期记忆的持久化位置未最终确认，初步建议先以文件/本地 store 抽象接口开始，避免绑定实现。
 3. 是否允许新增较多测试 fixtures 待执行中根据需要控制。
-4. P1 已完成并已按 QA 评审意见修正台账一致性、补充 `result-policy.js` 说明和现有测试资产盘点；P2 暂不推进，等待用户最终确认。
+4. P1 已完成并已按 QA 评审意见修正台账一致性、补充 `result-policy.js` 说明和现有测试资产盘点；用户已确认 P1 通过，当前进入 P2。
 
 ---
 
@@ -750,6 +750,7 @@ Todo
 5. 用户确认：任务台账路径为 `docs/brain-kernel-harness-long-memory-task-ledger.md`。
 6. 用户纠正：台账需要项目经理视角，分阶段，每阶段还有具体任务。
 7. 已执行决策：将台账重构为 P0~P9 阶段化 WBS。
+8. 用户确认：P1 通过，进入 P2。
 
 ---
 
