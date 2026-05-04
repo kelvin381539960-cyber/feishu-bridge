@@ -73,7 +73,10 @@ function buildHarness(overrides) {
       }),
     },
     telemetry: {
-      emit: (name, payload) => telemetry.push({ name, payload }),
+      emit: (name, payload) => {
+        if (o.telemetryThrow) throw new Error("telemetry boom");
+        telemetry.push({ name, payload });
+      },
     },
     logger: {
       log: (...args) => loggerCalls.log.push(args),
@@ -109,6 +112,9 @@ function buildHarness(overrides) {
     assembleMemoryContext: async (payload) => {
       calls.memoryAssemble.push(payload);
       if (o.memoryThrow) throw new Error("memory boom");
+      if (o.memoryPackInvalid) {
+        return { memoryPack: { injected: true, invalid: true } };
+      }
       if (o.memoryInject) {
         return { injected: true, task: `${payload.task}\n\n[MEMORY] injected`, tokenUsage: { totalTokens: 3 } };
       }
@@ -220,6 +226,20 @@ describe("brain P9 production readiness", { concurrency: false }, () => {
     assert.ok(h.telemetry.some((e) => e.name === "rollback_legacy_pipeline"));
   });
 
+  test("new kernel off without legacy pipeline fails fast", async () => {
+    const h = buildHarness({
+      featureFlags: createFeatureFlags({ overrides: { newKernel: false } }),
+    });
+
+    await assert.rejects(
+      () => h.run(textEvent({ chatId: "oc_p9_missing_legacy", messageId: "om_p9_missing_legacy", text: "hello rollback" })),
+      (err) => err && err.code === "LEGACY_PIPELINE_MISSING"
+    );
+    assert.strictEqual(h.calls.executor.length, 0);
+    assert.strictEqual(h.calls.memoryAssemble.length, 0);
+    assert.ok(h.telemetry.some((e) => e.name === "rollback_legacy_pipeline_missing"));
+  });
+
   test("workflow plugin throw is logged and reply still succeeds", async () => {
     const h = buildHarness({
       selectWorkflowPlugin: () => ({ run: async () => { throw new Error("plugin boom"); } }),
@@ -254,6 +274,31 @@ describe("brain P9 production readiness", { concurrency: false }, () => {
     assert.ok(stages.includes("output_plugins"));
     const memoryMetric = h.telemetry.find((e) => e.name === "stage_latency" && e.payload.stage === "memory");
     assert.deepStrictEqual(memoryMetric.payload.memoryTokenUsage, { totalTokens: 3 });
+  });
+
+  test("telemetry throw is ignored and reply still succeeds", async () => {
+    const h = buildHarness({ telemetryThrow: true, stdout: "TELEMETRY_FAILSAFE_OK" });
+
+    await h.run(textEvent({ chatId: "oc_p9_telemetry_throw", messageId: "om_p9_telemetry_throw", text: "hello telemetry" }));
+    await flushAsyncPersist();
+
+    assert.strictEqual(h.calls.executor.length, 1);
+    assert.strictEqual(h.calls.sentReply.length, 1);
+    assert.match(String(h.calls.sentReply[0].text), /OK:TELEMETRY_FAILSAFE_OK/);
+  });
+
+  test("invalid memoryPack is logged, skipped, and executor reply still succeeds", async () => {
+    const h = buildHarness({ memoryPackInvalid: true, stdout: "BAD_MEMORYPACK_OK" });
+
+    await h.run(textEvent({ chatId: "oc_p9_bad_memorypack", messageId: "om_p9_bad_memorypack", text: "hello memorypack" }));
+    await flushAsyncPersist();
+
+    assert.strictEqual(h.calls.memoryAssemble.length, 1);
+    assert.strictEqual(h.calls.executor.length, 1);
+    assert.strictEqual(h.calls.sentReply.length, 1);
+    assert.match(String(h.calls.sentReply[0].text), /OK:BAD_MEMORYPACK_OK/);
+    assert.ok(h.loggerCalls.error.some((args) => String(args[0]).includes("[feishu-memory] invalid memoryPack")));
+    assert.ok(h.telemetry.some((e) => e.name === "memory_failed" && e.payload.stage === "validate"));
   });
 
   test("memory throw is logged, skipped, and executor reply still succeeds", async () => {
