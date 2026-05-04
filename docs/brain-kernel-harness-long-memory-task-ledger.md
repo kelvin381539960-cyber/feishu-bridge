@@ -1,182 +1,768 @@
 # Brain Kernel + Harness + Long Memory 任务台账
 
-## 任务基本信息
+## 0. 任务基本信息
 
 | 字段 | 内容 |
 |---|---|
 | Task ID | T-BRAIN-20260504 |
 | 任务 | 在 feishu-bridge 仓库中落地 Brain Kernel + Harness + Long Memory 架构，包含代码重构、长期记忆、Harness、插件化、兼容治理与 token 预算控制 |
-| 执行角色 | Architect / Tech Implementer / Harness Reviewer / Compatibility Reviewer |
+| 执行角色 | PM / Architect / Tech Implementer / Harness Reviewer / Compatibility Reviewer |
 | 输入 | 当前 feishu-bridge 仓库；已确认的 9 分版架构方案；用户确认的全方位代码重构落地范围 |
-| 输出 | 架构文档、协议定义、Harness 测试、模块化代码重构、长期记忆模块、token 预算控制、workflow 插件化、compat 治理、迁移记录 |
-| 完成标准 | 代码可测试；主链路保持兼容；核心协议有 schema/fixture/test；pipeline-v2 被阶段化瘦身；research/doc-export/memory/output 逐步插件化；长期记忆受 token budget 控制；所有关键改动有 Harness 覆盖 |
+| 输出 | 分阶段 WBS 台账、架构文档、协议定义、Harness 测试、模块化代码重构、长期记忆模块、token 预算控制、workflow 插件化、compat 治理、迁移记录 |
+| 完成标准 | 代码可测试；主链路保持兼容；核心协议有 schema/fixture/test；pipeline-v2 被阶段化瘦身；research/doc-export/memory/output 逐步插件化；长期记忆受 token budget 控制；所有关键改动有 Harness 覆盖；每阶段均有明确验收与回填 |
 | 状态 | Doing |
-| 结果回填 | 待执行 |
+| 当前阶段 | P0：PM 台账重构与项目治理 |
+| 结果回填 | 已根据用户反馈，将任务台账从平铺任务清单重构为阶段化 WBS |
 
 ---
 
-## 执行原则
+## 1. 项目治理原则
 
 1. 不做大爆炸式重写，采用 Harness 锁行为后逐步迁移。
-2. 每次修改必须能解释对应风险与验证方式。
-3. 保持现有飞书链路兼容，避免破坏线上入口。
-4. 先建立协议、Harness 和阶段边界，再迁移复杂业务逻辑。
-5. 长期记忆必须受 Memory Budget Controller 控制，禁止无界注入上下文。
-6. 大内容进入 artifact，摘要进入 prompt，索引进入 memory。
-7. 兼容逻辑集中进入 compat，不继续污染主 pipeline。
-8. 完成每个阶段后回填台账并等待确认。
+2. 每个阶段必须有：目标、范围、具体任务、文件级输出、验收标准、依赖、风险、回填。
+3. 每个具体任务必须可独立判断 Done / Blocked / Confirming。
+4. 每次修改必须能解释对应风险与验证方式。
+5. 保持现有飞书链路兼容，避免破坏线上入口。
+6. 先建立协议、Harness 和阶段边界，再迁移复杂业务逻辑。
+7. 长期记忆必须受 Memory Budget Controller 控制，禁止无界注入上下文。
+8. 大内容进入 artifact，摘要进入 prompt，索引进入 memory。
+9. 兼容逻辑集中进入 compat，不继续污染主 pipeline。
+10. 完成每个阶段后回填台账并等待用户确认。
 
 ---
 
-## 任务拆解
+## 2. 阶段总览
 
-### T-001：现状盘点与目标落地边界确认
-
-状态：Doing
-执行角色：Architect
-输入：AGENTS.md、pipeline-v2.js、channel-runner.js、openclaw-control-plane、现有 test 目录
-输出：现状模块职责图、重构边界、风险点清单
-完成标准：明确哪些逻辑先拆、哪些逻辑保留兼容、哪些模块需要 Harness 先行
-结果回填：待执行
-
-### T-002：新增架构设计文档
-
-状态：Todo
-执行角色：Architect
-输入：9 分版 Brain Kernel + Harness + Long Memory 方案
-输出：docs/brain-kernel-harness-long-memory-architecture.md
-完成标准：包含目标架构、协议草案、模块边界、迁移阶段、token budget、memory 策略、compat 策略、Harness 策略
-结果回填：待执行
-
-### T-003：建立核心协议与目录骨架
-
-状态：Todo
-执行角色：Tech Implementer
-输入：TaskEnvelope、BrainContext、ExecutionPlan、ExecutionResult、MemoryRecord、TokenBudget 草案
-输出：lib/brain/context.js、lib/brain/registry.js、lib/brain/kernel.js、lib/memory/* 初始骨架、lib/compat/* 初始骨架
-完成标准：不改变现有运行链路；新增模块可被单测加载；CommonJS 风格；无 TypeScript
-结果回填：待执行
-
-### T-004：建立 Contract Harness
-
-状态：Todo
-执行角色：Harness Reviewer
-输入：核心协议模块
-输出：test/brain-contracts.test.js、fixtures 初始样例
-完成标准：协议 required fields、默认值、兼容输入、无效输入均有测试
-结果回填：待执行
-
-### T-005：建立 Replay Harness 与 Fake Adapter
-
-状态：Todo
-执行角色：Harness Reviewer
-输入：现有 feishu-im-parse、pipeline-v2、测试 fixtures
-输出：test/brain-replay-harness.test.js、fake channel/executor/memory/doc-export adapter
-完成标准：飞书文本、prefix miss、direct mode、group @bot、merge_forward、relay-like task 至少有基础 replay case
-结果回填：待执行
-
-### T-006：阶段化瘦身 pipeline-v2 第一阶段
-
-状态：Todo
-执行角色：Tech Implementer
-输入：pipeline-v2.js
-输出：sensory / attention / cognition / memory / planning / execution / output / feedback 阶段文件雏形
-完成标准：行为不变；npm test 通过；现有入口不变
-结果回填：待执行
-
-### T-007：Memory Router + Memory Budget Controller
-
-状态：Todo
-执行角色：Tech Implementer
-输入：现有 feishu-session-memory、default-memory-provider、长期记忆方案
-输出：lib/memory/memory-router.js、memory-budget-controller.js、memory-scoring.js、memory-summarizer.js
-完成标准：支持 session/user/project/workflow/artifact/negative memory 分层；支持 maxTokens/maxRecords；不会无界注入
-结果回填：待执行
-
-### T-008：Memory Harness 与 Token Budget Harness
-
-状态：Todo
-执行角色：Harness Reviewer
-输入：Memory Router、Budget Controller
-输出：test/memory-budget-controller.test.js、test/memory-router.test.js
-完成标准：长会话不爆 token；低相关记忆被省略；project/session 隔离；negative memory 优先级可覆盖普通记忆
-结果回填：待执行
-
-### T-009：Research Workflow 插件化迁移
-
-状态：Todo
-执行角色：Tech Implementer
-输入：research-workflow-state、research-workflow-runner、conversation-reset、failed snapshot 逻辑
-输出：lib/workflows/research/*
-完成标准：clarify/execute/finalize 状态机从 pipeline 主体迁出；replay/harness 覆盖 clarify→execute、继续澄清、结束任务、fresh reset、失败 snapshot
-结果回填：待执行
-
-### T-010：Doc Export 输出插件化
-
-状态：Todo
-执行角色：Tech Implementer
-输入：feishu-docx-export、result-policy、long reply export 逻辑
-输出：lib/brain/output/doc-export-output.js 或 lib/workflows/doc-export/*
-完成标准：clarify 阶段不导出；长回复触发导出；导出失败不影响主回复；Harness 覆盖飞书输出限制
-结果回填：待执行
-
-### T-011：Compat Adapter 集中治理
-
-状态：Todo
-执行角色：Compatibility Reviewer
-输入：legacy-bridge/plugin-native/session/idempotency 现有逻辑
-输出：lib/compat/legacy-bridge-adapter.js、plugin-native-adapter.js、session-adapter.js、idempotency-adapter.js
-完成标准：主链路只读取统一 compat 输出；每个兼容分支有 removeWhen/tests 标注
-结果回填：待执行
-
-### T-012：统一 Planning：prePlan + finalPlan
-
-状态：Todo
-执行角色：Tech Implementer
-输入：pipeline-v2 中多次 planOpenclawExecution 调用
-输出：统一 planning stage
-完成标准：减少重复 planning；prePlan 只产出 session/workflow/memory hint；finalPlan 是唯一执行依据
-结果回填：待执行
-
-### T-013：全量回归与收口
-
-状态：Todo
-执行角色：Harness Reviewer / Compatibility Reviewer
-输入：所有改动
-输出：测试报告、风险清单、剩余 Gap、下一阶段建议
-完成标准：npm test 通过；新增 Harness 通过；关键链路 replay 通过；台账回填完整
-结果回填：待执行
+| 阶段 | 名称 | 目标 | 状态 | 主要交付物 |
+|---|---|---|---|---|
+| P0 | PM 台账重构与项目治理 | 将任务从平铺清单升级为阶段化 WBS，明确每阶段任务、文件、验收和风险 | Doing | 本台账新版 |
+| P1 | 现状盘点与架构边界 | 盘点现有主链路、模块职责、风险与可迁移边界 | Todo | 现状盘点回填、架构边界清单 |
+| P2 | 目标架构文档与协议冻结 | 产出 Brain Kernel + Harness + Long Memory 架构文档与核心协议草案 | Todo | `docs/brain-kernel-harness-long-memory-architecture.md` |
+| P3 | Harness 基线与 Replay 锁行为 | 建立 Contract / Replay / Fake Adapter 基线，先锁住现有行为 | Todo | contract tests、replay tests、fixtures、fake adapters |
+| P4 | Brain Kernel 骨架与阶段化 Pipeline | 新增 brain/kernel/context/registry，并把 pipeline-v2 第一层阶段化 | Todo | `lib/brain/*`、阶段文件、行为保持测试 |
+| P5 | Long Memory + Token Budget | 建立长期记忆分层、Memory Router、Budget Controller 和对应 Harness | Todo | `lib/memory/*`、memory tests、token budget tests |
+| P6 | Workflow 插件化：Research 优先 | 将 research clarify/execute/finalize 状态机迁出 pipeline 主体 | Todo | `lib/workflows/research/*`、research replay/harness |
+| P7 | Output 插件化：Doc Export / Usage / Feishu Limit | 将 doc export、usage footer、输出限制从 pipeline 主体拆出 | Todo | output plugin、Feishu output harness |
+| P8 | Compat Adapter 与 Planning 收敛 | 集中治理 legacy/plugin-native/session/idempotency，并统一 prePlan/finalPlan | Todo | `lib/compat/*`、planning stage、compat tests |
+| P9 | 全量回归、性能与收口 | 运行全量测试，验证效率、token 预算、兼容与风险关闭 | Todo | 测试报告、风险清单、最终回填 |
 
 ---
 
-## 当前 Gap
+## 3. 分阶段 WBS
+
+## P0：PM 台账重构与项目治理
+
+### 阶段目标
+
+把原始台账从“任务列表”升级为“项目经理可执行 WBS”，支持后续按阶段推进、验收、回填和风险管理。
+
+### 阶段状态
+
+Doing
+
+### 阶段任务
+
+#### P0-T01：重构任务台账结构
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Done |
+| 执行角色 | PM |
+| 输入 | 用户反馈：任务台账不够细，应分阶段，每阶段还有具体任务 |
+| 输出 | 本文件阶段化 WBS 结构 |
+| 涉及文件 | `docs/brain-kernel-harness-long-memory-task-ledger.md` |
+| 完成标准 | 阶段总览、每阶段任务、文件级输出、验收、依赖、风险、回填结构完整 |
+| 结果摘要 | 已将台账重构为 P0~P9 阶段，并在每阶段下拆具体任务 |
+| 问题 / Gap | 暂无 |
+| 下一步 | 进入 P1 现状盘点 |
+
+---
+
+## P1：现状盘点与架构边界
+
+### 阶段目标
+
+明确当前系统每个关键模块的职责、耦合点、风险点和第一批可安全迁移边界，避免盲目重构。
+
+### 阶段状态
+
+Todo
+
+### 阶段输入
+
+- `AGENTS.md`
+- `feishu-ws-cursor.js`
+- `lib/feishu-channel/bridge-host.js`
+- `lib/feishu-channel/channel-runner.js`
+- `lib/feishu-cursor/pipeline-v2.js`
+- `lib/openclaw-control-plane/*`
+- `lib/feishu-cursor/memory/*`
+- `lib/feishu-session-memory.js`
+- `lib/feishu-docx-export.js`
+- `test/*.test.js`
+
+### 阶段任务
+
+#### P1-T01：主链路调用链盘点
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Architect |
+| 输出 | 飞书事件从入口到回复的调用链图 |
+| 涉及文件 | `AGENTS.md`、`feishu-ws-cursor.js`、`bridge-host.js`、`channel-runner.js`、`pipeline-v2.js` |
+| 完成标准 | 明确每层职责、输入输出、当前不能破坏的兼容点 |
+| 依赖 | 无 |
+| 风险 | 若入口职责判断错误，后续拆分会破坏线上飞书链路 |
+| 验证方式 | 对照现有测试和 AGENTS.md 中核心链路描述 |
+| 结果回填 | 待执行 |
+
+#### P1-T02：pipeline-v2 职责切片
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Architect |
+| 输出 | pipeline-v2 职责拆分表：sensory / attention / cognition / memory / planning / execution / output / feedback |
+| 涉及文件 | `lib/feishu-cursor/pipeline-v2.js` |
+| 完成标准 | 每段逻辑归属到目标阶段；标记可先拆/暂不拆/需要 Harness 先行 |
+| 依赖 | P1-T01 |
+| 风险 | pipeline-v2 同时承载状态机与副作用，过早拆分会产生回归 |
+| 验证方式 | 形成拆分边界后再进入 P3/P4，不直接改行为 |
+| 结果回填 | 待执行 |
+
+#### P1-T03：control-plane 与 planning 现状盘点
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Architect |
+| 输出 | OpenClaw planning / policy / result 相关模块职责图 |
+| 涉及文件 | `lib/openclaw-control-plane/request-planner.js`、`intent-router.js`、`policy-engine.js`、`workflow-execution-policy.js`、`result-policy.js` |
+| 完成标准 | 明确哪些决策应保留在 control-plane，哪些从 pipeline 迁出 |
+| 依赖 | P1-T02 |
+| 风险 | pipeline 与 control-plane 双重决策导致行为不一致 |
+| 验证方式 | 标记重复 planning 点，后续 P8 收敛 |
+| 结果回填 | 待执行 |
+
+#### P1-T04：memory / research / doc-export 风险盘点
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Architect / Harness Reviewer |
+| 输出 | 高风险模块清单与 Harness 优先级 |
+| 涉及文件 | `feishu-session-memory.js`、`default-memory-provider.js`、`research-workflow-state.js`、`research-workflow-runner.js`、`conversation-reset.js`、`feishu-docx-export.js` |
+| 完成标准 | 明确 memory、research、doc export 哪些必须先用 Harness 锁行为 |
+| 依赖 | P1-T02 |
+| 风险 | 长期记忆、调研状态、文档导出都是高副作用模块 |
+| 验证方式 | 产出 P3 fixture 优先级列表 |
+| 结果回填 | 待执行 |
+
+### 阶段验收标准
+
+- 有明确现状职责图。
+- 有 pipeline-v2 拆分边界。
+- 有高风险模块清单。
+- 有 P3 Harness 优先级建议。
+- 不修改运行代码。
+
+---
+
+## P2：目标架构文档与协议冻结
+
+### 阶段目标
+
+将 Brain Kernel + Harness + Long Memory 方案沉淀为仓库正式架构文档，并冻结第一版核心协议。
+
+### 阶段状态
+
+Todo
+
+### 阶段任务
+
+#### P2-T01：新增正式架构文档
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Architect |
+| 输出 | `docs/brain-kernel-harness-long-memory-architecture.md` |
+| 涉及文件 | 新增文档 |
+| 完成标准 | 包含目标架构、分层职责、模块边界、迁移阶段、风险与回滚策略 |
+| 依赖 | P1 全部完成 |
+| 风险 | 文档若过抽象，无法指导代码落地 |
+| 验证方式 | 与 P1 拆分边界一一对应 |
+| 结果回填 | 待执行 |
+
+#### P2-T02：定义核心协议草案
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Architect / Tech Implementer |
+| 输出 | TaskEnvelope、BrainContext、ExecutionPlan、ExecutionResult、MemoryRecord、MemoryQuery、MemoryPack、TokenBudget 草案 |
+| 涉及文件 | `docs/brain-kernel-harness-long-memory-architecture.md` |
+| 完成标准 | 每个协议包含 required fields、optional fields、默认值、兼容策略 |
+| 依赖 | P2-T01 |
+| 风险 | 协议不稳定会导致后续代码反复调整 |
+| 验证方式 | P3 Contract Harness 能按协议落测试 |
+| 结果回填 | 待执行 |
+
+#### P2-T03：定义迁移不变量
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Compatibility Reviewer |
+| 输出 | 行为不变量清单 |
+| 涉及文件 | 架构文档 |
+| 完成标准 | 明确 prefix/direct/group @bot/relay/doc export/research clarify 等行为不可回归 |
+| 依赖 | P1、P2-T01 |
+| 风险 | 没有不变量就无法判断重构是否成功 |
+| 验证方式 | 每个不变量映射到 P3/P9 测试 |
+| 结果回填 | 待执行 |
+
+### 阶段验收标准
+
+- 架构文档存在且可作为后续开发依据。
+- 核心协议有第一版定义。
+- 行为不变量清单与 Harness 计划绑定。
+
+---
+
+## P3：Harness 基线与 Replay 锁行为
+
+### 阶段目标
+
+先建立测试和回放护栏，确保后续模块化迁移可验证、可回滚。
+
+### 阶段状态
+
+Todo
+
+### 阶段任务
+
+#### P3-T01：Contract Harness
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Harness Reviewer |
+| 输出 | `test/brain-contracts.test.js` |
+| 涉及文件 | `lib/brain/context.js`、协议模块或 fixture |
+| 完成标准 | 覆盖 required fields、默认值、无效输入、兼容输入 |
+| 依赖 | P2-T02 |
+| 风险 | 协议无测试会导致插件间字段漂移 |
+| 验证方式 | `npm test` 中 contract 测试通过 |
+| 结果回填 | 待执行 |
+
+#### P3-T02：Fake Channel Adapter
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Harness Reviewer |
+| 输出 | fake send/reply/reaction/download/fetchMessage adapter |
+| 涉及文件 | `test/fixtures/*` 或 `test/helpers/*` |
+| 完成标准 | 测试不真实调用飞书 API；可捕获发送内容与副作用 |
+| 依赖 | P3-T01 |
+| 风险 | 测试若触发真实副作用不可接受 |
+| 验证方式 | 所有 fake adapter 调用都有内存记录 |
+| 结果回填 | 待执行 |
+
+#### P3-T03：Fake Executor / Memory / Doc Export Adapter
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Harness Reviewer |
+| 输出 | fake OpenClaw executor、fake memory store、fake doc export hook |
+| 涉及文件 | `test/helpers/*` |
+| 完成标准 | replay 不调用真实 OpenClaw、不写真实飞书文档、不污染真实 memory |
+| 依赖 | P3-T02 |
+| 风险 | Harness 误调用外部系统会干扰线上环境 |
+| 验证方式 | fake adapter 可配置成功/失败/超长输出 |
+| 结果回填 | 待执行 |
+
+#### P3-T04：Replay 基础用例
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Harness Reviewer |
+| 输出 | `test/brain-replay-harness.test.js` |
+| 涉及场景 | text basic、prefix miss、direct mode、group @bot、merge_forward、relay-like task |
+| 完成标准 | 能以 fixture 重放现有关键行为 |
+| 依赖 | P3-T02、P3-T03 |
+| 风险 | replay 不足会导致 P4 拆分不可控 |
+| 验证方式 | `npm test` 通过；关键副作用断言明确 |
+| 结果回填 | 待执行 |
+
+### 阶段验收标准
+
+- Contract Harness 存在。
+- Fake Adapter 存在。
+- Replay Harness 覆盖基础行为。
+- 后续 P4 可以在 Harness 保护下开始拆分。
+
+---
+
+## P4：Brain Kernel 骨架与阶段化 Pipeline
+
+### 阶段目标
+
+新增 Brain Kernel 骨架，并把 pipeline-v2 的第一层逻辑按阶段拆出，但保持外部行为不变。
+
+### 阶段状态
+
+Todo
+
+### 阶段任务
+
+#### P4-T01：新增 Brain Context / Registry / Kernel 骨架
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Tech Implementer |
+| 输出 | `lib/brain/context.js`、`lib/brain/registry.js`、`lib/brain/kernel.js` |
+| 完成标准 | CommonJS；可单测加载；不改变现有入口 |
+| 依赖 | P3-T01 |
+| 风险 | 过早接入主链路会扩大风险 |
+| 验证方式 | Contract test 通过 |
+| 结果回填 | 待执行 |
+
+#### P4-T02：新增阶段目录与空实现
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Tech Implementer |
+| 输出 | `lib/brain/sensory/*`、`attention/*`、`cognition/*`、`memory/*`、`planning/*`、`execution/*`、`output/*`、`feedback/*` |
+| 完成标准 | 每个阶段有明确接口；初始不接管运行链路 |
+| 依赖 | P4-T01 |
+| 风险 | 目录膨胀但无行为价值 |
+| 验证方式 | 所有模块可 require，无副作用 |
+| 结果回填 | 待执行 |
+
+#### P4-T03：pipeline-v2 第一层阶段化抽取
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Tech Implementer |
+| 输出 | 将 parse/dedup/routing/ack/output 等低风险逻辑逐步抽出阶段文件 |
+| 涉及文件 | `pipeline-v2.js`、`lib/brain/*` 或 `lib/feishu-cursor/stages/*` |
+| 完成标准 | 外部接口不变；现有测试和 replay 通过 |
+| 依赖 | P3、P4-T01、P4-T02 |
+| 风险 | pipeline 中状态变量多，抽取容易遗漏上下文 |
+| 验证方式 | `npm test` + replay harness |
+| 结果回填 | 待执行 |
+
+### 阶段验收标准
+
+- Brain Kernel 骨架存在。
+- pipeline-v2 开始变薄但行为不变。
+- 所有现有入口保持不变。
+
+---
+
+## P5：Long Memory + Token Budget
+
+### 阶段目标
+
+建立长期记忆与 token 预算控制，让系统“越用越懂你”，但不会因为记忆膨胀导致上下文爆炸。
+
+### 阶段状态
+
+Todo
+
+### 阶段任务
+
+#### P5-T01：MemoryRecord / MemoryQuery / MemoryPack 模块
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Tech Implementer |
+| 输出 | `lib/memory/memory-record.js`、`memory-query.js`、`memory-pack.js` |
+| 完成标准 | 支持 user/project/workflow/session/artifact/negative scope |
+| 依赖 | P2-T02、P3-T01 |
+| 风险 | 记忆结构不稳定会导致长期不可维护 |
+| 验证方式 | memory contract test |
+| 结果回填 | 待执行 |
+
+#### P5-T02：Memory Budget Controller
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Tech Implementer |
+| 输出 | `lib/memory/memory-budget-controller.js` |
+| 完成标准 | 支持 maxTokens、maxRecords、reserveBudget、按任务类型分配预算 |
+| 依赖 | P5-T01 |
+| 风险 | token 估算不准会影响执行效率 |
+| 验证方式 | `test/memory-budget-controller.test.js` |
+| 结果回填 | 待执行 |
+
+#### P5-T03：Memory Scoring / Summarizer
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Tech Implementer |
+| 输出 | `lib/memory/memory-scoring.js`、`memory-summarizer.js` |
+| 完成标准 | 相关性、优先级、confidence、negative memory 覆盖规则明确 |
+| 依赖 | P5-T02 |
+| 风险 | 低质量记忆注入会污染模型判断 |
+| 验证方式 | memory-router test 覆盖排序与裁剪 |
+| 结果回填 | 待执行 |
+
+#### P5-T04：Memory Router
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Tech Implementer |
+| 输出 | `lib/memory/memory-router.js` |
+| 完成标准 | 根据 user/project/workflow/taskType 查询、筛选、预算裁剪并输出 MemoryPack |
+| 依赖 | P5-T01~T03 |
+| 风险 | 不同 chat/session/project 串记忆 |
+| 验证方式 | `test/memory-router.test.js` |
+| 结果回填 | 待执行 |
+
+#### P5-T05：Memory Harness / Token Budget Harness
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Harness Reviewer |
+| 输出 | `test/memory-budget-controller.test.js`、`test/memory-router.test.js` |
+| 完成标准 | 长会话不爆 token；低相关记忆被省略；negative memory 优先；project/session 隔离 |
+| 依赖 | P5-T02~T04 |
+| 风险 | 无 Harness 会导致长期记忆变成不可控上下文堆积 |
+| 验证方式 | `npm test` |
+| 结果回填 | 待执行 |
+
+### 阶段验收标准
+
+- 长期记忆模块存在。
+- 注入必须经过预算控制。
+- 长会话和大内容不会无界进入 prompt。
+
+---
+
+## P6：Workflow 插件化：Research 优先
+
+### 阶段目标
+
+将 research workflow 从 pipeline-v2 主体迁移到独立 workflow plugin，降低主链路复杂度。
+
+### 阶段状态
+
+Todo
+
+### 阶段任务
+
+#### P6-T01：Research Workflow 状态机抽象
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Tech Implementer |
+| 输出 | `lib/workflows/research/state-machine.js` |
+| 涉及文件 | `research-workflow-state.js`、`conversation-reset.js` |
+| 完成标准 | clarify / execute / finalize / end / fresh reset 状态清晰 |
+| 依赖 | P3 replay harness |
+| 风险 | research 是当前最高风险业务流程之一 |
+| 验证方式 | research workflow harness |
+| 结果回填 | 待执行 |
+
+#### P6-T02：Research Workflow Plugin
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Tech Implementer |
+| 输出 | `lib/workflows/research/index.js` |
+| 完成标准 | pipeline 通过 workflowKey 调用，不直接承载 research 细节 |
+| 依赖 | P6-T01 |
+| 风险 | 与 existing researchWorkflowV2 / specialized runner 冲突 |
+| 验证方式 | replay clarify→execute、继续澄清、结束任务 |
+| 结果回填 | 待执行 |
+
+#### P6-T03：Research Failed Snapshot 迁移
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Tech Implementer |
+| 输出 | `lib/workflows/research/failed-snapshot.js` 或复用现有模块 |
+| 完成标准 | 执行失败仍写 snapshot；成功后清理状态 |
+| 依赖 | P6-T02 |
+| 风险 | 失败恢复能力丢失 |
+| 验证方式 | 失败 replay case |
+| 结果回填 | 待执行 |
+
+### 阶段验收标准
+
+- research 状态机从 pipeline 主体迁出。
+- research replay 通过。
+- 失败 snapshot 行为保持。
+
+---
+
+## P7：Output 插件化：Doc Export / Usage / Feishu Limit
+
+### 阶段目标
+
+将输出副作用插件化，避免 doc export、usage footer、飞书限制控制散落在主 pipeline。
+
+### 阶段状态
+
+Todo
+
+### 阶段任务
+
+#### P7-T01：Reply Formatter Output
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Tech Implementer |
+| 输出 | `lib/brain/output/reply-formatter.js` |
+| 完成标准 | 格式化、sanitize、timing、process narration strip 职责明确 |
+| 依赖 | P4 |
+| 风险 | 回复内容变化影响用户体验 |
+| 验证方式 | reply format tests / replay |
+| 结果回填 | 待执行 |
+
+#### P7-T02：Doc Export Output Plugin
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Tech Implementer |
+| 输出 | `lib/brain/output/doc-export-output.js` |
+| 完成标准 | clarify 不导出；长回复触发导出；导出失败不影响主回复 |
+| 依赖 | P3 fake doc export adapter |
+| 风险 | 误创建飞书文档或漏创建文档 |
+| 验证方式 | doc export harness |
+| 结果回填 | 待执行 |
+
+#### P7-T03：Usage Footer Output Plugin
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Tech Implementer |
+| 输出 | `lib/brain/output/usage-footer.js` |
+| 完成标准 | 保持现有 usage footer 行为，受配置控制 |
+| 依赖 | P7-T01 |
+| 风险 | 回复过长或显示错误模型/token |
+| 验证方式 | existing usage footer tests |
+| 结果回填 | 待执行 |
+
+#### P7-T04：Feishu Output Limit Harness
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Harness Reviewer |
+| 输出 | `test/feishu-output-limit.test.js` 或合并到现有输出测试 |
+| 完成标准 | 卡片大小、表格数量、超长回复、文档导出触发有测试 |
+| 依赖 | P7-T01~T03 |
+| 风险 | 飞书输出限制被重构破坏 |
+| 验证方式 | `npm test` |
+| 结果回填 | 待执行 |
+
+### 阶段验收标准
+
+- 输出副作用插件化。
+- 文档导出和 usage footer 行为可测。
+- 飞书输出限制被 Harness 覆盖。
+
+---
+
+## P8：Compat Adapter 与 Planning 收敛
+
+### 阶段目标
+
+把兼容逻辑集中管理，并减少 pipeline 中重复 planning，形成 prePlan + finalPlan。
+
+### 阶段状态
+
+Todo
+
+### 阶段任务
+
+#### P8-T01：Compat Adapter 骨架
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Compatibility Reviewer / Tech Implementer |
+| 输出 | `lib/compat/legacy-bridge-adapter.js`、`plugin-native-adapter.js`、`session-adapter.js`、`idempotency-adapter.js` |
+| 完成标准 | 每个 compat 分支包含 reason、removeWhen、tests |
+| 依赖 | P1 compat 盘点 |
+| 风险 | 兼容逻辑继续污染主链路 |
+| 验证方式 | compat tests |
+| 结果回填 | 待执行 |
+
+#### P8-T02：Compat Harness
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Compatibility Reviewer |
+| 输出 | `test/compat-adapter.test.js` |
+| 完成标准 | legacy-bridge、plugin-native、session、idempotency 典型路径有测试 |
+| 依赖 | P8-T01 |
+| 风险 | 新旧 runtime mode 行为漂移 |
+| 验证方式 | `npm test` |
+| 结果回填 | 待执行 |
+
+#### P8-T03：prePlan / finalPlan 设计
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Architect |
+| 输出 | planning 收敛设计与迁移说明 |
+| 涉及文件 | `pipeline-v2.js`、`request-planner.js` |
+| 完成标准 | prePlan 只产出 session/workflow/memory hint；finalPlan 是唯一执行依据 |
+| 依赖 | P1-T03、P4 |
+| 风险 | 多次 planning 结果不一致 |
+| 验证方式 | planning tests + replay |
+| 结果回填 | 待执行 |
+
+#### P8-T04：Planning 收敛实现
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Tech Implementer |
+| 输出 | 统一 planning stage |
+| 完成标准 | 减少重复 planOpenclawExecution 调用；行为不变；reasonCodes 保留 |
+| 依赖 | P8-T03 |
+| 风险 | session/memory/research 判断依赖 prePlan，容易破坏细节 |
+| 验证方式 | replay + existing tests |
+| 结果回填 | 待执行 |
+
+### 阶段验收标准
+
+- compat 逻辑集中化。
+- planning 重复减少。
+- prePlan/finalPlan 边界清楚。
+
+---
+
+## P9：全量回归、性能与收口
+
+### 阶段目标
+
+确认所有阶段交付可运行、可测试、可回滚，形成最终风险清单与下一阶段建议。
+
+### 阶段状态
+
+Todo
+
+### 阶段任务
+
+#### P9-T01：全量测试
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Harness Reviewer |
+| 输出 | 测试结果摘要 |
+| 命令 | `npm test` |
+| 完成标准 | 现有测试 + 新增 Harness 全部通过，或明确记录 Blocked 原因 |
+| 依赖 | P3~P8 |
+| 风险 | 历史测试基线未知 |
+| 验证方式 | 测试输出 |
+| 结果回填 | 待执行 |
+
+#### P9-T02：Token 与效率检查
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Harness Reviewer |
+| 输出 | token budget 风险检查 |
+| 完成标准 | 长记忆、长回复、大 artifact 不会无界进入 prompt；轻任务可短路 |
+| 依赖 | P5、P7 |
+| 风险 | 长期使用后上下文膨胀 |
+| 验证方式 | token budget tests |
+| 结果回填 | 待执行 |
+
+#### P9-T03：兼容与回滚检查
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | Compatibility Reviewer |
+| 输出 | 兼容风险清单与回滚点 |
+| 完成标准 | 每个高风险变更有对应测试或回滚说明 |
+| 依赖 | P8 |
+| 风险 | 线上飞书链路不可中断 |
+| 验证方式 | compat replay |
+| 结果回填 | 待执行 |
+
+#### P9-T04：最终台账回填与阶段关闭
+
+| 字段 | 内容 |
+|---|---|
+| 状态 | Todo |
+| 执行角色 | PM |
+| 输出 | 最终结果、Gap、风险、后续建议 |
+| 完成标准 | 所有任务状态明确；Done/Blocked/Confirming 不混淆；交付物路径完整 |
+| 依赖 | P9-T01~T03 |
+| 风险 | 交付物不完整导致任务无法关闭 |
+| 验证方式 | 台账检查 |
+| 结果回填 | 待执行 |
+
+### 阶段验收标准
+
+- 全量测试结果明确。
+- token 与效率风险明确。
+- 兼容与回滚策略明确。
+- 台账完整回填。
+
+---
+
+## 4. 当前 Gap
 
 1. 尚未运行仓库测试，未知现有基线是否全部通过。
 2. 尚未读取所有 openclaw-control-plane 与 memory 相关文件，详细拆分点待盘点。
 3. 长期记忆的持久化位置未最终确认，初步建议先以文件/本地 store 抽象接口开始，避免绑定实现。
 4. 是否允许新增较多测试 fixtures 待执行中根据需要控制。
+5. P1 之前不应直接改运行链路代码，避免在边界未确认前引入风险。
 
 ---
 
-## 关键决策记录
+## 5. 关键决策记录
 
 1. 用户确认：任务包含代码重构落地，全方位推进。
 2. 用户确认：长期记忆纳入本期实现。
 3. 用户确认：任务粒度细化到具体文件/模块级。
 4. 用户确认：任务台账放在 GitHub `kelvin381539960-cyber/feishu-bridge`。
 5. 用户确认：任务台账路径为 `docs/brain-kernel-harness-long-memory-task-ledger.md`。
+6. 用户纠正：台账需要项目经理视角，分阶段，每阶段还有具体任务。
+7. 已执行决策：将台账重构为 P0~P9 阶段化 WBS。
 
 ---
 
-## 回填记录
+## 6. 回填记录
 
-### T-001：现状盘点与目标落地边界确认
+### P0-T01：重构任务台账结构
 
-状态：Doing
-执行角色：Architect
-输入：AGENTS.md、pipeline-v2.js、channel-runner.js、openclaw-control-plane、现有 test 目录
-输出：待执行
-结果摘要：待执行
-问题 / Gap：待执行
+状态：Done
+执行角色：PM
+输入：用户反馈：任务台账不够细，应分阶段，每阶段还有具体任务
+输出：`docs/brain-kernel-harness-long-memory-task-ledger.md`
+结果摘要：已将原平铺任务列表重构为 P0~P9 阶段化 WBS，每阶段包含目标、状态、任务、文件级输出、依赖、风险、验证方式和验收标准。
+问题 / Gap：暂无
 需要确认的决策：暂无
-下一步：读取关键目录与文件，形成现状盘点与首批落地边界。
+下一步：进入 P1 现状盘点与架构边界。
