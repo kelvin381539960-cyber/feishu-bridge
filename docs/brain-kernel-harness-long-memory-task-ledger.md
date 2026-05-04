@@ -11,8 +11,8 @@
 | 输出 | 分阶段 WBS 台账、架构文档、协议定义、Harness 测试、模块化代码重构、长期记忆模块、token 预算控制、workflow 插件化、compat 治理、迁移记录 |
 | 完成标准 | 代码可测试；主链路保持兼容；核心协议有 schema/fixture/test；pipeline-v2 被阶段化瘦身；research/doc-export/memory/output 逐步插件化；长期记忆受 token budget 控制；所有关键改动有 Harness 覆盖；每阶段均有明确验收与回填 |
 | 状态 | Confirming |
-| 当前阶段 | P2：目标架构文档与协议冻结 |
-| 结果回填 | P1 已通过用户确认；当前进入 P2：目标架构文档与协议冻结 |
+| 当前阶段 | P2：已完成，等待用户检查确认 |
+| 结果回填 | P2 已完成：架构文档、核心协议、迁移不变量已产出；等待用户检查确认 |
 
 ---
 
@@ -37,7 +37,7 @@
 |---|---|---|---|---|
 | P0 | PM 台账重构与项目治理 | 将任务从平铺清单升级为阶段化 WBS，明确每阶段任务、文件、验收和风险 | Done | 本台账新版 |
 | P1 | 现状盘点与架构边界 | 盘点现有主链路、模块职责、风险与可迁移边界 | Done | 现状盘点回填、架构边界清单 |
-| P2 | 目标架构文档与协议冻结 | 产出 Brain Kernel + Harness + Long Memory 架构文档与核心协议草案 | Doing | `docs/brain-kernel-harness-long-memory-architecture.md` |
+| P2 | 目标架构文档与协议冻结 | 产出 Brain Kernel + Harness + Long Memory 架构文档与核心协议草案 | Done | `docs/brain-kernel-harness-long-memory-architecture.md` |
 | P3 | Harness 基线与 Replay 锁行为 | 建立 Contract / Replay / Fake Adapter 基线，先锁住现有行为 | Todo | contract tests、replay tests、fixtures、fake adapters |
 | P4 | Brain Kernel 骨架与阶段化 Pipeline | 新增 brain/kernel/context/registry，并把 pipeline-v2 第一层阶段化 | Todo | `lib/brain/*`、阶段文件、行为保持测试 |
 | P5 | Long Memory + Token Budget | 建立长期记忆分层、Memory Router、Budget Controller 和对应 Harness | Todo | `lib/memory/*`、memory tests、token budget tests |
@@ -177,7 +177,7 @@ Done
 
 ### 阶段状态
 
-Doing
+Done
 
 ### 阶段任务
 
@@ -185,7 +185,7 @@ Doing
 
 | 字段 | 内容 |
 |---|---|
-| 状态 | Todo |
+| 状态 | Done |
 | 执行角色 | Architect |
 | 输出 | `docs/brain-kernel-harness-long-memory-architecture.md` |
 | 涉及文件 | 新增文档 |
@@ -199,7 +199,7 @@ Doing
 
 | 字段 | 内容 |
 |---|---|
-| 状态 | Todo |
+| 状态 | Done |
 | 执行角色 | Architect / Tech Implementer |
 | 输出 | TaskEnvelope、BrainContext、ExecutionPlan、ExecutionResult、MemoryRecord、MemoryQuery、MemoryPack、TokenBudget 草案 |
 | 涉及文件 | `docs/brain-kernel-harness-long-memory-architecture.md` |
@@ -213,7 +213,7 @@ Doing
 
 | 字段 | 内容 |
 |---|---|
-| 状态 | Todo |
+| 状态 | Done |
 | 执行角色 | Compatibility Reviewer |
 | 输出 | 行为不变量清单 |
 | 涉及文件 | 架构文档 |
@@ -614,7 +614,7 @@ Todo
 
 | 字段 | 内容 |
 |---|---|
-| 状态 | Todo |
+| 状态 | Done |
 | 执行角色 | Compatibility Reviewer |
 | 输出 | `test/compat-adapter.test.js` |
 | 完成标准 | legacy-bridge、plugin-native、session、idempotency 典型路径有测试 |
@@ -701,7 +701,7 @@ Todo
 
 | 字段 | 内容 |
 |---|---|
-| 状态 | Todo |
+| 状态 | Done |
 | 执行角色 | Compatibility Reviewer |
 | 输出 | 兼容风险清单与回滚点 |
 | 完成标准 | 每个高风险变更有对应测试或回滚说明 |
@@ -798,7 +798,7 @@ Todo
 
 问题 / Gap：未运行测试，测试基线未知。
 需要确认的决策：P2 前无需新决策；P1 等待用户检查。
-下一步：用户确认 P1 后进入 P2。
+下一步：用户确认 P2 后进入 P3（Harness 基线与 Replay 锁行为）。
 
 ### P1-T02：pipeline-v2 职责切片
 
